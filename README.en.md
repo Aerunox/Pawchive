@@ -36,13 +36,12 @@
 
 ### Content Browsing
 - **Home feed**: Paginated latest posts with keyword filters; optional "one post per creator" and "hide bookmarked creators"
-- **Creator profiles**: Posts, announcements, fan cards, and linked accounts
+- **Creator profiles**: Posts, announcements, and linked accounts
 - **Post details**: Full HTML-rendered content (whitelisted tags), comments, revision history, file downloads
 - **Multi-platform**: Aggregates Patreon, Fanbox, Discord with brand-colored tags
 
 ### Smart Search
 - **Keyword search**: Searches posts and creators simultaneously with tabbed results
-- **File hash lookup**: Trace source material by file hash, including Discord results
 - **Offline full-text search**: Room FTS4 index with CJK bigram tokenization — search bookmarks without network
 - **Search history**: Locally persisted, configurable retention (5–50), single-item delete and clear-all
 

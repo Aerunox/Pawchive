@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.pawchive.core.error.AppError
 import com.pawchive.core.api.ApiCallHandler
 import com.pawchive.core.api.ApiClient
+import com.pawchive.core.api.ApiConstants
 import com.pawchive.core.model.Announcement
 import com.pawchive.core.model.CreatorProfile
 import com.pawchive.core.model.Post
@@ -54,7 +55,7 @@ class CreatorProfileViewModel @Inject constructor(
     private var currentService = ""
     private var currentCreatorId = ""
     private var currentOffset = 0
-    private val pageSize = 50
+    private val pageSize = ApiConstants.PAGE_SIZE
 
     /**
      * 加载创作者详情。优先读取内存缓存，无缓存再请求网络。

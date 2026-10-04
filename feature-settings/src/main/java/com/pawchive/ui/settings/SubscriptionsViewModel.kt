@@ -1,5 +1,6 @@
 package com.pawchive.ui.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pawchive.core.model.CreatorSubscriptionEntity
@@ -43,7 +44,7 @@ class SubscriptionsViewModel @Inject constructor(
     fun unsubscribe(service: String, creatorId: String) {
         viewModelScope.launch {
             runCatching { subscriptionRepository.unsubscribe(service, creatorId) }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("SubscriptionsViewModel", "unsubscribe failed", it) }
         }
     }
 }

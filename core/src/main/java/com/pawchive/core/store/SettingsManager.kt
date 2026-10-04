@@ -584,7 +584,7 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
             userWrote = false
         }
         runCatching { dataStore.edit { it.clear() } }
-            .onFailure { it.printStackTrace() }
+            .onFailure { android.util.Log.w("SettingsManager", "reset all settings failed", it) }
         startupPrefs.edit().clear().apply()
     }
 
@@ -687,7 +687,7 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
             // 用旧状态覆盖内存导致"刚保存的设置读回旧值"。内存快照由 write() 同步维护。
             runCatching {
                 dataStore.edit(block)
-            }.onFailure { it.printStackTrace() }
+            }.onFailure { android.util.Log.w("SettingsManager", "settings write failed", it) }
         }
     }
 

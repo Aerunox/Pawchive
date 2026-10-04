@@ -111,15 +111,6 @@ interface PawchiveApi {
     // ============ 认证和收藏相关接口 (需要登录) ============
 
     /**
-     * 获取收藏列表
-     * @param type "post" 或 "artist"
-     */
-    @GET("account/favorites")
-    suspend fun getFavorites(
-        @Query("type") type: String
-    ): List<Any>
-
-    /**
      * 获取收藏的帖子列表
      *
      * [cacheControl] 传 "no-cache" 可跳过 ApiMemoryCache 的 5 分钟内存缓存；

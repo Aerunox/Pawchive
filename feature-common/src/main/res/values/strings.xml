@@ -183,7 +183,6 @@
 
     <!-- Errors -->
     <string name="connection_error">连接错误</string>
-    <string name="fetch_error">获取数据失败</string>
     <string name="login_failed">登录失败</string>
     <string name="bookmark_added">已添加收藏</string>
     <string name="bookmark_removed">已移除收藏</string>
@@ -208,7 +207,6 @@
     <string name="cancel">取消</string>
     <string name="saving_image">正在保存...</string>
     <string name="image_saved">图片已保存到相册</string>
-    <string name="save_failed">保存失败</string>
     <string name="permission_denied">权限被拒绝</string>
 
     <!-- Video -->
@@ -242,7 +240,9 @@
     <string name="login_success_syncing">登录成功！正在同步收藏...</string>
     <string name="logout_failed">登出失败</string>
     <string name="bookmark_sync_failed">同步失败</string>
-    <string name="operation_failed">操作失败</string>
+    <string name="open_file_failed">无法打开文件</string>
+    <string name="share_file_failed">无法分享文件</string>
+    <string name="no_video_to_save">没有可保存的视频</string>
 
     <!-- Download Progress -->
     <string name="download_progress">下载中：%1$d%%</string>

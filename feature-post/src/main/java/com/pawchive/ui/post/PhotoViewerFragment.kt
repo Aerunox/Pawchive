@@ -1,6 +1,7 @@
 package com.pawchive.ui.post
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -151,7 +152,7 @@ class PhotoViewerFragment : Fragment() {
 
                 saveImageStreamToGallery(inputStream, mimeType)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.w("PhotoViewerFragment", "save image to gallery failed", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         requireContext(),
@@ -200,7 +201,7 @@ class PhotoViewerFragment : Fragment() {
                 ).show()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.w("PhotoViewerFragment", "save image to gallery failed", e)
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     requireContext(),

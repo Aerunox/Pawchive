@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.text.Html
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.util.TypedValue
 import android.widget.ScrollView
 import android.widget.TextView
@@ -69,7 +70,7 @@ class UpdateChecker @Inject constructor(
             runCatching {
                 lastCheckTime = dataStore.data.first()[KEY_LAST_CHECK_TIME] ?: 0L
                 ignoredVersion = dataStore.data.first()[KEY_IGNORED_VERSION]
-            }.onFailure { it.printStackTrace() }
+            }.onFailure { Log.w("UpdateChecker", "load update prefs failed", it) }
         }
     }
 
@@ -221,7 +222,7 @@ class UpdateChecker @Inject constructor(
         lastCheckTime = now
         ioScope.launch {
             runCatching { dataStore.edit { it[KEY_LAST_CHECK_TIME] = now } }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("UpdateChecker", "persist last check time failed", it) }
         }
     }
 
@@ -284,7 +285,7 @@ class UpdateChecker @Inject constructor(
                 ioScope.launch {
                     runCatching {
                         dataStore.edit { it[KEY_IGNORED_VERSION] = result.latestVersion }
-                    }.onFailure { it.printStackTrace() }
+                    }.onFailure { Log.w("UpdateChecker", "persist ignored version failed", it) }
                 }
                 android.widget.Toast.makeText(
                     context,

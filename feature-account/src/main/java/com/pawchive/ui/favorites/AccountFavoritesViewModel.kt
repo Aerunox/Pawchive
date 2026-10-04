@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.pawchive.common.R
+import com.pawchive.core.api.ApiConstants
 import com.pawchive.core.error.AppError
 import com.pawchive.core.model.FavoriteCreator
 import com.pawchive.core.model.FavoritePost
@@ -78,7 +79,7 @@ class AccountFavoritesViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : AndroidViewModel(application) {
 
-    private val pageSize = 50
+    private val pageSize = ApiConstants.PAGE_SIZE
 
     /**
      * 静默刷新节流间隔（毫秒）。

@@ -5,7 +5,35 @@
 格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [1.7.6] - 2026-10-03
+
+### Changed
+- README 三语（中文 / English / 日本語）与实际功能对齐：移除尚未接线的「文件哈希反查」
+  与创作者主页「粉丝卡」宣传（对应 API 端点已在接口层声明，功能实现随后续版本跟进）
+- 移除无调用方的死端点 `PawchiveApi.getFavorites`（已被 `getFavoritePosts` /
+  `getFavoriteCreators` 两个类型化变体取代）
+- 吞错统一：13 个文件 24 处 `printStackTrace()` 改为 `Log.w(类名, 上下文, 异常)`
+  （DataStore 写入 / 缓存加载 / 归档索引等静默失败点现在可在 logcat 按标签定位；
+  CrashHandler 向崩溃日志 PrintWriter 的输出为合理用法，保持不变）
+- 网络层常量收口：新增 `core/api/ApiConstants`（主域 URL / host、API 根路径、服务端
+  每页条数、内存缓存 TTL 与容量、过盾超时与凭据 TTL），此前重复硬编码在
+  ApiClient / ClearanceInterceptor / CloudflareManager / 三个列表 ViewModel 中的
+  `pageSize = 50` 与三处主域 URL 均改为单一来源引用；403 重试拦截器的 35s 等待改为
+  「挑战超时 + 5s」派生表达式，消除手工对齐注释
+- 错误文案精确化：移除死键 `fetch_error` 与兜底键 `save_failed` / `operation_failed`，
+  新增 `open_file_failed`（无法打开文件）/ `share_file_failed`（无法分享文件）/
+  `no_video_to_save`（没有可保存的视频）三键（三语对齐）；下载失败通知兜底文案
+  改用既有的 `status_failed`（下载失败）
+
+### Accessibility
+- 设置页：返回键图标补 `contentDescription`；33 个纯装饰图标（区块图标、行尾箭头）
+  标记 `importantForAccessibility="no"`，TalkBack 不再朗读无意义占位
+- 账号页：头像区装饰图标标记 `importantForAccessibility="no"`（身份信息由相邻用户名提供）
+- 登录 / 注册表单经核实无需改动：Material `TextInputLayout` 的 hint 已为输入框
+  提供无障碍标签
+
+### Changed
+- 版本号提升至 1.7.6（versionCode 76）
 
 ## [1.7.5] - 2026-09-28
 

@@ -1,5 +1,6 @@
 package com.pawchive.ui.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pawchive.core.model.OfflineArchiveEntity
@@ -66,7 +67,7 @@ class OfflineArchivesViewModel @Inject constructor(
     fun remove(service: String, creatorId: String, postId: String) {
         viewModelScope.launch {
             runCatching { archiveRepository.remove(service, creatorId, postId) }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("OfflineArchivesViewModel", "remove offline archive failed", it) }
         }
     }
 
@@ -74,7 +75,7 @@ class OfflineArchivesViewModel @Inject constructor(
     fun clearAll() {
         viewModelScope.launch {
             runCatching { archiveRepository.clearAll() }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("OfflineArchivesViewModel", "clear offline archives failed", it) }
         }
     }
 }

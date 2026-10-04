@@ -182,7 +182,6 @@
 
     <!-- Errors -->
     <string name="connection_error">Connection Error</string>
-    <string name="fetch_error">Failed to fetch data</string>
     <string name="login_failed">Login Failed</string>
     <string name="bookmark_added">Bookmark Added</string>
     <string name="bookmark_removed">Bookmark Removed</string>
@@ -207,7 +206,6 @@
     <string name="cancel">Cancel</string>
     <string name="saving_image">Saving...</string>
     <string name="image_saved">Image saved to gallery</string>
-    <string name="save_failed">Save failed</string>
     <string name="permission_denied">Permission denied</string>
 
     <!-- Video -->
@@ -241,7 +239,9 @@
     <string name="login_success_syncing">Login successful! Syncing bookmarks...</string>
     <string name="logout_failed">Logout failed</string>
     <string name="bookmark_sync_failed">Sync failed</string>
-    <string name="operation_failed">Operation failed</string>
+    <string name="open_file_failed">Cannot open file</string>
+    <string name="share_file_failed">Cannot share file</string>
+    <string name="no_video_to_save">No video to save</string>
 
     <!-- Download Progress -->
     <string name="download_progress">Downloading: %1$d%%</string>
