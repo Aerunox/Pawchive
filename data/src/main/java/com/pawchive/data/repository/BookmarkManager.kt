@@ -1,6 +1,7 @@
 package com.pawchive.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -55,7 +56,8 @@ class BookmarkManager @Inject constructor(
 
     init {
         ioScope.launch {
-            runCatching { loadCache() }.onFailure { it.printStackTrace() }
+            runCatching { loadCache() }
+                .onFailure { Log.w("BookmarkManager", "load bookmark cache failed", it) }
             loadDeferred.complete(Unit)
         }
     }
@@ -93,7 +95,7 @@ class BookmarkManager @Inject constructor(
         // ARCH-FEATURE-001：异步同步离线归档索引（失败仅记日志，不阻塞收藏主流程）
         ioScope.launch {
             runCatching { offlineArchiveRepository.index(post) }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("BookmarkManager", "index offline archive failed", it) }
         }
     }
 
@@ -108,7 +110,7 @@ class BookmarkManager @Inject constructor(
         // ARCH-FEATURE-001：同步移除离线归档索引
         ioScope.launch {
             runCatching { offlineArchiveRepository.remove(service, creatorId, postId) }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("BookmarkManager", "remove offline archive failed", it) }
         }
     }
 
@@ -142,7 +144,7 @@ class BookmarkManager @Inject constructor(
             try {
                 list.add(gson.fromJson(json, Post::class.java))
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.w("BookmarkManager", "parse bookmarked post failed", e)
             }
         }
         return list
@@ -225,7 +227,7 @@ class BookmarkManager @Inject constructor(
         editSync { prefs -> prefs.clear() }
         ioScope.launch {
             runCatching { offlineArchiveRepository.clearAll() }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("BookmarkManager", "clear offline archives failed", it) }
         }
     }
 
@@ -255,7 +257,7 @@ class BookmarkManager @Inject constructor(
         // 逐条重建离线归档索引（失败仅记日志，不阻塞导入主流程）
         for (post in posts) {
             runCatching { offlineArchiveRepository.index(post) }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("BookmarkManager", "reindex offline archive failed", it) }
         }
     }
 

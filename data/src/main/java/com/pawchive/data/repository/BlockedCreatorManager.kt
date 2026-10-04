@@ -1,6 +1,7 @@
 package com.pawchive.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -49,7 +50,8 @@ class BlockedCreatorManager @Inject constructor(@ApplicationContext private val 
 
     init {
         ioScope.launch {
-            runCatching { loadCache() }.onFailure { it.printStackTrace() }
+            runCatching { loadCache() }
+                .onFailure { Log.w("BlockedCreatorManager", "load blocked-creator cache failed", it) }
             loadDeferred.complete(Unit)
         }
     }

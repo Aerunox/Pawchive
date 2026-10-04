@@ -72,7 +72,7 @@ class DownloadHistoryManager @Inject constructor(
                     "应用重启，下载任务中断"
                 )
                 dao.observeAll().collect { _records.value = it }
-            }.onFailure { it.printStackTrace() }
+            }.onFailure { Log.w("DownloadHistoryManager", "init download history failed", it) }
         }
     }
 

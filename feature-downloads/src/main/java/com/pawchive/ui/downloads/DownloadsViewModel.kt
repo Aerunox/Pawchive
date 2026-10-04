@@ -148,7 +148,7 @@ class DownloadsViewModel @Inject constructor(
         } catch (e: Exception) {
             Log.w(TAG, "openFile failed: $filePath", e)
             _uiState.value = _uiState.value.copy(
-                toastMessage = context.getString(R.string.operation_failed)
+                toastMessage = context.getString(R.string.open_file_failed)
             )
         }
     }
@@ -168,7 +168,7 @@ class DownloadsViewModel @Inject constructor(
         } catch (e: Exception) {
             Log.w(TAG, "shareFile failed: $filePath", e)
             _uiState.value = _uiState.value.copy(
-                toastMessage = context.getString(R.string.operation_failed)
+                toastMessage = context.getString(R.string.share_file_failed)
             )
         }
     }

@@ -2,6 +2,7 @@ package com.pawchive.data.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,7 +45,7 @@ class OfflineArchiveBackfill @Inject constructor(
         if (backfillDone) return
         for (post in bookmarkManager.getBookmarkedPosts()) {
             runCatching { offlineArchiveRepository.index(post) }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("OfflineArchiveBackfill", "backfill offline archive index failed", it) }
         }
         prefs.edit().putBoolean(KEY_BACKFILL_DONE, true).apply()
     }

@@ -26,6 +26,7 @@
             android:src="@drawable/ic_arrow_back"
             android:padding="6dp"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/back"
             app:tint="?attr/colorPrimary" />
 
         <TextView
@@ -67,6 +68,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_language"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -169,6 +171,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_appearance"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -300,6 +303,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -362,6 +366,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_display_size"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -404,6 +409,7 @@
                             android:layout_height="16dp"
                             android:src="@drawable/ic_display_size"
                             app:tint="?attr/colorOnSurfaceVariant"
+                            android:importantForAccessibility="no"
                             android:layout_marginEnd="6dp" />
 
                         <TextView
@@ -456,6 +462,7 @@
                             android:layout_height="16dp"
                             android:src="@drawable/ic_text_size"
                             app:tint="?attr/colorOnSurfaceVariant"
+                            android:importantForAccessibility="no"
                             android:layout_marginEnd="6dp" />
 
                         <TextView
@@ -512,6 +519,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_download_section"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -759,6 +767,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -800,6 +809,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -841,6 +851,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -887,7 +898,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -934,7 +945,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
                 </LinearLayout>
@@ -954,6 +965,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_play"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -1127,6 +1139,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_bell"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -1204,7 +1217,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -1297,6 +1310,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
                 </LinearLayout>
@@ -1316,6 +1330,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_home_outline"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -1524,6 +1539,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -1579,6 +1595,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
                     <!-- Grid Columns Row（FEATURE 设置项扩展批次三） -->
@@ -1613,6 +1630,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -1638,6 +1656,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_shield"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -1704,6 +1723,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -1750,6 +1770,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
                 </LinearLayout>
@@ -1769,6 +1790,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_shield"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -1858,6 +1880,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_cache_section"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -1923,7 +1946,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -1995,6 +2018,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_paperclip"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -2059,7 +2083,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -2106,7 +2130,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -2194,7 +2218,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
                 </LinearLayout>
@@ -2214,6 +2238,7 @@
                     android:layout_height="18dp"
                     android:src="@drawable/ic_info"
                     app:tint="?attr/colorOnSurfaceVariant"
+                    android:importantForAccessibility="no"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
@@ -2350,6 +2375,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 
@@ -2391,6 +2417,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="4dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:importantForAccessibility="no"
                             app:tint="?attr/colorTextSecondary" />
                     </LinearLayout>
 

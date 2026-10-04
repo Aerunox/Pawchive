@@ -21,8 +21,8 @@ import java.nio.charset.StandardCharsets
  */
 object ApiMemoryCache {
 
-    private const val CACHE_MAX_AGE_MILLIS = 5 * 60 * 1000L // 5 分钟
-    private const val CACHE_MAX_ENTRIES = 200 // 容量上限
+    private const val CACHE_MAX_AGE_MILLIS = ApiConstants.MEMORY_CACHE_TTL_MS
+    private const val CACHE_MAX_ENTRIES = ApiConstants.MEMORY_CACHE_MAX_ENTRIES
 
     // 追踪/分析参数前缀，缓存键中去除以提高命中率
     private val TRACKING_PARAM_PREFIXES = setOf("utm_", "fbclid", "gclid", "ref", "source")

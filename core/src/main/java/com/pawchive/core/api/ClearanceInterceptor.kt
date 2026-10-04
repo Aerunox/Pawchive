@@ -12,7 +12,7 @@ import okhttp3.Interceptor
  */
 object ClearanceInterceptor {
 
-    private const val LOGIN_BASE_URL = "https://pawchive.pw/"
+    private const val LOGIN_BASE_URL = ApiConstants.MAIN_BASE_URL
 
     fun intercept(): Interceptor = Interceptor { chain ->
         val original = chain.request()

@@ -1,5 +1,6 @@
 package com.pawchive.ui.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pawchive.data.repository.ContentUpdateWithCreator
@@ -43,14 +44,14 @@ class ContentUpdatesViewModel @Inject constructor(
     fun markRead(id: Long) {
         viewModelScope.launch {
             runCatching { subscriptionRepository.markRead(id) }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("ContentUpdatesViewModel", "mark update read failed", it) }
         }
     }
 
     fun markAllRead() {
         viewModelScope.launch {
             runCatching { subscriptionRepository.markAllRead() }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("ContentUpdatesViewModel", "mark all updates read failed", it) }
         }
     }
 }

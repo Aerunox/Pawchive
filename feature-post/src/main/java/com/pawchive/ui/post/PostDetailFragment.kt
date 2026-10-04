@@ -319,7 +319,7 @@ class PostDetailFragment : Fragment() {
                                 val err = if (record.errorMessage == DownloadRecord.ERROR_PREVIEW_ONLY) {
                                     getString(R.string.error_preview_only_not_imported)
                                 } else {
-                                    record.errorMessage ?: getString(R.string.save_failed)
+                                    record.errorMessage ?: getString(R.string.status_failed)
                                 }
                                 Toast.makeText(ctx, getString(R.string.download_notification_failed, err), Toast.LENGTH_LONG).show()
                             }
@@ -1083,7 +1083,7 @@ class PostDetailFragment : Fragment() {
 
     private fun downloadCurrentVideo() {
         if (currentVideoIndex >= videoList.size) {
-            Toast.makeText(context, getString(R.string.save_failed), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.no_video_to_save), Toast.LENGTH_SHORT).show()
             return
         }
 

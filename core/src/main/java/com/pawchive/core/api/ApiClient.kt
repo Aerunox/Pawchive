@@ -20,8 +20,8 @@ import java.security.MessageDigest
  */
 object ApiClient {
 
-    private const val API_BASE_URL = "https://pawchive.pw/api/v1/"
-    private const val LOGIN_BASE_URL = "https://pawchive.pw/"
+    private const val API_BASE_URL = ApiConstants.API_BASE_URL
+    private const val LOGIN_BASE_URL = ApiConstants.MAIN_BASE_URL
 
     private val httpClientFactory = HttpClientFactory()
 

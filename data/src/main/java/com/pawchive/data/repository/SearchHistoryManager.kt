@@ -55,7 +55,8 @@ class SearchHistoryManager @Inject constructor(
 
     init {
         ioScope.launch {
-            runCatching { loadCache() }.onFailure { it.printStackTrace() }
+            runCatching { loadCache() }
+                .onFailure { Log.w("SearchHistoryManager", "load search history failed", it) }
             loadDeferred.complete(Unit)
         }
     }
@@ -146,7 +147,7 @@ class SearchHistoryManager @Inject constructor(
                 // 以磁盘最新状态刷新内存快照，保持权威一致
                 cache = updated
                 _history.value = parseHistory(updated)
-            }.onFailure { it.printStackTrace() }
+            }.onFailure { Log.w("SearchHistoryManager", "search history write failed", it) }
         }
     }
 

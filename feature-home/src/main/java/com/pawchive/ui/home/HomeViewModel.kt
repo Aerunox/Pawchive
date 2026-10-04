@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.pawchive.common.R
 import com.pawchive.core.api.ApiCallHandler
 import com.pawchive.core.api.ApiClient
+import com.pawchive.core.api.ApiConstants
 import com.pawchive.core.error.AppError
 import com.pawchive.core.model.Post
 import com.pawchive.core.store.SettingsManager
@@ -73,7 +74,7 @@ class HomeViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
     private val api = ApiClient.publicApi
-    private val pageSize = 50
+    private val pageSize = ApiConstants.PAGE_SIZE
 
     private val loadedPosts = mutableListOf<Post>()
     private var currentOffset = 0

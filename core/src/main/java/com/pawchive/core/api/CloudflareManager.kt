@@ -40,8 +40,8 @@ import kotlin.coroutines.resume
  */
 object CloudflareManager {
 
-    private const val BASE_URL = "https://pawchive.pw/"
-    private const val HOST = "pawchive.pw"
+    private const val BASE_URL = ApiConstants.MAIN_BASE_URL
+    private const val HOST = ApiConstants.MAIN_HOST
     private const val CF_CLEARANCE = "cf_clearance"
 
     /**
@@ -55,7 +55,7 @@ object CloudflareManager {
     const val APP_USER_AGENT = "Pawchive-Android (https://github.com/FengByX/Pawchive)"
 
     // 过盾超时时间（毫秒）
-    private const val CHALLENGE_TIMEOUT_MS = 30_000L
+    private const val CHALLENGE_TIMEOUT_MS = ApiConstants.CHALLENGE_TIMEOUT_MS
     // 轮询 cookie 的间隔（毫秒）
     private const val POLL_INTERVAL_MS = 500L
 
@@ -64,9 +64,7 @@ object CloudflareManager {
     private const val KEY_COOKIE = "cf_cookie"
     private const val KEY_USER_AGENT = "cf_user_agent"
     private const val KEY_SAVED_AT = "cf_saved_at"
-    // cf_clearance 通常有效期约 30 分钟，这里保守设为 25 分钟（预留约 5 分钟余量），
-    // 过期后主动重新过盾；前台恢复时 preheat 会提前刷新，避免页面加载等待
-    private const val CLEARANCE_TTL_MS = 25 * 60 * 1000L
+    private const val CLEARANCE_TTL_MS = ApiConstants.CLEARANCE_TTL_MS
 
     @Volatile
     private var appContext: Context? = null

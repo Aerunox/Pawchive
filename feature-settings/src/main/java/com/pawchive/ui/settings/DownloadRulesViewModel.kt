@@ -1,5 +1,6 @@
 package com.pawchive.ui.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pawchive.core.model.DownloadRuleEntity
@@ -47,7 +48,7 @@ class DownloadRulesViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching { ruleRepository.addRule(name, creatorId, service, fileType) }
                 .onSuccess { notifySaved() }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("DownloadRulesViewModel", "add rule failed", it) }
         }
     }
 
@@ -70,7 +71,7 @@ class DownloadRulesViewModel @Inject constructor(
                     )
                 )
             }.onSuccess { notifySaved() }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("DownloadRulesViewModel", "update rule failed", it) }
         }
     }
 
@@ -78,7 +79,7 @@ class DownloadRulesViewModel @Inject constructor(
     fun toggleEnabled(rule: DownloadRuleEntity, enabled: Boolean) {
         viewModelScope.launch {
             runCatching { ruleRepository.toggleEnabled(rule.id, enabled) }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("DownloadRulesViewModel", "toggle rule enabled failed", it) }
         }
     }
 
@@ -86,7 +87,7 @@ class DownloadRulesViewModel @Inject constructor(
     fun deleteRule(rule: DownloadRuleEntity) {
         viewModelScope.launch {
             runCatching { ruleRepository.deleteRule(rule.id) }
-                .onFailure { it.printStackTrace() }
+                .onFailure { Log.w("DownloadRulesViewModel", "delete rule failed", it) }
         }
     }
 

@@ -32,8 +32,8 @@ object ClearanceRetryInterceptor {
         Thread(r, "Pawchive-CF-Clearance").apply { isDaemon = true }
     }
 
-    // 过盾最大等待时间（与 CloudflareManager.CHALLENGE_TIMEOUT_MS 对齐，略大避免竞态）
-    private const val CLEARANCE_WAIT_TIMEOUT_MS = 35_000L
+    // 过盾最大等待时间（略大于挑战超时，避免竞态）
+    private const val CLEARANCE_WAIT_TIMEOUT_MS = ApiConstants.CHALLENGE_TIMEOUT_MS + 5_000L
 
     fun intercept(): Interceptor = Interceptor { chain ->
         val request = chain.request()

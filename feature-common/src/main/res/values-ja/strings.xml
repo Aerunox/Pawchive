@@ -182,7 +182,6 @@
 
     <!-- Errors -->
     <string name="connection_error">接続エラー</string>
-    <string name="fetch_error">データの取得に失敗</string>
     <string name="login_failed">ログイン失敗</string>
     <string name="bookmark_added">ブックマーク追加</string>
     <string name="bookmark_removed">ブックマーク削除</string>
@@ -207,7 +206,6 @@
     <string name="cancel">キャンセル</string>
     <string name="saving_image">保存中...</string>
     <string name="image_saved">画像を保存しました</string>
-    <string name="save_failed">保存に失敗しました</string>
     <string name="permission_denied">権限が拒否されました</string>
 
     <!-- Video -->
@@ -241,7 +239,9 @@
     <string name="login_success_syncing">ログイン成功！ブックマークを同期中...</string>
     <string name="logout_failed">ログアウト失敗</string>
     <string name="bookmark_sync_failed">同期に失敗しました</string>
-    <string name="operation_failed">操作に失敗しました</string>
+    <string name="open_file_failed">ファイルを開けませんでした</string>
+    <string name="share_file_failed">ファイルを共有できませんでした</string>
+    <string name="no_video_to_save">保存できる動画がありません</string>
 
     <!-- Download Progress -->
     <string name="download_progress">ダウンロード中：%1$d%%</string>

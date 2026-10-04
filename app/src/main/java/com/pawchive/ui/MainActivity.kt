@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.Display
 import android.view.View
@@ -146,7 +147,7 @@ class MainActivity : AppCompatActivity(), AppNavigator {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 runCatching { offlineArchiveBackfill.runIfNeeded() }
-                    .onFailure { it.printStackTrace() }
+                    .onFailure { Log.w("MainActivity", "offline archive backfill failed", it) }
             }
         }
     }
