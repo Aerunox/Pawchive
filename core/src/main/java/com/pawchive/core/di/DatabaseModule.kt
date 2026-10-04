@@ -3,6 +3,7 @@ package com.pawchive.core.di
 import android.content.Context
 import androidx.room.Room
 import com.pawchive.core.db.ContentUpdateDao
+import com.pawchive.core.db.PendingFavoriteActionDao
 import com.pawchive.core.db.CreatorSubscriptionDao
 import com.pawchive.core.db.DownloadHistoryDao
 import com.pawchive.core.db.DownloadRuleDao
@@ -34,7 +35,9 @@ object DatabaseModule {
                 PawchiveDatabase.MIGRATION_1_2,
                 PawchiveDatabase.MIGRATION_2_3,
                 PawchiveDatabase.MIGRATION_3_4,
-                PawchiveDatabase.MIGRATION_4_5
+                PawchiveDatabase.MIGRATION_4_5,
+                PawchiveDatabase.MIGRATION_5_6,
+                PawchiveDatabase.MIGRATION_6_7
             )
             .build()
     }
@@ -42,6 +45,11 @@ object DatabaseModule {
     @Provides
     fun provideDownloadHistoryDao(db: PawchiveDatabase): DownloadHistoryDao {
         return db.downloadHistoryDao()
+    }
+
+    @Provides
+    fun providePendingFavoriteActionDao(db: PawchiveDatabase): PendingFavoriteActionDao {
+        return db.pendingFavoriteActionDao()
     }
 
     @Provides

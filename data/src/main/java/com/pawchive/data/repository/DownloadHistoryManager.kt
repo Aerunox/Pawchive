@@ -131,6 +131,21 @@ class DownloadHistoryManager @Inject constructor(
     }
 
     /**
+     * 局部更新状态/进度 + 断点续传检查点（FEAT-RESUME-RESTART）。
+     * RUNNING 的周期进度写与 PAUSED 落库共用：tempOffset/tempTotal 随之持久化，
+     * 应用重启后据此恢复 HTTP Range 续传。
+     */
+    suspend fun updateStatusAndCheckpoint(
+        id: String,
+        status: DownloadStatus,
+        progress: Int,
+        tempOffset: Long,
+        tempTotal: Long
+    ) {
+        dao.updateStatusAndCheckpoint(id, status, progress, tempOffset, tempTotal)
+    }
+
+    /**
      * 移除指定下载记录（不影响已保存的文件）。
      */
     suspend fun remove(id: String) {

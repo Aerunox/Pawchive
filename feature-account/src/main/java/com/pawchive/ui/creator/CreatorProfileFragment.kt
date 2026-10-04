@@ -31,8 +31,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
+import com.google.android.material.chip.Chip
 import com.google.android.material.imageview.ShapeableImageView
 import com.pawchive.common.R
+import com.pawchive.core.model.CreatorTag
+import com.pawchive.core.model.FanCard
 import com.pawchive.core.model.SimilarCreator
 import com.pawchive.data.repository.AuthRepository
 import com.pawchive.data.repository.BlockedCreatorManager
@@ -227,6 +230,8 @@ class CreatorProfileFragment : Fragment() {
         )
 
         renderSimilarCreators(state.similarCreators)
+        renderCreatorTags(state.tags, state.selectedTag)
+        renderFancards(state.fancards)
 
         applySort(state.posts)
         updateLoadMoreButton(state.hasMore)
@@ -293,6 +298,116 @@ class CreatorProfileFragment : Fragment() {
             item.addView(name)
 
             binding.layoutSimilar.addView(item)
+        }
+    }
+
+    // renderCreatorTags/renderFancards 的重建去重：避免每次 state 发射都重建子视图
+    private var lastRenderedTagsKey: Pair<Int, String?>? = null
+    private var lastRenderedFancardsHash: Int? = null
+
+    /** 标签筛选区（FEAT-TAG-BROWSE）；为空时整段隐藏。选中态由 UI 状态驱动。 */
+    private fun renderCreatorTags(tags: List<CreatorTag>, selectedTag: String?) {
+        val key = tags.hashCode() to selectedTag
+        if (key == lastRenderedTagsKey) return
+        lastRenderedTagsKey = key
+
+        binding.chipGroupTags.removeAllViews()
+        if (tags.isEmpty()) {
+            binding.tvTagsHeader.visibility = View.GONE
+            binding.scrollTags.visibility = View.GONE
+            return
+        }
+        binding.tvTagsHeader.visibility = View.VISIBLE
+        binding.scrollTags.visibility = View.VISIBLE
+
+        val inflater = LayoutInflater.from(requireContext())
+        // "全部" chip：selectedTag == null 时选中，点击恢复未筛选列表
+        binding.chipGroupTags.addView(
+            createTagChip(inflater, getString(R.string.creator_tag_all), null, selectedTag)
+        )
+        for (t in tags) {
+            binding.chipGroupTags.addView(
+                createTagChip(inflater, "${t.tag} (${t.postCount})", t.tag, selectedTag)
+            )
+        }
+    }
+
+    private fun createTagChip(
+        inflater: LayoutInflater,
+        label: String,
+        tagValue: String?,
+        selectedTag: String?
+    ): Chip {
+        val chip = inflater.inflate(R.layout.item_creator_tag, binding.chipGroupTags, false) as Chip
+        chip.text = label
+        chip.isChecked = selectedTag == tagValue
+        chip.setOnCheckedChangeListener { _, isChecked ->
+            when {
+                // 选中某个标签 → 按标签筛选（tagValue = null 即"全部"）
+                isChecked -> viewModel.selectTag(tagValue)
+                // 再次点击已选中的具体标签 → 取消筛选；"全部" chip 的取消选中忽略
+                tagValue != null -> viewModel.selectTag(null)
+            }
+        }
+        return chip
+    }
+
+    /** 粉丝卡横向图片区（FEAT-FANCARDS）；为空时整段隐藏。 */
+    private fun renderFancards(fancards: List<FanCard>) {
+        if (fancards.hashCode() == lastRenderedFancardsHash) return
+        lastRenderedFancardsHash = fancards.hashCode()
+
+        binding.layoutFancards.removeAllViews()
+        if (fancards.isEmpty()) {
+            binding.tvFancardsHeader.visibility = View.GONE
+            binding.scrollFancards.visibility = View.GONE
+            return
+        }
+        binding.tvFancardsHeader.visibility = View.VISIBLE
+        binding.scrollFancards.visibility = View.VISIBLE
+
+        val context = requireContext()
+        val density = resources.displayMetrics.density
+        for (card in fancards) {
+            val image = ShapeableImageView(context).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    (160 * density).toInt(), (90 * density).toInt()
+                ).apply { marginEnd = (8 * density).toInt() }
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                shapeAppearanceModel = shapeAppearanceModel.toBuilder()
+                    .setAllCornerSizes(12 * density)
+                    .build()
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
+            loadFancardImage(image, card, attempt = 0)
+            binding.layoutFancards.addView(image)
+        }
+    }
+
+    /**
+     * 粉丝卡图片加载（FEAT-FANCARDS）：FanCard 仅含 hash + ext，
+     * 按 kemono 风格路径推导 URL：/{hash[0..1]}/{hash[2..3]}/{hash}{ext}，
+     * 沿用 PostAdapter 同款三级候选顺序（原图优先，缩略图兜底）。
+     */
+    private fun loadFancardImage(view: ShapeableImageView, card: FanCard, attempt: Int) {
+        val h = card.hash
+        val ext = if (card.ext.startsWith(".")) card.ext else ".${card.ext}"
+        val path = if (h.length >= 4) "/${h.take(2)}/${h.substring(2, 4)}/$h$ext" else "/$h$ext"
+        val urls = listOf(
+            "https://img.pawchive.pw/data$path",
+            "https://file.pawchive.pw/data$path",
+            "https://img.pawchive.pw/thumbnail/data$path"
+        )
+        val isLast = attempt == urls.lastIndex
+        view.load(urls[attempt]) {
+            crossfade(if (settingsManager.isReduceAnimationsEnabled()) 0 else 150)
+            placeholder(R.drawable.ic_image)
+            if (isLast) error(R.drawable.ic_image_off)
+            listener(
+                onError = { _, _ ->
+                    if (!isLast) loadFancardImage(view, card, attempt + 1)
+                }
+            )
         }
     }
 

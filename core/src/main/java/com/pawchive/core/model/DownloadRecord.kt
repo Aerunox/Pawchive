@@ -42,7 +42,11 @@ data class DownloadRecord(
     @SerializedName("createdAt") val createdAt: Long,
     @SerializedName("completedAt") val completedAt: Long = 0L,
     @SerializedName("filePath") val filePath: String? = null,
-    @SerializedName("errorMessage") val errorMessage: String? = null
+    @SerializedName("errorMessage") val errorMessage: String? = null,
+    /** 断点续传检查点（FEAT-RESUME-RESTART）：临时文件已写字节数，0 = 无有效断点。 */
+    @SerializedName("tempOffset") val tempOffset: Long = 0L,
+    /** 断点对应的完整文件总字节数（0 = 未知），续传时与服务端 Content-Length 比对。 */
+    @SerializedName("tempTotal") val tempTotal: Long = 0L
 ) {
     companion object {
         /**

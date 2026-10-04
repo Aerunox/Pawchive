@@ -73,6 +73,7 @@ data class SettingsUiState(
     val filenameFormat: SettingsManager.FilenameFormat = SettingsManager.FilenameFormat.TIMESTAMP,
     val updateChannel: SettingsManager.UpdateChannel = SettingsManager.UpdateChannel.STABLE,
     val accentTheme: SettingsManager.AccentTheme = SettingsManager.AccentTheme.DEFAULT,
+    val dynamicColorEnabled: Boolean = false,
     val reduceAnimationsEnabled: Boolean = false,
     val gridColumns: Int = SettingsManager.DEFAULT_GRID_COLUMNS,
     val autoBackupEnabled: Boolean = false,
@@ -141,6 +142,7 @@ class SettingsViewModel @Inject constructor(
                 filenameFormat = settingsManager.getFilenameFormat(),
                 updateChannel = settingsManager.getUpdateChannel(),
                 accentTheme = settingsManager.getAccentTheme(),
+                dynamicColorEnabled = settingsManager.isDynamicColorEnabled(),
                 reduceAnimationsEnabled = settingsManager.isReduceAnimationsEnabled(),
                 gridColumns = settingsManager.getGridColumns(),
                 autoBackupEnabled = settingsManager.isAutoBackupEnabled(),
@@ -317,6 +319,12 @@ class SettingsViewModel @Inject constructor(
     fun setAccentTheme(theme: SettingsManager.AccentTheme) {
         settingsManager.setAccentTheme(theme)
         _uiState.update { it.copy(accentTheme = theme) }
+    }
+
+    /** Material You 动态取色开关（FEAT-DYNAMIC-COLOR）。 */
+    fun setDynamicColorEnabled(enabled: Boolean) {
+        settingsManager.setDynamicColorEnabled(enabled)
+        _uiState.update { it.copy(dynamicColorEnabled = enabled) }
     }
 
     /** 减少动画开关。 */

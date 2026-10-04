@@ -148,6 +148,8 @@ class HttpDownloadManager @Inject constructor(
     suspend fun download(
         url: String,
         outputStream: java.io.OutputStream,
+        resumeOffset: Long = 0L,
+        expectedTotal: Long = 0L,
         onProgress: (currentBytes: Long, totalBytes: Long) -> Unit = { _, _ -> }
     ): Long {
         // Channel.CONFLATED：只保留最新进度，读循环密集回调时不会堆队列阻塞
@@ -162,7 +164,11 @@ class HttpDownloadManager @Inject constructor(
 
         var tempFileRef: File? = null
         try {
-            val file = downloadToFile(url) { current, total ->
+            val file = downloadToFile(
+                url,
+                persistedResumeOffset = resumeOffset,
+                persistedExpectedTotal = expectedTotal
+            ) { current, total ->
                 progressChannel.trySend(current to total)
             }
             tempFileRef = file
@@ -203,11 +209,16 @@ class HttpDownloadManager @Inject constructor(
      */
     suspend fun downloadToFile(
         url: String,
+        persistedResumeOffset: Long = 0L,
+        persistedExpectedTotal: Long = 0L,
         onProgress: (currentBytes: Long, totalBytes: Long) -> Unit = { _, _ -> }
     ): File {
         var lastError: Exception? = null
-        // 消费暂停标记：上次是暂停收尾的 → 从临时文件长度处 HTTP Range 续传；否则清除残片从头开始
-        var resumeOffset = if (pausedUrls.remove(url)) currentTempSize(url) else 0L
+        // 续传起点（FEAT-RESUME-RESTART）：
+        // - 本次会话内暂停 → pausedUrls 标志还在，用磁盘临时文件实际长度（最新鲜）；
+        // - 跨应用重启恢复 → 内存标志已丢，退回调用方传入的 Room 持久化断点
+        //   （doDownloadToFile 会先校验临时文件长度与服务端总长，不一致自动从头下载）。
+        var resumeOffset = if (pausedUrls.remove(url)) currentTempSize(url) else persistedResumeOffset
         if (resumeOffset <= 0L) deleteTempFile(url)
 
         // 自动重试次数可在设置页调整（1–3；1 = 不自动重试）
@@ -227,7 +238,7 @@ class HttpDownloadManager @Inject constructor(
             }
 
             try {
-                return doDownloadToFile(url, resumeOffset, onProgress)
+                return doDownloadToFile(url, resumeOffset, persistedExpectedTotal, onProgress)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -254,10 +265,15 @@ class HttpDownloadManager @Inject constructor(
      *
      * @param resumeOffset 续传起点（字节）。>0 且临时文件长度一致时携带
      *   `Range: bytes=N-` 请求头做断点续传；否则从头下载。
+     * @param expectedTotal 持久化断点对应的完整文件总长（0 = 未知）。
+     *   跨会话续传的服务端校验：206 响应推算出的总长与记录不一致，
+     *   说明服务端文件已变更，抛可重试 IO 异常放弃续传（临时文件随之删除，
+     *   downloadToFile 的重试循环会把 resumeOffset 归零从头下载）。
      */
     private suspend fun doDownloadToFile(
         url: String,
         resumeOffset: Long,
+        expectedTotal: Long,
         onProgress: (currentBytes: Long, totalBytes: Long) -> Unit
     ): File = withContext(Dispatchers.IO) {
         val tempFile = File(tempDir(), tempFileName(url))
@@ -298,6 +314,15 @@ class HttpDownloadManager @Inject constructor(
                 // chunked 响应（Content-Length 缺失）时 total = -1，进度走不确定模式。
                 val declared = body.contentLength()
                 val total = if (declared > 0) declared + startOffset else -1L
+
+                // 跨会话续传的服务端校验（FEAT-RESUME-RESTART）：
+                // 总长对不上 = 服务端文件已变更，续传只会拼出损坏文件，放弃续传从头下载。
+                if (resumed && expectedTotal > 0L && total > 0L && total != expectedTotal) {
+                    throw IOException(
+                        "Server file changed during resume: expected total $expectedTotal, got $total"
+                    )
+                }
+
                 var read = 0L
 
                 body.byteStream().use { input ->

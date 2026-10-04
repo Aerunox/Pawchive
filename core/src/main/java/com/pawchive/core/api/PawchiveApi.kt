@@ -4,6 +4,7 @@ import com.pawchive.core.model.Announcement
 import com.pawchive.core.model.Comment
 import com.pawchive.core.model.Creator
 import com.pawchive.core.model.CreatorProfile
+import com.pawchive.core.model.CreatorTag
 import com.pawchive.core.model.FanCard
 import com.pawchive.core.model.FavoriteCreator
 import com.pawchive.core.model.FavoritePost
@@ -47,8 +48,15 @@ interface PawchiveApi {
         @Path("service") service: String,
         @Path("creator_id") creatorId: String,
         @Query("q") query: String? = null,
+        @Query("tag") tag: String? = null,
         @Query("o") offset: Int? = null
     ): List<Post>
+
+    @GET("{service}/user/{creator_id}/tags")
+    suspend fun getCreatorTags(
+        @Path("service") service: String,
+        @Path("creator_id") creatorId: String
+    ): List<CreatorTag>
 
     @GET("{service}/user/{creator_id}/post/{post_id}")
     suspend fun getPostDetails(

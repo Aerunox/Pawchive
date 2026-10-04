@@ -17,11 +17,17 @@
     <string name="no_posts_found">No posts found</string>
     <string name="no_creators_found">No creators found</string>
     <string name="creator_cache_load_failed">Failed to load creators. Pull down to refresh.</string>
+    <string name="no_hash_results">No posts match this file hash</string>
+    <string name="offline_action_queued">Offline: the action was saved and will sync automatically.</string>
+    <string name="favorites_pending_sync_banner">%1$d favorite action(s) pending sync (will complete when online)</string>
+    <string name="creator_tags">Tags</string>
+    <string name="creator_tag_all">All</string>
+    <string name="fancards">Fan Cards</string>
     <string name="load_more">Load More</string>
     <string name="back">Back</string>
     <string name="home_subtitle">Explore the latest posts</string>
     <string name="search_hint">Search posts or creators...</string>
-    <string name="search_initial_hint">Type something to start searching</string>
+    <string name="search_initial_hint">Type to search, or paste a file hash to trace its source</string>
     <string name="sort_default">Default</string>
     <string name="tab_posts">Posts</string>
     <string name="tab_creators">Creators</string>
@@ -89,6 +95,8 @@
     <string name="filename_format_timestamp">Timestamp-based</string>
     <string name="filename_format_title_time">Title + time</string>
     <string name="accent_theme_label">Accent color</string>
+    <string name="dynamic_color_label">Dynamic color (Material You)</string>
+    <string name="dynamic_color_desc">Follow wallpaper colors, Android 12+ only</string>
     <string name="accent_default">Default (blue)</string>
     <string name="accent_violet">Violet</string>
     <string name="accent_ocean">Ocean</string>

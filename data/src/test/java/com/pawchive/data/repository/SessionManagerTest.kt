@@ -36,6 +36,7 @@ class SessionManagerTest {
     private val context = ApplicationProvider.getApplicationContext<Application>()
     private lateinit var sessionManager: SessionManager
     private lateinit var localDataCleaner: LocalDataCleaner
+    private lateinit var db: PawchiveDatabase
 
     @Before
     fun setup() {
@@ -43,7 +44,7 @@ class SessionManagerTest {
         sessionManager.clearSession()
         // ARCH-003: AuthRepository 依赖 SessionManager + LocalDataCleaner（DI 注入）
         // ARCH-004: DownloadHistoryManager 现依赖 Room DAO（内存库）
-        val db = Room.inMemoryDatabaseBuilder(context, PawchiveDatabase::class.java)
+        db = Room.inMemoryDatabaseBuilder(context, PawchiveDatabase::class.java)
             .allowMainThreadQueries()
             .build()
         localDataCleaner = LocalDataCleaner(
@@ -56,7 +57,8 @@ class SessionManagerTest {
             ReadingProgressManager(context),
             OfflineArchiveRepository(db.offlineArchiveDao(), Gson()),
             sessionManager,
-            SettingsManager(context)
+            SettingsManager(context),
+            db.pendingFavoriteActionDao()
         )
     }
 
@@ -146,7 +148,10 @@ class SessionManagerTest {
 
     @Test
     fun `AuthRepository isLoggedIn delegates to SessionManager`() {
-        val repo = AuthRepository(context, sessionManager, localDataCleaner)
+        val repo = AuthRepository(
+            context, sessionManager, localDataCleaner,
+            PendingFavoriteActionRepository(context, db.pendingFavoriteActionDao())
+        )
         // 无论加密是否可用，未登录状态一致
         assertFalse(repo.isLoggedIn())
     }
@@ -157,7 +162,10 @@ class SessionManagerTest {
             sessionManager.saveSession("cookie-before-logout")
             sessionManager.saveUsername("user-before-logout")
         }
-        val repo = AuthRepository(context, sessionManager, localDataCleaner)
+        val repo = AuthRepository(
+            context, sessionManager, localDataCleaner,
+            PendingFavoriteActionRepository(context, db.pendingFavoriteActionDao())
+        )
 
         kotlinx.coroutines.runBlocking {
             val result = repo.logout()

@@ -86,6 +86,9 @@ class PawchiveApplication : Application(), ImageLoaderFactory, Configuration.Pro
     @Inject
     lateinit var cacheRepository: CacheRepository
 
+    @Inject
+    lateinit var pendingFavoriteActionRepository: com.pawchive.data.repository.PendingFavoriteActionRepository
+
     override fun onCreate() {
         super.onCreate() // Hilt 在此完成字段注入
 
@@ -111,6 +114,10 @@ class PawchiveApplication : Application(), ImageLoaderFactory, Configuration.Pro
         scheduleAutoCacheCleanIfNeeded()
         // 内容更新订阅周期同步（ARCH-FEATURE-003）
         scheduleContentUpdateSync()
+        // 离线收藏动作队列（FEAT-OFFLINE-FAV-QUEUE）：启动时兜底调度一次补写；
+        // 队列为空时 Worker 立即成功返回，开销可忽略。WorkManager 任务本身跨重启持久，
+        // 这里只是覆盖"上轮调度因连续失败被放弃"的场景。
+        pendingFavoriteActionRepository.scheduleSync()
         // FEATURE：省流量加载——把"列表加载原图"判定注入 PostAdapter（读内存快照，零阻塞）
         com.pawchive.ui.adapter.PostAdapter.preferOriginalImagesProvider = {
             settingsManager.isListOriginalImageEnabled()

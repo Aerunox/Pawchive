@@ -9,6 +9,8 @@ import com.pawchive.core.api.ApiClient
 import com.pawchive.core.api.ApiConstants
 import com.pawchive.core.model.Announcement
 import com.pawchive.core.model.CreatorProfile
+import com.pawchive.core.model.CreatorTag
+import com.pawchive.core.model.FanCard
 import com.pawchive.core.model.Post
 import com.pawchive.core.model.SimilarCreator
 import com.pawchive.core.store.AppMemoryCache
@@ -31,6 +33,12 @@ data class CreatorProfileUiState(
     val links: List<CreatorProfile> = emptyList(),
     // 相似作者（FEAT-SIMILAR-CREATORS，加载失败降级为空列表不展示）
     val similarCreators: List<SimilarCreator> = emptyList(),
+    // 创作者标签（FEAT-TAG-BROWSE，加载失败降级为空列表不展示）
+    val tags: List<CreatorTag> = emptyList(),
+    // 当前选中的标签筛选（null = 全部；FEAT-TAG-BROWSE）
+    val selectedTag: String? = null,
+    // 粉丝卡（FEAT-FANCARDS，加载失败降级为空列表不展示）
+    val fancards: List<FanCard> = emptyList(),
     // 该作者是否在登录账号的云端收藏中（BUG-IMPORT-STATE：网页端收藏/导入的作者主页此前恒显示未收藏）
     val cloudFavorited: Boolean = false,
     val isLoading: Boolean = true,
@@ -154,6 +162,8 @@ class CreatorProfileViewModel @Inject constructor(
     private fun loadExtras(service: String, creatorId: String) {
         viewModelScope.launch { loadSimilarCreators(service, creatorId) }
         viewModelScope.launch { syncCloudFavoriteState(service, creatorId) }
+        viewModelScope.launch { loadCreatorTags(service, creatorId) }
+        viewModelScope.launch { loadFancards(service, creatorId) }
     }
 
     /** 相似作者：内存缓存优先，网页版 /recommended 抓取失败降级为空列表。 */
@@ -197,6 +207,84 @@ class CreatorProfileViewModel @Inject constructor(
         }
     }
 
+    /** 创作者标签（FEAT-TAG-BROWSE）：内存缓存优先，接口失败降级为空列表。 */
+    private suspend fun loadCreatorTags(service: String, creatorId: String) {
+        val cacheKey = "creator_tags:$service|$creatorId"
+        val cached: List<CreatorTag>? = memoryCache.get(cacheKey)
+        if (cached != null) {
+            _uiState.update { it.copy(tags = cached) }
+            return
+        }
+        val tags = runCatching { api.getCreatorTags(service, creatorId) }.getOrElse { err ->
+            android.util.Log.i("CreatorProfileVM", "creator tags unavailable $service/$creatorId: ${err.message}")
+            emptyList()
+        }
+        if (tags.isNotEmpty()) {
+            memoryCache.put(cacheKey, tags)
+        }
+        _uiState.update { it.copy(tags = tags) }
+    }
+
+    /** 粉丝卡（FEAT-FANCARDS）：内存缓存优先，接口失败降级为空列表。 */
+    private suspend fun loadFancards(service: String, creatorId: String) {
+        val cacheKey = "creator_fancards:$service|$creatorId"
+        val cached: List<FanCard>? = memoryCache.get(cacheKey)
+        if (cached != null) {
+            _uiState.update { it.copy(fancards = cached) }
+            return
+        }
+        val fancards = runCatching { api.getCreatorFancards(service, creatorId) }.getOrElse { err ->
+            android.util.Log.i("CreatorProfileVM", "fancards unavailable $service/$creatorId: ${err.message}")
+            emptyList()
+        }
+        if (fancards.isNotEmpty()) {
+            memoryCache.put(cacheKey, fancards)
+        }
+        _uiState.update { it.copy(fancards = fancards) }
+    }
+
+    /**
+     * 按标签筛选帖子（FEAT-TAG-BROWSE）：服务端 ?tag= 过滤（优先于 q），传 null 恢复全部。
+     * 分页从 0 重新计；标签筛选结果是临时视图，不写入未筛选分页缓存（见 loadMorePosts）。
+     */
+    fun selectTag(tag: String?) {
+        if (_uiState.value.selectedTag == tag) return
+        currentOffset = 0
+        _uiState.value = _uiState.value.copy(selectedTag = tag, isLoading = true, errorMessage = null)
+        viewModelScope.launch(exceptionHandler("selectTag $currentService/$currentCreatorId")) {
+            runCatching {
+                val result = ApiCallHandler.runCatchingDirect {
+                    api.getCreatorPosts(currentService, currentCreatorId, tag = tag, offset = 0)
+                }
+                result.onSuccess { posts ->
+                    // 快速切换标签时丢弃过期响应，只应用与当前选中一致的请求结果
+                    if (_uiState.value.selectedTag == tag) {
+                        _uiState.value = _uiState.value.copy(
+                            posts = posts,
+                            hasMore = posts.size >= pageSize,
+                            isLoading = false
+                        )
+                    }
+                }.onFailure { error ->
+                    if (_uiState.value.selectedTag == tag) {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = (error as? AppError ?: AppError.from(error)).toMessage(getApplication())
+                        )
+                    }
+                }
+            }.onFailure { err ->
+                android.util.Log.e("CreatorProfileVM", "selectTag $tag crashed", err)
+                if (_uiState.value.selectedTag == tag) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = (err as? AppError ?: AppError.from(err)).toMessage(getApplication())
+                    )
+                }
+            }
+        }
+    }
+
     /**
      * 在本页取消收藏成功后调用（云端已移除，本地合并状态同步清除），
      * 避免后续 UI 重渲染仍按旧的云端状态显示"已收藏"。
@@ -206,17 +294,20 @@ class CreatorProfileViewModel @Inject constructor(
     }
 
     fun loadMorePosts() {        if (_uiState.value.isLoading) return
+        val tag = _uiState.value.selectedTag
         currentOffset += pageSize
 
         viewModelScope.launch(exceptionHandler("loadMore $currentService/$currentCreatorId")) {
             runCatching {
                 val result = ApiCallHandler.runCatchingDirect {
-                    api.getCreatorPosts(currentService, currentCreatorId, offset = currentOffset)
+                    api.getCreatorPosts(currentService, currentCreatorId, tag = tag, offset = currentOffset)
                 }
                 result.onSuccess { morePosts ->
                     val allPosts = _uiState.value.posts + morePosts
-                    val cacheKey = "creator_posts:$currentService|$currentCreatorId|0"
-                    memoryCache.put(cacheKey, allPosts)
+                    // 标签筛选视图不写缓存，避免污染"未筛选第 0 页"的分页缓存键
+                    if (tag == null) {
+                        memoryCache.put("creator_posts:$currentService|$currentCreatorId|0", allPosts)
+                    }
                     _uiState.value = _uiState.value.copy(
                         posts = allPosts,
                         hasMore = morePosts.size >= pageSize

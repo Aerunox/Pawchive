@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="offline_action_queued">Offline: the action was saved and will sync automatically.</string>
     <!-- Update check (UpdateChecker) -->
     <string name="update_available_title">New version available</string>
     <string name="update_current_version">Current: %1$s</string>

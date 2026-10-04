@@ -512,6 +512,31 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
         return AccentTheme.fromKey(key)
     }
 
+    /**
+     * Material You 动态取色（FEAT-DYNAMIC-COLOR，Android 12+）。
+     * 开启后取系统壁纸取色板，优先于 6 套静态强调色；低版本上为 no-op。
+     */
+    fun isDynamicColorEnabled(): Boolean {
+        return read { it[KEY_DYNAMIC_COLOR] } ?: false
+    }
+
+    fun setDynamicColorEnabled(enabled: Boolean) {
+        write { it[KEY_DYNAMIC_COLOR] = enabled }
+        startupPrefs.edit().putBoolean(KEY_STARTUP_DYNAMIC_COLOR, enabled).apply()
+    }
+
+    /**
+     * 启动期动态取色读取（ARCH-007 模式）：优先读轻量 SharedPreferences，
+     * 首次升级后无启动缓存时回退 DataStore 读一次。仅供 MainActivity.onCreate 使用。
+     */
+    fun getStartupDynamicColorEnabled(): Boolean {
+        return if (startupPrefs.contains(KEY_STARTUP_DYNAMIC_COLOR)) {
+            startupPrefs.getBoolean(KEY_STARTUP_DYNAMIC_COLOR, false)
+        } else {
+            read { it[KEY_DYNAMIC_COLOR] } ?: false
+        }
+    }
+
     /** 减少动画：关闭骨架屏 shimmer、缩略图交叉淡入与窗口过渡动画。 */
     fun isReduceAnimationsEnabled(): Boolean {
         return read { it[KEY_REDUCE_ANIMATIONS] } ?: false
@@ -763,6 +788,7 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
         private val KEY_FILENAME_FORMAT = stringPreferencesKey("filename_format")
         private val KEY_UPDATE_CHANNEL = stringPreferencesKey("update_channel")
         private val KEY_ACCENT_THEME = stringPreferencesKey("accent_theme")
+        private val KEY_DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
         private val KEY_REDUCE_ANIMATIONS = booleanPreferencesKey("reduce_animations")
         private val KEY_GRID_COLUMNS = intPreferencesKey("grid_columns")
         private val KEY_AUTO_BACKUP_ENABLED = booleanPreferencesKey("auto_backup_enabled")
@@ -770,6 +796,7 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
         private val KEY_AUTO_BACKUP_LOCATION_NAME = stringPreferencesKey("auto_backup_location_name")
         private val KEY_LAST_AUTO_BACKUP_TIME = longPreferencesKey("last_auto_backup_time")
         private const val KEY_STARTUP_ACCENT = "startup_accent_theme"
+        private const val KEY_STARTUP_DYNAMIC_COLOR = "startup_dynamic_color"
 
         // 批次三：网格列数钳制
         const val MIN_GRID_COLUMNS = 1

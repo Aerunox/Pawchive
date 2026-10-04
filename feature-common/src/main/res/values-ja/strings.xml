@@ -17,11 +17,17 @@
     <string name="no_posts_found">投稿がありません</string>
     <string name="no_creators_found">クリエイターが見つかりません</string>
     <string name="creator_cache_load_failed">クリエイターの読み込みに失敗しました。下にスワイプして更新してください。</string>
+    <string name="no_hash_results">このファイルハッシュに一致する投稿は見つかりませんでした</string>
+    <string name="offline_action_queued">オフラインのため操作を保存しました。オンライン後に自動同期します</string>
+    <string name="favorites_pending_sync_banner">同期待ちのブックマーク操作が %1$d 件あります（オンライン後に自動完了）</string>
+    <string name="creator_tags">タグ</string>
+    <string name="creator_tag_all">すべて</string>
+    <string name="fancards">ファンカード</string>
     <string name="load_more">もっと読み込む</string>
     <string name="back">戻る</string>
     <string name="home_subtitle">最新の投稿を探検</string>
     <string name="search_hint">投稿またはクリエイターを検索...</string>
-    <string name="search_initial_hint">検索キーワードを入力してください</string>
+    <string name="search_initial_hint">キーワードを入力するか、ファイルハッシュを貼り付けて出典を検索</string>
     <string name="sort_default">デフォルト</string>
     <string name="tab_posts">投稿</string>
     <string name="tab_creators">クリエイター</string>
@@ -89,6 +95,8 @@
     <string name="filename_format_timestamp">タイムスタンプ形式</string>
     <string name="filename_format_title_time">タイトル+日時</string>
     <string name="accent_theme_label">アクセントカラー</string>
+    <string name="dynamic_color_label">ダイナミック カラー（Material You）</string>
+    <string name="dynamic_color_desc">壁紙に合わせたカラー、Android 12 以降で利用可能</string>
     <string name="accent_default">デフォルト（青）</string>
     <string name="accent_violet">バイオレット</string>
     <string name="accent_ocean">オーシャン</string>

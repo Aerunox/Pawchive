@@ -9,6 +9,7 @@ import com.pawchive.core.model.CreatorSubscriptionEntity
 import com.pawchive.core.model.DownloadRecord
 import com.pawchive.core.model.DownloadRuleEntity
 import com.pawchive.core.model.OfflineArchiveEntity
+import com.pawchive.core.model.PendingFavoriteActionEntity
 
 /**
  * Pawchive 本地数据库（ARCH-004：下载历史存储迁移至 Room；ARCH-005：显式 Migration；
@@ -25,14 +26,17 @@ import com.pawchive.core.model.OfflineArchiveEntity
         OfflineArchiveFts::class,
         DownloadRuleEntity::class,
         CreatorSubscriptionEntity::class,
-        ContentUpdateEntity::class
+        ContentUpdateEntity::class,
+        PendingFavoriteActionEntity::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 abstract class PawchiveDatabase : RoomDatabase() {
 
     abstract fun downloadHistoryDao(): DownloadHistoryDao
+
+    abstract fun pendingFavoriteActionDao(): PendingFavoriteActionDao
 
     abstract fun offlineArchiveDao(): OfflineArchiveDao
 
@@ -154,6 +158,43 @@ abstract class PawchiveDatabase : RoomDatabase() {
                 )
                 db.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_content_updates_read ON content_updates(read)"
+                )
+            }
+        }
+
+        /**
+         * v5 → v6（FEAT-RESUME-RESTART）：下载记录新增断点续传检查点两列。
+         * temp_offset = 临时文件已写字节数，temp_total = 对应的完整文件总长（0 = 未知）。
+         * 既有记录缺省 0，语义为"无断点"，行为与升级前一致。
+         */
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE download_records ADD COLUMN tempOffset INTEGER NOT NULL DEFAULT 0"
+                )
+                db.execSQL(
+                    "ALTER TABLE download_records ADD COLUMN tempTotal INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
+        /**
+         * v6 → v7（FEAT-OFFLINE-FAV-QUEUE）：新增离线收藏动作队列表。
+         */
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS pending_favorite_actions (
+                        objectKey TEXT NOT NULL,
+                        kind TEXT NOT NULL,
+                        service TEXT NOT NULL,
+                        creatorId TEXT NOT NULL,
+                        postId TEXT,
+                        createdAt INTEGER NOT NULL,
+                        PRIMARY KEY(objectKey)
+                    )
+                    """.trimIndent()
                 )
             }
         }

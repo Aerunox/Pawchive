@@ -10,10 +10,13 @@ import com.pawchive.core.error.AppError
 import com.pawchive.core.model.FavoriteCreator
 import com.pawchive.core.model.FavoritePost
 import com.pawchive.data.repository.AuthRepository
+import com.pawchive.data.repository.PendingFavoriteActionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -76,7 +79,8 @@ data class AccountFavoritesUiState(
 @HiltViewModel
 class AccountFavoritesViewModel @Inject constructor(
     application: Application,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val pendingFavoriteActionRepository: PendingFavoriteActionRepository
 ) : AndroidViewModel(application) {
 
     private val pageSize = ApiConstants.PAGE_SIZE
@@ -114,6 +118,11 @@ class AccountFavoritesViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(AccountFavoritesUiState())
     val uiState: StateFlow<AccountFavoritesUiState> = _uiState.asStateFlow()
+
+    /** 离线收藏动作队列条数（FEAT-OFFLINE-FAV-QUEUE，>0 时收藏页显示"待同步"横幅）。 */
+    val pendingSyncCount: StateFlow<Int> =
+        pendingFavoriteActionRepository.observeCount()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
 
     /**
      * 切换 Tab（0 = 帖子，1 = 创作者）。首次进入该 Tab 时发起加载，已有数据仅重排。
