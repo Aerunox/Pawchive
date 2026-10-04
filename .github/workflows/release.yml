@@ -1,6 +1,8 @@
 name: Release
 
 # 推送 v* 标签时自动构建签名 APK 并创建 GitHub Release。
+# Release 说明取自 CHANGELOG.md 中当前版本（哔哩哔哩风格）段落；
+# CHANGELOG 缺少对应段落时回退 --generate-notes，构建不失败。
 # 前置：仓库 Secrets 已配置 RELEASE_KEYSTORE_BASE64 / RELEASE_STORE_PASSWORD /
 # RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD（密钥库不入库，.gitignore 已覆盖）。
 # Secrets 缺失时回退 debug 签名并给出告警，构建不失败。
@@ -73,11 +75,36 @@ jobs:
           retention-days: 90
           if-no-files-found: warn
 
+      - name: Extract release notes from CHANGELOG
+        id: notes
+        run: |
+          # CHANGELOG 段落标题形如 "## [1.7.6] - 日期"，tag 名去掉 v 前缀后匹配；
+          # 用 index 做前缀匹配而非正则，避免版本号中的 "." 需要转义
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v ver="$VERSION" '
+            index($0, "## [" ver "]") == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > release_notes.md
+          if [ -s release_notes.md ]; then
+            echo "mode=file" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::CHANGELOG.md 中未找到 [${VERSION}] 段落，Release 说明回退 --generate-notes"
+            echo "mode=generated" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --title "Pawchive $GITHUB_REF_NAME" \
-            --generate-notes \
-            "${{ steps.apk.outputs.path }}"
+          if [ "${{ steps.notes.outputs.mode }}" = "file" ]; then
+            gh release create "$GITHUB_REF_NAME" \
+              --title "Pawchive $GITHUB_REF_NAME" \
+              --notes-file release_notes.md \
+              "${{ steps.apk.outputs.path }}"
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --title "Pawchive $GITHUB_REF_NAME" \
+              --generate-notes \
+              "${{ steps.apk.outputs.path }}"
+          fi
