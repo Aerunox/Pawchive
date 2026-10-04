@@ -480,6 +480,12 @@ class MainActivity : AppCompatActivity(), AppNavigator {
                 SettingsManager.AccentTheme.DEFAULT -> R.style.Theme_Pawchive
             }
         )
+        // Material You 动态取色（FEAT-DYNAMIC-COLOR）：Android 12+ 且开启时，
+        // 用系统壁纸取色板覆盖静态强调色（theme overlay，需在 setContentView 前应用）；
+        // 条件不满足时为 no-op，静态主题原样生效。
+        if (PawchiveApplication.getSettingsManager().getStartupDynamicColorEnabled()) {
+            com.google.android.material.color.DynamicColors.applyIfAvailable(this)
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

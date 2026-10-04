@@ -11,7 +11,9 @@ import com.pawchive.core.api.ClearanceCoordinator
 import com.pawchive.core.api.PawchiveApi
 import com.pawchive.core.model.FavoriteCreator
 import com.pawchive.core.model.FavoritePost
+import com.pawchive.core.model.PendingFavoriteActionKind
 import com.pawchive.core.store.SessionManager
+import com.pawchive.core.util.NetworkUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,7 +27,8 @@ import javax.inject.Singleton
 class AuthRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val sessionManager: SessionManager,
-    private val localDataCleaner: LocalDataCleaner
+    private val localDataCleaner: LocalDataCleaner,
+    private val pendingFavoriteActionRepository: PendingFavoriteActionRepository
 ) {
 
     /** 登录成功后的宽限期（毫秒）：期间单个 401 不立即清除会话，防止"登录失效"误判导致登录循环 */
@@ -279,11 +282,17 @@ class AuthRepository @Inject constructor(
     }
 
     /**
-     * 添加帖子到账号收藏
+     * 添加帖子到账号收藏（FEAT-OFFLINE-FAV-QUEUE：离线时入队待同步，联网后自动补写）。
      *
      * 成功后失效收藏列表的内存缓存，保证收藏页能立即看到本次写入。
      */
     suspend fun addPostToFavorites(service: String, creatorId: String, postId: String): Result<Unit> {
+        return favoriteWriteWithOfflineQueue(PendingFavoriteActionKind.ADD_POST, service, creatorId, postId) {
+            addPostToFavoritesDirect(service, creatorId, postId)
+        }
+    }
+
+    internal suspend fun addPostToFavoritesDirect(service: String, creatorId: String, postId: String): Result<Unit> {
         return withContext(Dispatchers.IO) {
             ensureLoggedIn { api ->
                 val result = ApiCallHandler.safeApiCallUnit {
@@ -295,11 +304,17 @@ class AuthRepository @Inject constructor(
     }
 
     /**
-     * 从账号收藏移除帖子
+     * 从账号收藏移除帖子（FEAT-OFFLINE-FAV-QUEUE：离线时入队待同步，联网后自动补写）。
      *
      * 成功后失效收藏列表的内存缓存（同上）。
      */
     suspend fun removePostFromFavorites(service: String, creatorId: String, postId: String): Result<Unit> {
+        return favoriteWriteWithOfflineQueue(PendingFavoriteActionKind.REMOVE_POST, service, creatorId, postId) {
+            removePostFromFavoritesDirect(service, creatorId, postId)
+        }
+    }
+
+    internal suspend fun removePostFromFavoritesDirect(service: String, creatorId: String, postId: String): Result<Unit> {
         return withContext(Dispatchers.IO) {
             ensureLoggedIn { api ->
                 val result = ApiCallHandler.safeApiCallUnit {
@@ -311,11 +326,17 @@ class AuthRepository @Inject constructor(
     }
 
     /**
-     * 添加创作者到账号收藏
+     * 添加创作者到账号收藏（FEAT-OFFLINE-FAV-QUEUE：离线时入队待同步，联网后自动补写）。
      *
      * 成功后失效收藏列表的内存缓存（同上）。
      */
     suspend fun addCreatorToFavorites(service: String, creatorId: String): Result<Unit> {
+        return favoriteWriteWithOfflineQueue(PendingFavoriteActionKind.ADD_CREATOR, service, creatorId, null) {
+            addCreatorToFavoritesDirect(service, creatorId)
+        }
+    }
+
+    internal suspend fun addCreatorToFavoritesDirect(service: String, creatorId: String): Result<Unit> {
         return withContext(Dispatchers.IO) {
             ensureLoggedIn { api ->
                 val result = ApiCallHandler.safeApiCallUnit {
@@ -327,11 +348,17 @@ class AuthRepository @Inject constructor(
     }
 
     /**
-     * 从账号收藏移除创作者
+     * 从账号收藏移除创作者（FEAT-OFFLINE-FAV-QUEUE：离线时入队待同步，联网后自动补写）。
      *
      * 成功后失效收藏列表的内存缓存（同上）。
      */
     suspend fun removeCreatorFromFavorites(service: String, creatorId: String): Result<Unit> {
+        return favoriteWriteWithOfflineQueue(PendingFavoriteActionKind.REMOVE_CREATOR, service, creatorId, null) {
+            removeCreatorFromFavoritesDirect(service, creatorId)
+        }
+    }
+
+    internal suspend fun removeCreatorFromFavoritesDirect(service: String, creatorId: String): Result<Unit> {
         return withContext(Dispatchers.IO) {
             ensureLoggedIn { api ->
                 val result = ApiCallHandler.safeApiCallUnit {
@@ -340,6 +367,28 @@ class AuthRepository @Inject constructor(
                 apiResultToResult(result).onSuccess { invalidateFavoritesCache() }
             }
         }
+    }
+
+    /**
+     * 收藏写操作统一入口（FEAT-OFFLINE-FAV-QUEUE）。
+     *
+     * 设备离线（NetworkUtils 判定无可用网络）时把动作入队并返回成功：
+     * UI 保持本地乐观状态、提示"联网后自动同步"；联网后由
+     * FavoriteActionsSyncWorker 依序补写。在线时的失败原样上报，不进队列
+     * （站点故障被静默吞掉反而误导用户）。
+     */
+    private suspend fun favoriteWriteWithOfflineQueue(
+        kind: PendingFavoriteActionKind,
+        service: String,
+        creatorId: String,
+        postId: String?,
+        call: suspend () -> Result<Unit>
+    ): Result<Unit> {
+        val result = call()
+        if (result.isSuccess) return result
+        if (NetworkUtils.isNetworkAvailable(context)) return result
+        pendingFavoriteActionRepository.enqueue(kind, service, creatorId, postId)
+        return Result.success(Unit)
     }
 
     /**

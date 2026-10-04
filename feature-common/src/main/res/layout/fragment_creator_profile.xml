@@ -231,6 +231,65 @@
                     android:paddingHorizontal="16dp" />
             </HorizontalScrollView>
 
+            <!-- Creator Tags Section (FEAT-TAG-BROWSE，标签筛选) -->
+            <TextView
+                android:id="@+id/tv_tags_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:text="@string/creator_tags"
+                android:visibility="gone" />
+
+            <HorizontalScrollView
+                android:id="@+id/scroll_tags"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:scrollbars="none"
+                android:visibility="gone">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_group_tags"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="16dp"
+                    app:singleLine="true"
+                    app:singleSelection="true" />
+            </HorizontalScrollView>
+
+            <!-- Fan Cards Section (FEAT-FANCARDS，横向图片卡) -->
+            <TextView
+                android:id="@+id/tv_fancards_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:text="@string/fancards"
+                android:visibility="gone" />
+
+            <HorizontalScrollView
+                android:id="@+id/scroll_fancards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:scrollbars="none"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/layout_fancards"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp" />
+            </HorizontalScrollView>
+
             <!-- Posts Section Header -->
             <LinearLayout
                 android:layout_width="match_parent"

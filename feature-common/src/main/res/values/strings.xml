@@ -18,11 +18,17 @@
     <string name="no_posts_found">暂无帖子</string>
     <string name="no_creators_found">暂无相关创作者</string>
     <string name="creator_cache_load_failed">创作者列表加载失败，请下拉刷新重试</string>
+    <string name="no_hash_results">未找到与该文件哈希匹配的帖子</string>
+    <string name="offline_action_queued">当前离线，操作已保存，联网后自动同步</string>
+    <string name="favorites_pending_sync_banner">%1$d 项收藏操作待同步（联网后自动完成）</string>
+    <string name="creator_tags">标签</string>
+    <string name="creator_tag_all">全部</string>
+    <string name="fancards">粉丝卡</string>
     <string name="load_more">加载更多</string>
     <string name="back">返回</string>
     <string name="home_subtitle">探索最新帖子</string>
     <string name="search_hint">搜索帖子或创作者...</string>
-    <string name="search_initial_hint">输入内容开始搜索</string>
+    <string name="search_initial_hint">输入内容开始搜索，或粘贴文件哈希反查出处</string>
     <string name="sort_default">默认</string>
     <string name="tab_posts">帖子</string>
     <string name="tab_creators">创作者</string>
@@ -90,6 +96,8 @@
     <string name="filename_format_timestamp">时间戳命名</string>
     <string name="filename_format_title_time">标题+时间</string>
     <string name="accent_theme_label">主题强调色</string>
+    <string name="dynamic_color_label">动态取色（Material You）</string>
+    <string name="dynamic_color_desc">跟随系统壁纸取色，Android 12+ 可用</string>
     <string name="accent_default">默认（蓝）</string>
     <string name="accent_violet">紫罗兰</string>
     <string name="accent_ocean">海洋</string>

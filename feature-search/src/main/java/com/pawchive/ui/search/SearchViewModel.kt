@@ -8,6 +8,7 @@ import com.pawchive.core.api.ApiCallHandler
 import com.pawchive.core.api.ApiClient
 import com.pawchive.core.model.Creator
 import com.pawchive.core.model.Post
+import com.pawchive.core.model.toPosts
 import com.pawchive.data.repository.BlockedCreatorManager
 import com.pawchive.data.repository.BookmarkManager
 import com.pawchive.data.repository.OfflineArchiveRepository
@@ -235,12 +236,31 @@ class SearchViewModel @Inject constructor(
             """pixiv\.net/(?:users/|u/|user\.php\?id=)(\d+)""",
             RegexOption.IGNORE_CASE
         )
+
+        /** 文件哈希：32（MD5）或 64（SHA-256）位十六进制（FEAT-HASH-SEARCH）。 */
+        val FILE_HASH = Regex("""^[\da-fA-F]{32}$|^[\da-fA-F]{64}$""")
+
+        /**
+         * 从查询中提取文件哈希：32/64 位十六进制（可带 0x 前缀）→ 归一化小写；
+         * 其他输入返回 null（按普通关键词处理）。
+         */
+        fun extractFileHash(query: String): String? {
+            val trimmed = query.trim().removePrefix("0x").removePrefix("0X")
+            return if (FILE_HASH.matches(trimmed)) trimmed.lowercase() else null
+        }
     }
 
     /**
      * 搜索帖子。取消上一次未完成的搜索请求。
+     *
+     * FEAT-HASH-SEARCH：查询为 32/64 位十六进制文件哈希时自动路由到哈希反查
+     * （search_hash 接口），结果映射为 Post 复用同一渲染管线。
      */
     fun searchPosts(query: String) {
+        if (extractFileHash(query) != null) {
+            searchByHash(extractFileHash(query)!!)
+            return
+        }
         searchJob?.cancel()
         _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null, emptyHintResId = null)
         searchJob = viewModelScope.launch {
@@ -252,6 +272,35 @@ class SearchViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         emptyHintResId = com.pawchive.common.R.string.no_posts_found
+                    )
+                }
+            }.onFailure { error ->
+                val message = (error as? AppError ?: AppError.from(error)).toMessage(getApplication())
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = message,
+                    emptyHintResId = com.pawchive.common.R.string.search_initial_hint
+                )
+            }
+        }
+    }
+
+    /**
+     * 文件哈希反查（FEAT-HASH-SEARCH）：通过文件哈希追踪素材出处，
+     * 结果含站点帖子与 Discord 帖子（[FileSearchResult.toPosts] 统一映射）。
+     */
+    private fun searchByHash(hash: String) {
+        searchJob?.cancel()
+        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null, emptyHintResId = null)
+        searchJob = viewModelScope.launch {
+            val result = ApiCallHandler.runCatchingDirect { api.searchByHash(hash) }
+            result.onSuccess { fileResult ->
+                rawPostResults = fileResult.toPosts()
+                applyPostSort()
+                if (rawPostResults.isEmpty()) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        emptyHintResId = com.pawchive.common.R.string.no_hash_results
                     )
                 }
             }.onFailure { error ->

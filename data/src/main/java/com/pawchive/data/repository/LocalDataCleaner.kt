@@ -1,6 +1,7 @@
 package com.pawchive.data.repository
 
 import android.content.Context
+import com.pawchive.core.db.PendingFavoriteActionDao
 import com.pawchive.core.store.SessionManager
 import com.pawchive.core.store.SettingsManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -34,7 +35,8 @@ class LocalDataCleaner @Inject constructor(
     private val readingProgressManager: ReadingProgressManager,
     private val offlineArchiveRepository: OfflineArchiveRepository,
     private val sessionManager: SessionManager,
-    private val settingsManager: SettingsManager
+    private val settingsManager: SettingsManager,
+    private val pendingFavoriteActionDao: PendingFavoriteActionDao
 ) {
 
     suspend fun clearAllLocalData() = withContext(Dispatchers.IO) {
@@ -57,6 +59,11 @@ class LocalDataCleaner @Inject constructor(
         runCatching {
             cacheRepository.clearCache()
         }
+
+        // 离线收藏动作队列随账号数据一并清理（FEAT-OFFLINE-FAV-QUEUE）
+        runCatching {
+            pendingFavoriteActionDao.clearAll()
+        }
     }
 
     /**
@@ -73,6 +80,7 @@ class LocalDataCleaner @Inject constructor(
         runCatching { readingProgressManager.clearAll() }
         runCatching { offlineArchiveRepository.clearAll() }
         runCatching { cacheRepository.clearCache() }
+        runCatching { pendingFavoriteActionDao.clearAll() }
         runCatching { sessionManager.clearSession() }
         runCatching { settingsManager.resetAllSettings() }
     }

@@ -28,6 +28,12 @@ data class SimilarCreator(
     val name: String
 )
 
+/** 创作者标签（/{service}/user/{id}/tags，FEAT-TAG-BROWSE）。 */
+data class CreatorTag(
+    val tag: String,
+    @SerializedName("post_count") val postCount: Int
+)
+
 data class PostFile(
     val name: String?,
     val path: String?,

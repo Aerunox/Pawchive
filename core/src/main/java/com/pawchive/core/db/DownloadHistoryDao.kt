@@ -91,6 +91,29 @@ interface DownloadHistoryDao {
         completedAt: Long
     )
 
+    /**
+     * 局部更新状态/进度 + 断点检查点（FEAT-RESUME-RESTART）。
+     * RUNNING 的 5% 周期进度写与 PAUSED 落库共用：tempOffset/tempTotal 持久化
+     * 临时文件已写字节数与总长，跨应用重启后据此恢复 HTTP Range 断点续传。
+     */
+    @Query(
+        """
+        UPDATE download_records SET
+            status = :status,
+            progress = :progress,
+            tempOffset = :tempOffset,
+            tempTotal = :tempTotal
+        WHERE id = :id
+        """
+    )
+    suspend fun updateStatusAndCheckpoint(
+        id: String,
+        status: DownloadStatus,
+        progress: Int,
+        tempOffset: Long,
+        tempTotal: Long
+    )
+
     /** 移除指定记录（不影响已保存的文件）。 */
     @Query("DELETE FROM download_records WHERE id = :id")
     suspend fun delete(id: String)

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="offline_action_queued">オフラインのため操作を保存しました。オンライン後に自動同期します</string>
     <!-- アップデート確認（UpdateChecker） -->
     <string name="update_available_title">新しいバージョンがあります</string>
     <string name="update_current_version">現在のバージョン：%1$s</string>

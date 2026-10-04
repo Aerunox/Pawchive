@@ -36,12 +36,13 @@
 
 ### Content Browsing
 - **Home feed**: Paginated latest posts with keyword filters; optional "one post per creator" and "hide bookmarked creators"
-- **Creator profiles**: Posts, announcements, and linked accounts
+- **Creator profiles**: Posts, announcements, tag filters, fan cards, and linked accounts
 - **Post details**: Full HTML-rendered content (whitelisted tags), comments, revision history, file downloads
 - **Multi-platform**: Aggregates Patreon, Fanbox, Discord with brand-colored tags
 
 ### Smart Search
 - **Keyword search**: Searches posts and creators simultaneously with tabbed results
+- **File hash lookup**: Paste an MD5 / SHA-256 hash into the search box to trace its source, Discord results included
 - **Offline full-text search**: Room FTS4 index with CJK bigram tokenization — search bookmarks without network
 - **Search history**: Locally persisted, configurable retention (5–50), single-item delete and clear-all
 
@@ -53,7 +54,7 @@
 
 ### Bookmarks & Accounts
 - **Multi-account switching** with isolated bookmarks / history / downloads
-- **Cloud bookmarks**: Sync bookmarked posts and creators when logged in, with immediate cache invalidation on write
+- **Cloud bookmarks**: Sync bookmarked posts and creators when logged in, with immediate cache invalidation on write; actions taken offline are queued and synced automatically when back online
 - **Local bookmarks**: No login required; bookmarking builds an offline archive index
 - **Offline reading**: Full-text archive of bookmarked posts (Room FTS4), searchable and readable offline
 
@@ -63,7 +64,7 @@
 - **In-app notification center**: Reachable from the home bell icon with a live unread badge; mark items read individually or all at once, and unsubscribe anytime from the subscription manager
 
 ### Download Center
-- **HTTP Range resumable download**: Temp file kept on pause, resumed via Range request; falls back to a full download when the server ignores Range
+- **HTTP Range resumable download**: Temp file kept on pause with the offset persisted to the local database, so downloads resume from the breakpoint even after an app restart; falls back to a full download when the server ignores Range
 - **Per-task notifications**: One notification per task with percentage, downloaded size, speed (EMA-smoothed) and ETA; pause / resume / cancel actions inline
 - **Background downloads**: Kept alive by a `dataSync` foreground service
 - **Download rules**: Auto-enqueue by creator / service / file type
@@ -71,7 +72,7 @@
 
 ### Personalization
 - **Languages**: 中文 / English / 日本語, switch instantly
-- **Appearance**: Light / Dark / System, six accent themes, Material Design 3
+- **Appearance**: Light / Dark / System, six accent themes, Material Design 3; dynamic color (Material You) on Android 12+
 - **Display & scaling**: Continuous sliders for global UI scale and font size, live preview and immediate effect
 - **Data saving**: Lists load thumbnails by default; switchable to originals
 - **Download parameters**: Custom directory (SAF), max concurrency (1–5), retry count (1–3), Wi-Fi-only, filename format

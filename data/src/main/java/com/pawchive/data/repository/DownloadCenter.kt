@@ -133,6 +133,12 @@ class DownloadCenter @Inject constructor(
      */
     private val lastProgress = ConcurrentHashMap<String, Int>()
 
+    /**
+     * 各记录最近一次上报的字节位置与总长（recordId -> (currentBytes, totalBytes)）。
+     * 暂停落库时随 PAUSED 状态一并写入断点检查点（FEAT-RESUME-RESTART）。
+     */
+    private val lastBytes = ConcurrentHashMap<String, Pair<Long, Long>>()
+
     // 取消语义：取消协程 + 取消在飞 HTTP Call，HttpDownloadManager 将 Call 中断映射为
     // CancellationException 走协程结构化并发，catch 块据此标 CANCELLED 而非 FAILED。
 
@@ -237,13 +243,19 @@ class DownloadCenter @Inject constructor(
                 withContext(NonCancellable) {
                     if (pausedRecordIds.remove(record.id)) {
                         val progress = lastProgress.remove(record.id) ?: 0
-                        historyManager.updateStatus(record.id, DownloadStatus.PAUSED, progress = progress)
+                        val (bytes, total) = lastBytes.remove(record.id) ?: (0L to 0L)
+                        historyManager.updateStatusAndCheckpoint(
+                            record.id, DownloadStatus.PAUSED, progress, bytes, total
+                        )
                         notificationController.taskEnded(
                             record.copy(status = DownloadStatus.PAUSED, progress = progress)
                         )
                     } else {
                         lastProgress.remove(record.id)
-                        historyManager.updateStatus(record.id, DownloadStatus.CANCELLED)
+                        lastBytes.remove(record.id)
+                        historyManager.updateStatusAndCheckpoint(
+                            record.id, DownloadStatus.CANCELLED, 0, 0, 0
+                        )
                         notificationController.taskEnded(record.copy(status = DownloadStatus.CANCELLED))
                     }
                 }
@@ -265,15 +277,24 @@ class DownloadCenter @Inject constructor(
                     withContext(NonCancellable) {
                         if (pausedRecordIds.remove(record.id)) {
                             val progress = lastProgress.remove(record.id) ?: 0
-                            Log.d(TAG, "Download paused: record=${record.id} progress=$progress")
-                            historyManager.updateStatus(record.id, DownloadStatus.PAUSED, progress = progress)
+                            val (bytes, total) = lastBytes.remove(record.id) ?: (0L to 0L)
+                            Log.d(
+                                TAG,
+                                "Download paused: record=${record.id} progress=$progress bytes=$bytes"
+                            )
+                            historyManager.updateStatusAndCheckpoint(
+                                record.id, DownloadStatus.PAUSED, progress, bytes, total
+                            )
                             notificationController.taskEnded(
                                 record.copy(status = DownloadStatus.PAUSED, progress = progress)
                             )
                         } else {
                             lastProgress.remove(record.id)
+                            lastBytes.remove(record.id)
                             Log.d(TAG, "Download cancelled: record=${record.id}")
-                            historyManager.updateStatus(record.id, DownloadStatus.CANCELLED)
+                            historyManager.updateStatusAndCheckpoint(
+                                record.id, DownloadStatus.CANCELLED, 0, 0, 0
+                            )
                             notificationController.taskEnded(
                                 record.copy(status = DownloadStatus.CANCELLED)
                             )
@@ -368,13 +389,22 @@ class DownloadCenter @Inject constructor(
         val opened = downloadRepository.openDownloadStream(target)
 
         try {
-            // 使用 HttpDownloadManager 流式下载（BUG-005：已替换 okdownload）
+            // 使用 HttpDownloadManager 流式下载（BUG-005：已替换 okdownload）。
+            // 断点续传（FEAT-RESUME-RESTART）：传入记录上的持久化检查点，
+            // 跨应用重启的 PAUSED / 崩溃遗留记录据此恢复 HTTP Range 续传；
+            // 本次会话内暂停则由 HttpDownloadManager 的内存标志优先（用磁盘实际长度）。
             var lastReported = -1
-            val totalRead = httpDownloadManager.download(url, opened.outputStream) { currentBytes, totalBytes ->
+            val totalRead = httpDownloadManager.download(
+                url,
+                opened.outputStream,
+                resumeOffset = record.tempOffset,
+                expectedTotal = record.tempTotal
+            ) { currentBytes, totalBytes ->
                 // 通知栏进度（控制器内部自带 500ms 节流与 EMA 测速）：
                 // 每次 64KB 读块都上报，不受下方 5% Room 写入步长限制，
                 // 保证通知栏速度/进度平滑。
                 notificationController.taskProgress(recordId, fileName, currentBytes, totalBytes)
+                lastBytes[recordId] = currentBytes to totalBytes
                 if (totalBytes > 0) {
                     val percent = (currentBytes * 100 / totalBytes).toInt().coerceIn(0, 99)
                     if (percent - lastReported >= PROGRESS_STEP) {
@@ -386,8 +416,12 @@ class DownloadCenter @Inject constructor(
                         // 不会阻塞 UI。HttpDownloadManager.download() 在返回前会先 join
                         // progressJob（即等此 lambda 执行完毕），保证 COMPLETED 写入前
                         // 所有进度 UPDATE 已落盘，彻底消除"COMPLETED 被 RUNNING 覆盖"的竞态。
+                        // 检查点（FEAT-RESUME-RESTART）：字节位置与总长随进度一并落库，
+                        // 进程被杀后重试也能从最近的 5% 检查点续传。
                         runBlocking {
-                            historyManager.updateStatus(recordId, DownloadStatus.RUNNING, progress = percent)
+                            historyManager.updateStatusAndCheckpoint(
+                                recordId, DownloadStatus.RUNNING, percent, currentBytes, totalBytes
+                            )
                         }
                     }
                 }
@@ -492,7 +526,9 @@ class DownloadCenter @Inject constructor(
      * 继续（恢复）暂停中的下载任务。
      * 若 HttpDownloadManager 仍持有该 URL 的暂停标志（本次会话内暂停），
      * downloadToFile 会消费标志并从临时文件长度处 Range 续传；
-     * 跨应用重启的暂停记录（内存标志丢失、无 ETag 校验）安全降级为从头下载。
+     * 跨应用重启的暂停记录（内存标志丢失）退回 Room 持久化断点
+     * （tempOffset/tempTotal，FEAT-RESUME-RESTART）：服务端校验（206/416/总长比对）
+     * 全部通过才续传，任一不满足自动从头下载，不会产出损坏文件。
      *
      * 非挂起实现（fire-and-forget）：调用方是通知栏服务 onStartCommand（非协程上下文），
      * 状态写入在 DownloadCenter 自有 scope 上执行。

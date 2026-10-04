@@ -101,6 +101,7 @@ class SettingsFragment : Fragment() {
         // FEATURE 设置项扩展（批次三）
         setupFilenameFormat()
         setupAccentTheme()
+        setupDynamicColor()
         setupReduceAnimations()
         setupGridColumns()
         setupUpdateChannel()
@@ -889,6 +890,25 @@ class SettingsFragment : Fragment() {
             SettingsManager.FilenameFormat.ORIGINAL -> getString(R.string.filename_format_original)
             SettingsManager.FilenameFormat.TITLE_TIME -> getString(R.string.filename_format_title_time)
             SettingsManager.FilenameFormat.TIMESTAMP -> getString(R.string.filename_format_timestamp)
+        }
+    }
+
+    /**
+     * Material You 动态取色（FEAT-DYNAMIC-COLOR）。
+     * Android 12+ 且系统提供取色板时以壁纸色覆盖静态强调色；
+     * 低版本置灰提示。切换后重建 Activity（theme overlay 在创建时注入）。
+     */
+    private fun setupDynamicColor() {
+        binding.switchDynamicColor.isChecked = viewModel.uiState.value.dynamicColorEnabled
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S) {
+            binding.switchDynamicColor.isEnabled = false
+            binding.rowDynamicColor.alpha = 0.5f
+        }
+        binding.switchDynamicColor.setOnCheckedChangeListener { _, checked ->
+            if (checked != viewModel.uiState.value.dynamicColorEnabled) {
+                viewModel.setDynamicColorEnabled(checked)
+                (activity as? AppNavigator)?.restartForLanguageChange()
+            }
         }
     }
 

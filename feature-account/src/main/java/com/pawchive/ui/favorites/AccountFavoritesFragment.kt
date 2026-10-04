@@ -122,6 +122,18 @@ class AccountFavoritesFragment : Fragment() {
     private fun observeUiState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // 离线收藏动作队列（FEAT-OFFLINE-FAV-QUEUE）：>0 显示"待同步"横幅
+                launch {
+                    viewModel.pendingSyncCount.collect { count ->
+                        if (count > 0) {
+                            binding.tvPendingSyncBanner.text =
+                                getString(R.string.favorites_pending_sync_banner, count)
+                            binding.tvPendingSyncBanner.visibility = View.VISIBLE
+                        } else {
+                            binding.tvPendingSyncBanner.visibility = View.GONE
+                        }
+                    }
+                }
                 viewModel.uiState.collect { state ->
                     postAdapter.updatePosts(state.posts)
                     postAdapter.setFooterVisible(state.hasMorePosts)
