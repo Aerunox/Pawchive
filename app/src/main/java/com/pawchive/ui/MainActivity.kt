@@ -102,8 +102,6 @@ class MainActivity : AppCompatActivity(), AppNavigator {
 
         setupWindowInsets()
         setupBottomNavigationColors()
-        // 液态玻璃底栏（FEAT-UI-190）：在底栏配色之后调用以覆盖为半透明
-        setupLiquidGlass()
 
         // 初始化 ViewPager2 + Adapter
         pagerAdapter = MainPagerAdapter(this)
@@ -233,37 +231,11 @@ class MainActivity : AppCompatActivity(), AppNavigator {
             windowInsets
         }
 
-        // 液态玻璃（FEAT-UI-190）：玻璃层延伸到系统手势区
-        ViewCompat.setOnApplyWindowInsetsListener(binding.glassLayer) { view, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, 0, 0, insets.bottom)
-            windowInsets
-        }
-
         ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavigation) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(0, 0, 0, insets.bottom)
             windowInsets
         }
-    }
-
-    /**
-     * 液态玻璃底栏（FEAT-UI-190）：内容延伸到底栏之后，
-     * 玻璃层实时模糊其背后内容并叠半透明罩；底栏本体进一步半透明。
-     * 「减少动画」或 Android 12 以下自动退化为半透明底栏。
-     */
-    private fun setupLiquidGlass() {
-        val surface = getThemeColor(com.google.android.material.R.attr.colorSurface)
-        val blur = !PawchiveApplication.getSettingsManager().isReduceAnimationsEnabled()
-        binding.glassLayer.attach(
-            content = binding.navHostFragment,
-            blur = blur,
-            tintColor = androidx.core.graphics.ColorUtils.setAlphaComponent(surface, 92)
-        )
-        // 底栏本体半透明，让模糊层透出来
-        binding.bottomNavigation.setBackgroundColor(
-            androidx.core.graphics.ColorUtils.setAlphaComponent(surface, 168)
-        )
     }
 
     private fun setupBottomNavigationColors() {
@@ -302,8 +274,23 @@ class MainActivity : AppCompatActivity(), AppNavigator {
         if (bottomNav.visibility == (if (visible) View.VISIBLE else View.GONE)) return
 
         bottomNav.visibility = if (visible) View.VISIBLE else View.GONE
-        // 玻璃层随底栏一起显隐（FEAT-UI-190）：内容已约束到屏幕底部，无需再改约束
-        binding.glassLayer.visibility = bottomNav.visibility
+
+        val constraintLayout = binding.root as ConstraintLayout
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(constraintLayout)
+
+        if (visible) {
+            constraintSet.connect(
+                R.id.nav_host_fragment, ConstraintSet.BOTTOM,
+                R.id.bottom_navigation, ConstraintSet.TOP
+            )
+        } else {
+            constraintSet.connect(
+                R.id.nav_host_fragment, ConstraintSet.BOTTOM,
+                ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM
+            )
+        }
+        constraintSet.applyTo(constraintLayout)
     }
 
     /**

@@ -72,7 +72,7 @@
 
 ### Personalization
 - **Languages**: 中文 / English / 日本語, switch instantly
-- **Appearance**: Light / Dark / System, six accent themes, Material Design 3; dynamic color (Material You) on Android 12+; liquid-glass bottom bar and immersive status bar
+- **Appearance**: Light / Dark / System, six accent themes, Material Design 3; dynamic color (Material You) on Android 12+; immersive status bar
 - **Display & scaling**: Continuous sliders for global UI scale and font size, live preview and immediate effect
 - **Data saving**: Lists load thumbnails by default; switchable to originals
 - **Download parameters**: Custom directory (SAF), max concurrency (1–5), retry count (1–3), Wi-Fi-only, filename format
