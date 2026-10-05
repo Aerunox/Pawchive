@@ -93,12 +93,6 @@ class MainActivity : AppCompatActivity(), AppNavigator {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 预测性返回（FEAT-UI-190）：fragment 1.9 实验性应用内预测返回动画
-        runCatching {
-            androidx.fragment.app.FragmentManager.enablePredictiveBack(true)
-        }.onFailure {
-            android.util.Log.w("MainActivity", "predictive back unavailable: ${it.message}")
-        }
 
         setupWindowInsets()
         setupBottomNavigationColors()
@@ -271,8 +265,8 @@ class MainActivity : AppCompatActivity(), AppNavigator {
      */
     fun setBottomNavigationVisibility(visible: Boolean) {
         val bottomNav = binding.bottomNavigation
-        if (bottomNav.visibility == (if (visible) View.VISIBLE else View.GONE)) return
-
+        // 不做可见性早退：每次调用都完整重应用约束，任何路径留下的错位状态
+        // 都会在下一次导航事件中被自愈（BUG-NAV-BAR-FLICKER）
         bottomNav.visibility = if (visible) View.VISIBLE else View.GONE
 
         val constraintLayout = binding.root as ConstraintLayout
@@ -424,6 +418,8 @@ class MainActivity : AppCompatActivity(), AppNavigator {
                 androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
         }
+        // 显式恢复导航栏（BUG-NAV-BAR-FLICKER）：不依赖返回栈监听器的触发时序
+        setBottomNavigationVisibility(true)
         // 切换 ViewPager2 到目标 Tab
         val position = pagerAdapter.getPositionOfTab(tabId)
         if (position != -1) {
