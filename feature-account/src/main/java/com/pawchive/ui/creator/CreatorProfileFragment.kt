@@ -39,6 +39,7 @@ import com.pawchive.core.model.CreatorTag
 import com.pawchive.core.model.FanCard
 import com.pawchive.core.model.SimilarCreator
 import com.pawchive.core.util.CreatorSiteLinks
+import com.pawchive.core.util.CrashHandler
 import com.pawchive.data.repository.AuthRepository
 import com.pawchive.data.repository.BlockedCreatorManager
 import com.pawchive.data.repository.BookmarkManager
@@ -102,31 +103,33 @@ class CreatorProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        runCatching {
+        // 各步骤独立容错（BUG-CREATOR-SETUP-NPE）：单步失败只记日志/提示，
+        // 不再阻断后续步骤与数据加载；失败同时写入崩溃日志文件（可反混淆定位）
+        runSetupStep("btnBack") {
             binding.btnBack.setOnClickListener {
                 hideKeyboard()
                 parentFragmentManager.popBackStack()
             }
+        }
+        runSetupStep("sectionPages") { setupSectionPages() }
+        runSetupStep("recyclerView") { setupRecyclerView() }
+        runSetupStep("bookmarkButton") { setupBookmarkButton() }
+        runSetupStep("moreMenu") { setupMoreMenu() }
+        runSetupStep("loadMoreButton") { setupLoadMoreButton() }
+        runSetupStep("sortButton") { setupSortButton() }
+        runSetupStep("searchView") { setupSearchView() }
+        runSetupStep("observeState") { observeCreatorState() }
+        runSetupStep("loadCreator") { viewModel.loadCreator(service, creatorId) }
+    }
 
-            setupSectionPages()
-            setupRecyclerView()
-            setupBookmarkButton()
-            setupMoreMenu()
-            setupLoadMoreButton()
-            setupSortButton()
-            setupSearchView()
-            observeCreatorState()
-
-            viewModel.loadCreator(service, creatorId)
-        }.onFailure { err ->
-            android.util.Log.e(
-                "CreatorProfileFragment",
-                "onViewCreated crashed service=$service creator=$creatorId",
-                err
-            )
+    /** 单步初始化容错（BUG-CREATOR-SETUP-NPE）。 */
+    private fun runSetupStep(step: String, block: () -> Unit) {
+        runCatching { block() }.onFailure { err ->
+            android.util.Log.e("CreatorProfileFragment", "setup step failed: $step", err)
+            CrashHandler.logNonFatal(requireContext(), "creator-setup:$step", err)
             Toast.makeText(
                 context,
-                "onViewCreated: ${err.javaClass.simpleName} - ${err.message?.take(120)}",
+                "creator.$step: ${err.javaClass.simpleName} - ${err.message?.take(120)}",
                 Toast.LENGTH_LONG
             ).show()
         }
@@ -155,6 +158,8 @@ class CreatorProfileFragment : Fragment() {
     }
 
     private fun renderCreatorState(state: CreatorProfileUiState) {
+        // 分页视图未就绪时（初始化单步失败）跳过渲染，避免二次异常（BUG-CREATOR-SETUP-NPE）
+        if (!::rvCreatorPosts.isInitialized || !::layoutAnnouncements.isInitialized) return
         if (state.isLoading && state.posts.isEmpty()) {
             SkeletonHelper.show(binding.skeletonView.root, rvCreatorPosts)
         } else if (binding.skeletonView.root.visibility == View.VISIBLE) {
@@ -875,9 +880,17 @@ class CreatorProfileFragment : Fragment() {
     }
 
     private fun hideKeyboard() {
-        val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        searchViewCreator.clearFocus()
-        imm.hideSoftInputFromWindow(searchViewCreator.windowToken, 0)
+        // BUG-CREATOR-SETUP-NPE：onPause 可能先于 onViewCreated 完成触发（如返回手势
+        // 快速退出），lateinit 未初始化或视图已销毁时安全返回，不再崩溃
+        val view = when {
+            ::searchViewCreator.isInitialized -> searchViewCreator
+            _binding != null -> _binding!!.root
+            else -> return
+        }
+        val imm = context?.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            ?: return
+        view.clearFocus()
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     override fun onPause() {

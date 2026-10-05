@@ -69,6 +69,16 @@ object CrashHandler {
     }
 
     /**
+     * 非致命异常落盘（BUG-CREATOR-SETUP-NPE）：被调用方 runCatching 吞掉的
+     * 初始化失败等异常也写入崩溃日志文件，与致命崩溃同渠道收集，
+     * 配合 CI 归档的 mapping.txt 可反混淆精确定位。
+     */
+    fun logNonFatal(context: Context, tag: String, throwable: Throwable) {
+        val wrapped = RuntimeException("[$tag] ${throwable.message}", throwable)
+        runCatching { writeCrashLog(context, Thread.currentThread(), wrapped) }
+    }
+
+    /**
      * 获取所有崩溃日志文件列表。
      */
     fun getCrashLogs(context: Context): List<File> {
