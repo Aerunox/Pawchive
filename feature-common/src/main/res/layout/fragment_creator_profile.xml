@@ -50,7 +50,8 @@
             android:maxLines="2"
             android:ellipsize="end"
             android:text="@string/creator_profile"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_creator_bookmark"
+            android:layout_marginEnd="8dp"
             app:layout_constraintStart_toEndOf="@+id/iv_creator_avatar"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="4dp" />
@@ -77,9 +78,8 @@
             app:tint="?attr/colorOnSurface"
             app:layout_constraintEnd_toStartOf="@+id/btn_creator_more"
             android:layout_marginEnd="6dp"
-            app:layout_constraintTop_toBottomOf="@+id/iv_creator_avatar"
-            android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/iv_creator_avatar"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_creator_avatar" />
 
         <ImageButton
             android:id="@+id/btn_creator_more"
@@ -91,9 +91,8 @@
             android:contentDescription="@string/more_actions"
             app:tint="?attr/colorOnSurface"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_creator_avatar"
-            android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/iv_creator_avatar"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_creator_avatar" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -115,7 +115,6 @@ class CreatorProfileFragment : Fragment() {
         runSetupStep("recyclerView") { setupRecyclerView() }
         runSetupStep("bookmarkButton") { setupBookmarkButton() }
         runSetupStep("moreMenu") { setupMoreMenu() }
-        runSetupStep("loadMoreButton") { setupLoadMoreButton() }
         runSetupStep("sortButton") { setupSortButton() }
         runSetupStep("searchView") { setupSearchView() }
         runSetupStep("observeState") { observeCreatorState() }
@@ -305,7 +304,6 @@ class CreatorProfileFragment : Fragment() {
     private lateinit var linksPageView: View
     private lateinit var similarPageView: View
     private lateinit var rvCreatorPosts: RecyclerView
-    private lateinit var btnLoadMore: com.google.android.material.button.MaterialButton
     private lateinit var btnSort: TextView
     private lateinit var searchCardCreator: View
     private lateinit var searchViewCreator: androidx.appcompat.widget.SearchView
@@ -438,7 +436,6 @@ class CreatorProfileFragment : Fragment() {
         similarPageView = inflater.inflate(R.layout.page_creator_similar, binding.vpCreatorSections, false)
 
         rvCreatorPosts = postsPageView.findViewById(R.id.rv_creator_posts)
-        btnLoadMore = postsPageView.findViewById(R.id.btn_load_more)
         // 排序/页内搜索位于主布局的 posts_controls（仅随帖子页显隐），不在分页视图内
         // （BUG-CREATOR-SETUP-NPE：曾误从分页视图 findViewById 返回 null，赋值即抛异常）
         btnSort = binding.btnSort
@@ -511,17 +508,12 @@ class CreatorProfileFragment : Fragment() {
             },
             onCreatorClicked = { _, _ -> },
             onBookmarkChanged = { _, _ -> },
-            onLoadMore = {},
+            // FEAT-UI-192：加载更多移入列表页脚（仅在有未加载内容时显示）
+            onLoadMore = { viewModel.loadMorePosts() },
             showCreatorInfo = false
         )
         rvCreatorPosts.layoutManager = LinearLayoutManager(requireContext())
         rvCreatorPosts.adapter = postAdapter
-    }
-
-    private fun setupLoadMoreButton() {
-        btnLoadMore.setOnClickListener {
-            viewModel.loadMorePosts()
-        }
     }
 
     private fun setupSortButton() {
@@ -878,7 +870,8 @@ class CreatorProfileFragment : Fragment() {
     }
 
     private fun updateLoadMoreButton(hasMore: Boolean) {
-        btnLoadMore.visibility = if (hasMore) View.VISIBLE else View.GONE
+        // FEAT-UI-192：加载更多按钮改为列表末尾的页脚，仅有未加载内容时出现
+        postAdapter.setFooterVisible(hasMore)
     }
 
     private fun hideKeyboard() {

@@ -15,14 +15,4 @@
         android:paddingHorizontal="8dp"
         android:paddingVertical="4dp" />
 
-    <!-- Load More Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_load_more"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginVertical="8dp"
-        android:text="@string/load_more"
-        android:visibility="gone"
-        app:cornerRadius="12dp" />
 </LinearLayout>
