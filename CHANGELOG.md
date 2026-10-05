@@ -19,7 +19,7 @@
 5. **固定收尾**：每个版本以邀请更新的短句结束；
 6. **不追溯改写**：历史版本条目保持原样。
 
-## [1.9.0] - 2026-10-05
+## [1.9.1] - 2026-10-05
 
 1. 界面焕新~ 创作者页改为「帖子 / 公告 / 关联账号 / 相似作者」四个标签页，左右滑动切换，内容一目了然
 2. 创作者页头只留收藏按钮，订阅 / 屏蔽 / 分享收进「更多」菜单，还能一键直达原订阅网站主页（Patreon / Fanbox / Pixiv）
@@ -33,7 +33,7 @@
 - 预测性返回：enableOnBackInvokedCallback + FragmentManager 实验开关（全仓库无 onBackPressed 重写，迁移安全）
 - 液态玻璃：LiquidGlassView 以 1/8 缩放复用位图 + RenderEffect 逐帧模糊，Android 12 以下或「减少动画」时降级半透明
 - 新增 CreatorSiteLinks 工具（patreon / fanbox / pixiv 主页推导）；ic_more_vert 图标与三语文案补齐
-- 版本号提升至 1.9.0（versionCode 78）
+- 版本号提升至 1.9.1（versionCode 79）
 
 快更新体验吧~
 
