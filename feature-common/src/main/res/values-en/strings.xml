@@ -155,7 +155,12 @@
     <string name="announcements">Announcements</string>
     <string name="linked_accounts">Linked Accounts</string>
     <string name="similar_artists">Similar Artists</string>
+    <string name="announcements_empty">No announcements</string>
+    <string name="links_empty">No linked accounts</string>
+    <string name="similar_empty">No similar artists</string>
     <string name="share_creator">Share creator</string>
+    <string name="more_actions">More actions</string>
+    <string name="open_on_source_site">Open profile on the original site</string>
     <string name="copy_creator_id">Copy creator ID</string>
     <string name="copy_profile_link">Copy profile link</string>
     <string name="open_in_browser">Open in browser</string>

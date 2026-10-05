@@ -24,7 +24,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Pawchive">
+        android:theme="@style/Theme.Pawchive"
+        android:enableOnBackInvokedCallback="true">
 
         <!-- ARCH-007：AppCompat 自动持久化应用语言并在 attachBaseContext 自动应用
              （配合 AppCompatDelegate.setApplicationLocales） -->

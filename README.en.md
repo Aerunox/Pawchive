@@ -36,7 +36,7 @@
 
 ### Content Browsing
 - **Home feed**: Paginated latest posts with keyword filters; optional "one post per creator" and "hide bookmarked creators"
-- **Creator profiles**: Posts, announcements, tag filters, fan cards, and linked accounts
+- **Creator profiles**: Swipeable pages for posts / announcements / linked accounts / similar artists, with tag filters and fan cards
 - **Post details**: Full HTML-rendered content (whitelisted tags), comments, revision history, file downloads
 - **Multi-platform**: Aggregates Patreon, Fanbox, Discord with brand-colored tags
 
@@ -72,7 +72,7 @@
 
 ### Personalization
 - **Languages**: 中文 / English / 日本語, switch instantly
-- **Appearance**: Light / Dark / System, six accent themes, Material Design 3; dynamic color (Material You) on Android 12+
+- **Appearance**: Light / Dark / System, six accent themes, Material Design 3; dynamic color (Material You) on Android 12+; liquid-glass bottom bar and immersive status bar
 - **Display & scaling**: Continuous sliders for global UI scale and font size, live preview and immediate effect
 - **Data saving**: Lists load thumbnails by default; switchable to originals
 - **Download parameters**: Custom directory (SAF), max concurrency (1–5), retry count (1–3), Wi-Fi-only, filename format

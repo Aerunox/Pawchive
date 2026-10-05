@@ -86,13 +86,24 @@ class MainActivity : AppCompatActivity(), AppNavigator {
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        // 状态栏沉浸（FEAT-UI-190）：透明状态栏，页头表面色经 insets 填充延伸到状态栏背后
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
         setupHighRefreshRate()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // 预测性返回（FEAT-UI-190）：fragment 1.9 实验性应用内预测返回动画
+        runCatching {
+            androidx.fragment.app.FragmentManager.enablePredictiveBack(true)
+        }.onFailure {
+            android.util.Log.w("MainActivity", "predictive back unavailable: ${it.message}")
+        }
+
         setupWindowInsets()
         setupBottomNavigationColors()
+        // 液态玻璃底栏（FEAT-UI-190）：在底栏配色之后调用以覆盖为半透明
+        setupLiquidGlass()
 
         // 初始化 ViewPager2 + Adapter
         pagerAdapter = MainPagerAdapter(this)
@@ -214,9 +225,18 @@ class MainActivity : AppCompatActivity(), AppNavigator {
     }
 
     private fun setupWindowInsets() {
+        // 状态栏沉浸（FEAT-UI-190）：状态栏区域填充页头同款表面色，与各页面页头无缝衔接
+        binding.navHostFragment.setBackgroundColor(getThemeColor(com.google.android.material.R.attr.colorSurface))
         ViewCompat.setOnApplyWindowInsetsListener(binding.navHostFragment) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(0, insets.top, 0, 0)
+            windowInsets
+        }
+
+        // 液态玻璃（FEAT-UI-190）：玻璃层延伸到系统手势区
+        ViewCompat.setOnApplyWindowInsetsListener(binding.glassLayer) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(0, 0, 0, insets.bottom)
             windowInsets
         }
 
@@ -225,6 +245,25 @@ class MainActivity : AppCompatActivity(), AppNavigator {
             view.setPadding(0, 0, 0, insets.bottom)
             windowInsets
         }
+    }
+
+    /**
+     * 液态玻璃底栏（FEAT-UI-190）：内容延伸到底栏之后，
+     * 玻璃层实时模糊其背后内容并叠半透明罩；底栏本体进一步半透明。
+     * 「减少动画」或 Android 12 以下自动退化为半透明底栏。
+     */
+    private fun setupLiquidGlass() {
+        val surface = getThemeColor(com.google.android.material.R.attr.colorSurface)
+        val blur = !PawchiveApplication.getSettingsManager().isReduceAnimationsEnabled()
+        binding.glassLayer.attach(
+            content = binding.navHostFragment,
+            blur = blur,
+            tintColor = androidx.core.graphics.ColorUtils.setAlphaComponent(surface, 92)
+        )
+        // 底栏本体半透明，让模糊层透出来
+        binding.bottomNavigation.setBackgroundColor(
+            androidx.core.graphics.ColorUtils.setAlphaComponent(surface, 168)
+        )
     }
 
     private fun setupBottomNavigationColors() {
@@ -263,23 +302,8 @@ class MainActivity : AppCompatActivity(), AppNavigator {
         if (bottomNav.visibility == (if (visible) View.VISIBLE else View.GONE)) return
 
         bottomNav.visibility = if (visible) View.VISIBLE else View.GONE
-
-        val constraintLayout = binding.root as ConstraintLayout
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(constraintLayout)
-
-        if (visible) {
-            constraintSet.connect(
-                R.id.nav_host_fragment, ConstraintSet.BOTTOM,
-                R.id.bottom_navigation, ConstraintSet.TOP
-            )
-        } else {
-            constraintSet.connect(
-                R.id.nav_host_fragment, ConstraintSet.BOTTOM,
-                ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM
-            )
-        }
-        constraintSet.applyTo(constraintLayout)
+        // 玻璃层随底栏一起显隐（FEAT-UI-190）：内容已约束到屏幕底部，无需再改约束
+        binding.glassLayer.visibility = bottomNav.visibility
     }
 
     /**

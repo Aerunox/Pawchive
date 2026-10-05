@@ -30,6 +30,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.google.android.material.chip.Chip
 import com.google.android.material.imageview.ShapeableImageView
@@ -37,6 +38,7 @@ import com.pawchive.common.R
 import com.pawchive.core.model.CreatorTag
 import com.pawchive.core.model.FanCard
 import com.pawchive.core.model.SimilarCreator
+import com.pawchive.core.util.CreatorSiteLinks
 import com.pawchive.data.repository.AuthRepository
 import com.pawchive.data.repository.BlockedCreatorManager
 import com.pawchive.data.repository.BookmarkManager
@@ -81,7 +83,6 @@ class CreatorProfileFragment : Fragment() {
 
     private var currentSort = PostSortOption.NEWEST_PUBLISHED
     private var searchQuery: String = ""
-    private var isAnnouncementsExpanded = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,15 +108,13 @@ class CreatorProfileFragment : Fragment() {
                 parentFragmentManager.popBackStack()
             }
 
+            setupSectionPages()
             setupRecyclerView()
             setupBookmarkButton()
-            setupSubscribeButton()
-            setupBlockButton()
-            setupShareButton()
+            setupMoreMenu()
             setupLoadMoreButton()
             setupSortButton()
             setupSearchView()
-            setupAnnouncementsToggle()
             observeCreatorState()
 
             viewModel.loadCreator(service, creatorId)
@@ -157,9 +156,9 @@ class CreatorProfileFragment : Fragment() {
 
     private fun renderCreatorState(state: CreatorProfileUiState) {
         if (state.isLoading && state.posts.isEmpty()) {
-            SkeletonHelper.show(binding.skeletonView.root, binding.rvCreatorPosts)
+            SkeletonHelper.show(binding.skeletonView.root, rvCreatorPosts)
         } else if (binding.skeletonView.root.visibility == View.VISIBLE) {
-            SkeletonHelper.hide(binding.skeletonView.root, binding.rvCreatorPosts)
+            SkeletonHelper.hide(binding.skeletonView.root, rvCreatorPosts)
         }
 
         if (state.errorMessage != null && state.posts.isEmpty()) {
@@ -178,10 +177,8 @@ class CreatorProfileFragment : Fragment() {
         }
         loadAvatar()
 
-        binding.layoutAnnouncements.removeAllViews()
+        layoutAnnouncements.removeAllViews()
         if (state.announcements.isNotEmpty()) {
-            binding.layoutAnnouncementsHeader.visibility = View.VISIBLE
-            updateAnnouncementsVisibility()
             for (announcement in state.announcements) {
                 val textView = TextView(requireContext()).apply {
                     text = Html.fromHtml(announcement.content ?: "", Html.FROM_HTML_MODE_COMPACT)
@@ -192,15 +189,14 @@ class CreatorProfileFragment : Fragment() {
                     background = requireContext().getDrawable(R.drawable.comment_bg)
                     setPadding(12, 12, 12, 12)
                 }
-                binding.layoutAnnouncements.addView(textView)
+                layoutAnnouncements.addView(textView)
             }
-        } else {
-            binding.layoutAnnouncementsHeader.visibility = View.GONE
         }
+        tvAnnouncementsEmpty.visibility =
+            if (state.announcements.isEmpty()) View.VISIBLE else View.GONE
 
-        binding.layoutLinks.removeAllViews()
+        layoutLinks.removeAllViews()
         if (state.links.isNotEmpty()) {
-            binding.tvLinksHeader.visibility = View.VISIBLE
             for (link in state.links) {
                 val textView = TextView(requireContext()).apply {
                     text = "${link.name} (${link.service})"
@@ -218,11 +214,10 @@ class CreatorProfileFragment : Fragment() {
                             }
                     }
                 }
-                binding.layoutLinks.addView(textView)
+                layoutLinks.addView(textView)
             }
-        } else {
-            binding.tvLinksHeader.visibility = View.GONE
         }
+        tvLinksEmpty.visibility = if (state.links.isEmpty()) View.VISIBLE else View.GONE
 
         // 收藏图标合并云端状态（BUG-IMPORT-STATE）：云端收藏的作者即使本地无记录也显示已收藏
         updateBookmarkIcon(
@@ -237,16 +232,10 @@ class CreatorProfileFragment : Fragment() {
         updateLoadMoreButton(state.hasMore)
     }
 
-    /** 相似作者横向卡片（FEAT-SIMILAR-CREATORS）；为空时整段隐藏。 */
+    /** 相似作者列表（FEAT-SIMILAR-CREATORS；FEAT-UI-190 起为独立分页的纵向列表）。 */
     private fun renderSimilarCreators(creators: List<SimilarCreator>) {
-        binding.layoutSimilar.removeAllViews()
-        if (creators.isEmpty()) {
-            binding.tvSimilarHeader.visibility = View.GONE
-            binding.scrollSimilar.visibility = View.GONE
-            return
-        }
-        binding.tvSimilarHeader.visibility = View.VISIBLE
-        binding.scrollSimilar.visibility = View.VISIBLE
+        layoutSimilar.removeAllViews()
+        tvSimilarEmpty.visibility = if (creators.isEmpty()) View.VISIBLE else View.GONE
 
         val context = requireContext()
         val density = resources.displayMetrics.density
@@ -256,9 +245,9 @@ class CreatorProfileFragment : Fragment() {
 
         for (creator in creators) {
             val item = LinearLayout(context).apply {
-                orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER_HORIZONTAL
-                val pad = (8 * density).toInt()
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                val pad = (10 * density).toInt()
                 setPadding(pad, pad, pad, pad)
                 isClickable = true
                 isFocusable = true
@@ -270,8 +259,8 @@ class CreatorProfileFragment : Fragment() {
 
             val avatar = ShapeableImageView(context).apply {
                 layoutParams = LinearLayout.LayoutParams(
-                    (48 * density).toInt(), (48 * density).toInt()
-                )
+                    (40 * density).toInt(), (40 * density).toInt()
+                ).apply { marginEnd = (12 * density).toInt() }
                 scaleType = ImageView.ScaleType.CENTER_CROP
                 shapeAppearanceModel = shapeAppearanceModel.toBuilder()
                     .setAllCornerSizes(12 * density)
@@ -286,22 +275,42 @@ class CreatorProfileFragment : Fragment() {
 
             val name = TextView(context).apply {
                 layoutParams = LinearLayout.LayoutParams(
-                    (64 * density).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT
-                ).apply { topMargin = (4 * density).toInt() }
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply { weight = 1f }
                 text = creator.name
-                textSize = 11f
+                textSize = 14f
                 maxLines = 1
                 ellipsize = android.text.TextUtils.TruncateAt.END
-                gravity = Gravity.CENTER_HORIZONTAL
                 setTextColor(context.getColor(R.color.text_secondary))
             }
             item.addView(name)
 
-            binding.layoutSimilar.addView(item)
+            layoutSimilar.addView(item)
         }
     }
 
     // renderCreatorTags/renderFancards 的重建去重：避免每次 state 发射都重建子视图
+    // 页头操作状态（FEAT-UI-190）：菜单每次打开时按此重建
+    private var subscribedState = false
+    private var blockedState = false
+
+    // 分页视图（FEAT-UI-190）：帖子/公告/关联账号/相似作者迁入 ViewPager2 分页
+    private lateinit var postsPageView: View
+    private lateinit var announcementsPageView: View
+    private lateinit var linksPageView: View
+    private lateinit var similarPageView: View
+    private lateinit var rvCreatorPosts: RecyclerView
+    private lateinit var btnLoadMore: com.google.android.material.button.MaterialButton
+    private lateinit var btnSort: TextView
+    private lateinit var searchCardCreator: View
+    private lateinit var searchViewCreator: androidx.appcompat.widget.SearchView
+    private lateinit var layoutAnnouncements: LinearLayout
+    private lateinit var layoutLinks: LinearLayout
+    private lateinit var layoutSimilar: LinearLayout
+    private lateinit var tvAnnouncementsEmpty: TextView
+    private lateinit var tvLinksEmpty: TextView
+    private lateinit var tvSimilarEmpty: TextView
+
     private var lastRenderedTagsKey: Pair<Int, String?>? = null
     private var lastRenderedFancardsHash: Int? = null
 
@@ -411,6 +420,79 @@ class CreatorProfileFragment : Fragment() {
         }
     }
 
+    /**
+     * 分页化（FEAT-UI-190）：帖子 / 公告 / 关联账号 / 相似作者 四页，
+     * TabLayout + ViewPager2 左右滑动切换。四个页面视图一次性创建，
+     * 数据到达后由 render 系列函数分别填充。
+     */
+    private fun setupSectionPages() {
+        val inflater = layoutInflater
+        postsPageView = inflater.inflate(R.layout.page_creator_posts, binding.vpCreatorSections, false)
+        announcementsPageView = inflater.inflate(R.layout.page_creator_announcements, binding.vpCreatorSections, false)
+        linksPageView = inflater.inflate(R.layout.page_creator_links, binding.vpCreatorSections, false)
+        similarPageView = inflater.inflate(R.layout.page_creator_similar, binding.vpCreatorSections, false)
+
+        rvCreatorPosts = postsPageView.findViewById(R.id.rv_creator_posts)
+        btnLoadMore = postsPageView.findViewById(R.id.btn_load_more)
+        btnSort = postsPageView.findViewById(R.id.btn_sort)
+        searchCardCreator = postsPageView.findViewById(R.id.search_card_creator)
+        searchViewCreator = postsPageView.findViewById(R.id.search_view_creator)
+        layoutAnnouncements = announcementsPageView.findViewById(R.id.layout_announcements)
+        tvAnnouncementsEmpty = announcementsPageView.findViewById(R.id.tv_announcements_empty)
+        layoutLinks = linksPageView.findViewById(R.id.layout_links)
+        tvLinksEmpty = linksPageView.findViewById(R.id.tv_links_empty)
+        layoutSimilar = similarPageView.findViewById(R.id.layout_similar)
+        tvSimilarEmpty = similarPageView.findViewById(R.id.tv_similar_empty)
+
+        binding.vpCreatorSections.adapter = SectionsPagerAdapter()
+        binding.vpCreatorSections.offscreenPageLimit = 1
+        com.google.android.material.tabs.TabLayoutMediator(
+            binding.tabLayoutCreator, binding.vpCreatorSections
+        ) { tab, position ->
+            tab.text = getString(
+                when (position) {
+                    0 -> R.string.posts
+                    1 -> R.string.announcements
+                    2 -> R.string.linked_accounts
+                    else -> R.string.similar_artists
+                }
+            )
+        }.attach()
+
+        binding.vpCreatorSections.registerOnPageChangeCallback(
+            object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    // 排序/页内搜索仅属于帖子页
+                    binding.postsControls.visibility =
+                        if (position == 0) View.VISIBLE else View.GONE
+                }
+            }
+        )
+    }
+
+    /** 四个固定分页：每个位置返回预建页面视图（无数据绑定开销）。 */
+    private inner class SectionsPagerAdapter : RecyclerView.Adapter<SectionViewHolder>() {
+        override fun getItemCount(): Int = 4
+
+        override fun getItemViewType(position: Int): Int = position
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SectionViewHolder {
+            val page = when (viewType) {
+                0 -> postsPageView
+                1 -> announcementsPageView
+                2 -> linksPageView
+                else -> similarPageView
+            }
+            // 页面视图从占位 parent 摘除后交由 ViewPager2 接管
+            (page.parent as? ViewGroup)?.removeView(page)
+            return SectionViewHolder(page)
+        }
+
+        override fun onBindViewHolder(holder: SectionViewHolder, position: Int) = Unit
+    }
+
+    private inner class SectionViewHolder(val page: View) : RecyclerView.ViewHolder(page)
+
     private fun setupRecyclerView() {
         postAdapter = PostAdapter(
             posts = emptyList(),
@@ -425,19 +507,19 @@ class CreatorProfileFragment : Fragment() {
             onLoadMore = {},
             showCreatorInfo = false
         )
-        binding.rvCreatorPosts.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvCreatorPosts.adapter = postAdapter
+        rvCreatorPosts.layoutManager = LinearLayoutManager(requireContext())
+        rvCreatorPosts.adapter = postAdapter
     }
 
     private fun setupLoadMoreButton() {
-        binding.btnLoadMore.setOnClickListener {
+        btnLoadMore.setOnClickListener {
             viewModel.loadMorePosts()
         }
     }
 
     private fun setupSortButton() {
-        binding.btnSort.text = getString(currentSort.displayNameRes)
-        binding.btnSort.setOnClickListener {
+        btnSort.text = getString(currentSort.displayNameRes)
+        btnSort.setOnClickListener {
             hideKeyboard()
             showSortDialog()
         }
@@ -445,13 +527,13 @@ class CreatorProfileFragment : Fragment() {
 
     private fun setupSearchView() {
         val focusAndShow = {
-            binding.searchViewCreator.apply {
+            searchViewCreator.apply {
                 isIconified = false
                 requestFocus()
                 requestFocusFromTouch()
             }
         }
-        binding.searchViewCreator.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        searchViewCreator.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 hideKeyboard()
                 return true
@@ -462,27 +544,12 @@ class CreatorProfileFragment : Fragment() {
                 return true
             }
         })
-        binding.searchCardCreator.setOnClickListener { focusAndShow() }
-        binding.searchViewCreator.setOnClickListener { focusAndShow() }
-        binding.searchViewCreator.setOnTouchListener { view, event ->
+        searchCardCreator.setOnClickListener { focusAndShow() }
+        searchViewCreator.setOnClickListener { focusAndShow() }
+        searchViewCreator.setOnTouchListener { view, event ->
             focusAndShow()
             false
         }
-    }
-
-    private fun setupAnnouncementsToggle() {
-        binding.layoutAnnouncementsHeader.setOnClickListener {
-            isAnnouncementsExpanded = !isAnnouncementsExpanded
-            updateAnnouncementsVisibility()
-        }
-    }
-
-    private fun updateAnnouncementsVisibility() {
-        binding.layoutAnnouncements.visibility = if (isAnnouncementsExpanded) View.VISIBLE else View.GONE
-        val chevronRes = if (isAnnouncementsExpanded) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
-        binding.icAnnouncementsChevron.setImageResource(chevronRes)
-        val contentDesc = if (isAnnouncementsExpanded) getString(R.string.collapse) else getString(R.string.expand)
-        binding.icAnnouncementsChevron.contentDescription = contentDesc
     }
 
     private fun showSortDialog() {
@@ -493,7 +560,7 @@ class CreatorProfileFragment : Fragment() {
             .setTitle(R.string.select_sort)
             .setSingleChoiceItems(options, currentIndex) { dialog, which ->
                 currentSort = PostSortOption.values()[which]
-                binding.btnSort.text = getString(currentSort.displayNameRes)
+                btnSort.text = getString(currentSort.displayNameRes)
                 applySort(viewModel.uiState.value.posts)
                 dialog.dismiss()
             }
@@ -609,25 +676,69 @@ class CreatorProfileFragment : Fragment() {
         )
     }
 
-    private fun setupSubscribeButton() {
+    /**
+     * 页头操作（FEAT-UI-190）：收藏按钮独立，订阅/屏蔽/分享/原网站主页
+     * 收进「更多」溢出菜单。
+     */
+    private fun setupMoreMenu() {
         viewLifecycleOwner.lifecycleScope.launch {
             runCatching {
-                updateSubscribeIcon(subscriptionRepository.isSubscribed(service, creatorId))
+                subscribedState = subscriptionRepository.isSubscribed(service, creatorId)
             }
         }
+        blockedState = blockedCreatorManager.isCreatorBlocked(service, creatorId)
 
-        binding.btnCreatorSubscribe.setOnClickListener {
+        binding.btnCreatorMore.setOnClickListener { anchor ->
             hideKeyboard()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                ContextCompat.checkSelfPermission(
-                    requireContext(), Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            } else {
-                viewLifecycleOwner.lifecycleScope.launch { toggleSubscriptionSafe() }
+            showCreatorMoreMenu(anchor)
+        }
+    }
+
+    private fun showCreatorMoreMenu(anchor: View) {
+        val popup = androidx.appcompat.widget.PopupMenu(requireContext(), anchor)
+        popup.menu.add(
+            0, MENU_SUBSCRIBE, 0,
+            getString(if (subscribedState) R.string.unsubscribe_from_updates else R.string.subscribe_to_updates)
+        )
+        // FEAT-SOURCE-SITE-LINK：patreon / fanbox / pixiv 可推导原站主页
+        if (CreatorSiteLinks.profileUrl(service, creatorId) != null) {
+            popup.menu.add(0, MENU_OPEN_SOURCE, 1, R.string.open_on_source_site)
+        }
+        popup.menu.add(0, MENU_SHARE, 2, R.string.share_creator)
+        popup.menu.add(
+            0, MENU_BLOCK, 3,
+            getString(if (blockedState) R.string.unblock_creator else R.string.block_creator)
+        )
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                MENU_SUBSCRIBE -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                        ContextCompat.checkSelfPermission(
+                            requireContext(), Manifest.permission.POST_NOTIFICATIONS
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        viewLifecycleOwner.lifecycleScope.launch { toggleSubscriptionSafe() }
+                    }
+                    true
+                }
+                MENU_OPEN_SOURCE -> {
+                    CreatorSiteLinks.profileUrl(service, creatorId)?.let { openInBrowser(it) }
+                    true
+                }
+                MENU_SHARE -> {
+                    showShareDialog()
+                    true
+                }
+                MENU_BLOCK -> {
+                    toggleBlockWithConfirm()
+                    true
+                }
+                else -> false
             }
         }
+        popup.show()
     }
 
     private val requestNotificationPermissionLauncher = registerForActivityResult(
@@ -667,49 +778,35 @@ class CreatorProfileFragment : Fragment() {
     }
 
     private fun updateSubscribeIcon(subscribed: Boolean) {
-        val tintRes = if (subscribed) {
-            com.google.android.material.R.attr.colorPrimary
-        } else {
-            com.google.android.material.R.attr.colorOnSurface
-        }
-        val typedValue = android.util.TypedValue()
-        requireContext().theme.resolveAttribute(tintRes, typedValue, true)
-        binding.btnCreatorSubscribe.imageTintList =
-            android.content.res.ColorStateList.valueOf(typedValue.data)
-        binding.btnCreatorSubscribe.contentDescription = getString(
-            if (subscribed) R.string.unsubscribe_from_updates else R.string.subscribe_to_updates
-        )
+        subscribedState = subscribed
     }
 
     /**
      * 分享作者主页（FEAT-CREATOR-SHARE）：复制作者 ID / 复制 Pawchive 主页链接 / 浏览器打开。
      */
-    private fun setupShareButton() {
-        binding.btnShareCreator.setOnClickListener {
-            hideKeyboard()
-            val options = arrayOf(
-                getString(R.string.copy_creator_id),
-                getString(R.string.copy_profile_link),
-                getString(R.string.open_in_browser)
-            )
-            com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.share_creator)
-                .setItems(options) { _, which ->
-                    when (which) {
-                        0 -> {
-                            copyToClipboard("pawchive_creator_id", creatorId)
-                            Toast.makeText(context, R.string.id_copied, Toast.LENGTH_SHORT).show()
-                        }
-                        1 -> {
-                            copyToClipboard("pawchive_creator_link", profileUrl())
-                            Toast.makeText(context, R.string.link_copied, Toast.LENGTH_SHORT).show()
-                        }
-                        else -> openInBrowser(profileUrl())
+    private fun showShareDialog() {
+        val options = arrayOf(
+            getString(R.string.copy_creator_id),
+            getString(R.string.copy_profile_link),
+            getString(R.string.open_in_browser)
+        )
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.share_creator)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        copyToClipboard("pawchive_creator_id", creatorId)
+                        Toast.makeText(context, R.string.id_copied, Toast.LENGTH_SHORT).show()
                     }
+                    1 -> {
+                        copyToClipboard("pawchive_creator_link", profileUrl())
+                        Toast.makeText(context, R.string.link_copied, Toast.LENGTH_SHORT).show()
+                    }
+                    else -> openInBrowser(profileUrl())
                 }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-        }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     /** 作者网页版主页链接（与站点路由 /{service}/user/{id} 一致）。 */
@@ -729,20 +826,16 @@ class CreatorProfileFragment : Fragment() {
         }
     }
 
-    private fun setupBlockButton() {        val isBlocked = blockedCreatorManager.isCreatorBlocked(service, creatorId)
-        updateBlockButtonState(isBlocked)
-
-        binding.btnBlockCreator.setOnClickListener {
-            hideKeyboard()
-            val newBlocked = !blockedCreatorManager.isCreatorBlocked(service, creatorId)
-            if (newBlocked) {
+    private fun toggleBlockWithConfirm() {
+        val newBlocked = !blockedCreatorManager.isCreatorBlocked(service, creatorId)
+        if (newBlocked) {
                 com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.block_creator_confirm_title)
                     .setMessage(getString(R.string.block_creator_confirm_message))
                     .setPositiveButton(R.string.block_creator) { _, _ ->
                         viewLifecycleOwner.lifecycleScope.launch {
                             blockedCreatorManager.blockCreator(service, creatorId)
-                            updateBlockButtonState(true)
+                            blockedState = true
                             Toast.makeText(context, R.string.creator_blocked, Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -751,20 +844,10 @@ class CreatorProfileFragment : Fragment() {
             } else {
                 viewLifecycleOwner.lifecycleScope.launch {
                     blockedCreatorManager.unblockCreator(service, creatorId)
-                    updateBlockButtonState(false)
+                    blockedState = false
                     Toast.makeText(context, R.string.creator_unblocked, Toast.LENGTH_SHORT).show()
                 }
             }
-        }
-    }
-
-    private fun updateBlockButtonState(isBlocked: Boolean) {
-        binding.btnBlockCreator.text = getString(
-            if (isBlocked) R.string.unblock_creator else R.string.block_creator
-        )
-        binding.btnBlockCreator.setIconResource(
-            if (isBlocked) R.drawable.ic_shield_off else R.drawable.ic_shield
-        )
     }
 
     private fun setServiceLabelColor(serviceName: String) {
@@ -788,13 +871,13 @@ class CreatorProfileFragment : Fragment() {
     }
 
     private fun updateLoadMoreButton(hasMore: Boolean) {
-        binding.btnLoadMore.visibility = if (hasMore) View.VISIBLE else View.GONE
+        btnLoadMore.visibility = if (hasMore) View.VISIBLE else View.GONE
     }
 
     private fun hideKeyboard() {
         val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        binding.searchViewCreator.clearFocus()
-        imm.hideSoftInputFromWindow(binding.searchViewCreator.windowToken, 0)
+        searchViewCreator.clearFocus()
+        imm.hideSoftInputFromWindow(searchViewCreator.windowToken, 0)
     }
 
     override fun onPause() {
@@ -810,6 +893,10 @@ class CreatorProfileFragment : Fragment() {
     companion object {
         private const val ARG_SERVICE = "service"
         private const val ARG_CREATOR_ID = "creator_id"
+        private const val MENU_SUBSCRIBE = 1
+        private const val MENU_OPEN_SOURCE = 2
+        private const val MENU_SHARE = 3
+        private const val MENU_BLOCK = 4
 
         fun newInstance(service: String, creatorId: String): CreatorProfileFragment {
             return CreatorProfileFragment().apply {
