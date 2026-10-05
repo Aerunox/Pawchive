@@ -17,10 +17,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * 离线收藏动作队列（FEAT-OFFLINE-FAV-QUEUE）。
@@ -61,7 +58,9 @@ class PendingFavoriteActionRepository @Inject constructor(
             )
         )
         scheduleSync()
-        withContext(Dispatchers.Main) {
+        // Toast 用 Handler 投递而非 withContext(Dispatchers.Main)：仓库方法可能在
+        // 测试/阻塞上下文中被 runBlocking 调用，挂起等待 Main 会与调用线程形成死锁
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
             Toast.makeText(context, R.string.offline_action_queued, Toast.LENGTH_SHORT).show()
         }
     }
@@ -89,7 +88,8 @@ class PendingFavoriteActionRepository @Inject constructor(
     }
 
     companion object {
-        private const val WORK_NAME = "favorite_actions_sync"
+        /** 唯一任务名（测试亦用于断言调度结果）。 */
+        internal const val WORK_NAME = "favorite_actions_sync"
 
         /** 补写失败重试的线性退避基数（秒）。 */
         private const val WORK_BACKOFF_SECONDS = 30L
