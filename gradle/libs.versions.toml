@@ -25,7 +25,7 @@ hiltWork = "1.2.0"
 # Room - 下载历史存储迁移（ARCH-004）
 room = "2.8.4"
 # 代码覆盖率（ARCH-014 质量门禁）
-kover = "0.9.9"
+kover = "0.9.11"
 
 # 其余运行时依赖（P1-1 依赖单一来源：原硬编码在 app/build.gradle.kts，现统一收口到此）
 securityCrypto = "1.1.0"
