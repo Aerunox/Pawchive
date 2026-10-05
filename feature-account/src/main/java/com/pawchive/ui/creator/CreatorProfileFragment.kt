@@ -439,9 +439,11 @@ class CreatorProfileFragment : Fragment() {
 
         rvCreatorPosts = postsPageView.findViewById(R.id.rv_creator_posts)
         btnLoadMore = postsPageView.findViewById(R.id.btn_load_more)
-        btnSort = postsPageView.findViewById(R.id.btn_sort)
-        searchCardCreator = postsPageView.findViewById(R.id.search_card_creator)
-        searchViewCreator = postsPageView.findViewById(R.id.search_view_creator)
+        // 排序/页内搜索位于主布局的 posts_controls（仅随帖子页显隐），不在分页视图内
+        // （BUG-CREATOR-SETUP-NPE：曾误从分页视图 findViewById 返回 null，赋值即抛异常）
+        btnSort = binding.btnSort
+        searchCardCreator = binding.searchCardCreator
+        searchViewCreator = binding.searchViewCreator
         layoutAnnouncements = announcementsPageView.findViewById(R.id.layout_announcements)
         tvAnnouncementsEmpty = announcementsPageView.findViewById(R.id.tv_announcements_empty)
         layoutLinks = linksPageView.findViewById(R.id.layout_links)
