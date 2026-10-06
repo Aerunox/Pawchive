@@ -11,11 +11,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pawchive.common.R
 import com.pawchive.core.model.DownloadStatus
 import com.pawchive.common.databinding.FragmentDownloadsBinding
 import com.pawchive.common.nav.AppNavigator
+import com.pawchive.common.nav.BottomBarScrollController
 import com.pawchive.ui.adapter.DownloadHistoryAdapter
 import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
@@ -90,6 +92,13 @@ class DownloadsFragment : Fragment() {
         )
         binding.rvDownloads.layoutManager = LinearLayoutManager(requireContext())
         binding.rvDownloads.adapter = adapter
+
+        // 底栏滚动显隐：下载列表下滑隐藏底栏，上滑恢复
+        binding.rvDownloads.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                (activity as? BottomBarScrollController)?.onMainListScrolled(dy)
+            }
+        })
     }
 
     private fun setupFilterChips() {

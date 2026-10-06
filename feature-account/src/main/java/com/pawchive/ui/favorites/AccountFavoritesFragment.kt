@@ -11,10 +11,12 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.RecyclerView
 import com.pawchive.common.R
 import com.pawchive.data.repository.AuthRepository
 import com.pawchive.common.databinding.FragmentAccountFavoritesBinding
 import com.pawchive.common.nav.AppNavigator
+import com.pawchive.common.nav.BottomBarScrollController
 import com.pawchive.ui.adapter.FavoriteCreatorAdapter
 import com.pawchive.ui.adapter.FavoritePostAdapter
 import com.google.android.material.tabs.TabLayout
@@ -199,6 +201,13 @@ class AccountFavoritesFragment : Fragment() {
         // onViewCreated 走 setScrollPosition 分支不会触发 onTabSelected 回调，
         // adapter 停留在默认 postAdapter，导致创作者 Tab 数据加载了却显示为空。
         binding.rvFavorites.adapter = if (currentTab == 0) postAdapter else creatorAdapter
+
+        // 底栏滚动显隐：收藏列表（帖子/创作者两 Tab 共用）下滑隐藏底栏，上滑恢复
+        binding.rvFavorites.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                (activity as? BottomBarScrollController)?.onMainListScrolled(dy)
+            }
+        })
     }
 
     private fun setupTabLayout() {
@@ -225,6 +234,8 @@ class AccountFavoritesFragment : Fragment() {
         currentTab = tab
         updateSortButtonText()
         binding.rvFavorites.adapter = if (currentTab == 0) postAdapter else creatorAdapter
+        // 内嵌 Tab 切换后底栏复位显示（上一 Tab 可能处于滚动隐藏状态）
+        (activity as? BottomBarScrollController)?.showBottomBar()
         if (isTabChanged) {
             viewModel.setTab(currentTab)
         } else {

@@ -14,6 +14,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.pawchive.common.R
 import com.pawchive.data.repository.AuthRepository
 import com.pawchive.data.repository.BlockedCreatorManager
@@ -22,6 +23,7 @@ import com.pawchive.data.repository.CreatorNameCache
 import com.pawchive.data.repository.SearchHistoryManager
 import com.pawchive.common.databinding.FragmentSearchBinding
 import com.pawchive.common.nav.AppNavigator
+import com.pawchive.common.nav.BottomBarScrollController
 import com.pawchive.ui.adapter.CreatorAdapter
 import com.pawchive.ui.adapter.PostAdapter
 import com.pawchive.ui.adapter.SearchHistoryAdapter
@@ -238,6 +240,13 @@ class SearchFragment : Fragment() {
 
         binding.rvResults.layoutManager = buildResultLayoutManager(requireContext())
         binding.rvResults.adapter = postAdapter
+
+        // 底栏滚动显隐：结果列表（帖子/创作者两 Tab 共用）下滑隐藏底栏，上滑恢复
+        binding.rvResults.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                (activity as? BottomBarScrollController)?.onMainListScrolled(dy)
+            }
+        })
     }
 
     /**
@@ -286,6 +295,8 @@ class SearchFragment : Fragment() {
                 exitSelectionMode()
                 isSearchingPosts = tab?.position == 0
                 binding.rvResults.adapter = if (isSearchingPosts) postAdapter else creatorAdapter
+                // 内嵌 Tab 切换后底栏复位显示（上一 Tab 可能处于滚动隐藏状态）
+                (activity as? BottomBarScrollController)?.showBottomBar()
 
                 val query = binding.searchView.query.toString()
                 if (query.isNotEmpty()) {

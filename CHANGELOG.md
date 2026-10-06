@@ -19,6 +19,26 @@
 5. **固定收尾**：每个版本以邀请更新的短句结束；
 6. **不追溯改写**：历史版本条目保持原样。
 
+## [1.8.5] - 2026-10-06
+
+1. 底栏新交互：首页/搜索/收藏/下载的列表向下滚动时底栏自动滑出、向上滚动时滑回，看内容更沉浸啦~ 切 Tab、进出详情页都会自动复位（账户页没有滚动列表，底栏保持常驻）
+2. 彻底修复底部导航栏消失的问题：Android 13+ 手势侧滑从帖子详情/创作者主页返回主页后，底栏立即恢复显示，不再需要息屏或切后台（1.8.4 的修复没有真正生效，详见工程师视角）
+
+工程师视角：
+- 根因：1.8.4 只是删除了 enablePredictiveBack(true) 调用，而 fragment 1.9.0 起
+  FragmentManager.USE_PREDICTIVE_BACK 默认即为 true——预测返回手势完成时只派发
+  onBackStackChangeCommitted、不再回调遗留的 onBackStackChanged()，以「返回栈条目数」
+  驱动的底栏显隐因此停在隐藏态；本次在 Application.onCreate 显式
+  FragmentManager.enablePredictiveBack(false)，真正关闭应用内预测返回
+  （系统级返回桌面的预测动画由 manifest 的 enableOnBackInvokedCallback 继续提供，不受影响）
+- 新增 feature-common 的 BottomBarScrollController 接口：主 Tab 列表（首页/搜索/收藏/下载）
+  滚动经此驱动底栏 translationY 显隐动画；隐藏时先延伸内容区约束再滑出底栏、
+  显示动画结束才收回约束，全程无空条、无内容闪跳；中途反向滚动平滑改向
+- 主 Tab 切换、搜索/收藏内嵌 Tab 切换、二级页面进出、回前台与配置变化均复位底栏滚动隐藏状态
+- 版本号提升至 1.8.5（versionCode 86）
+
+快更新体验吧~
+
 ## [1.8.4] - 2026-10-05
 
 1. 修复底部导航栏时有时无的问题：从二级页面返回一级页面后，导航栏不再偶发消失

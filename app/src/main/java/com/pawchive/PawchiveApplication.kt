@@ -2,6 +2,8 @@ package com.pawchive
 
 import android.app.Application
 import android.content.ComponentCallbacks2
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.PredictiveBackControl
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -89,8 +91,20 @@ class PawchiveApplication : Application(), ImageLoaderFactory, Configuration.Pro
     @Inject
     lateinit var pendingFavoriteActionRepository: com.pawchive.data.repository.PendingFavoriteActionRepository
 
+    @OptIn(PredictiveBackControl::class)
     override fun onCreate() {
         super.onCreate() // Hilt 在此完成字段注入
+
+        // 关闭应用内 Fragment 预测返回（BUG-NAV-BAR-FLICKER 根因修复）：
+        // fragment 1.9.0 起 FragmentManager 的预测返回默认开启（USE_PREDICTIVE_BACK = true），
+        // 手势返回时返回栈条目在手势开始即被出栈挂到 mTransitioningOp，手势完成只派发
+        // 新的 onBackStackChangeCommitted，不再回调遗留的 onBackStackChanged()——
+        // MainActivity 以「返回栈条目数」驱动的底栏显隐因此停在隐藏态，
+        // 表现为二级页面（帖子详情/创作者主页）返回主页后底栏消失，息屏/切后台才恢复。
+        // 1.8.4 只是删除了 enablePredictiveBack(true) 调用，未覆盖该默认值，所以没有生效。
+        // 静态开关必须在任何 Fragment 事务之前设置（Application 路径）；
+        // 系统级「返回桌面」预测动画不受影响（由 manifest 的 enableOnBackInvokedCallback 提供）。
+        FragmentManager.enablePredictiveBack(false)
 
         // 尽早应用深色/浅色模式：必须在任何 Activity 创建之前设置，
         // 否则 MainActivity 及其 ViewPager2 Fragment 可能用旧配置实例化，

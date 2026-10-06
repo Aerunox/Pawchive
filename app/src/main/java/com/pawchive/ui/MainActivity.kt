@@ -30,6 +30,7 @@ import com.pawchive.data.repository.AuthRepository
 import com.pawchive.data.repository.OfflineArchiveBackfill
 import com.pawchive.databinding.ActivityMainBinding
 import com.pawchive.common.nav.AppNavigator
+import com.pawchive.common.nav.BottomBarScrollController
 import com.pawchive.ui.account.AccountFragment
 import com.pawchive.ui.creator.CreatorProfileFragment
 import com.pawchive.ui.login.LoginFragment
@@ -44,13 +45,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), AppNavigator {
+class MainActivity : AppCompatActivity(), AppNavigator, BottomBarScrollController {
 
     private lateinit var binding: ActivityMainBinding
     @Inject lateinit var authRepository: AuthRepository
     @Inject lateinit var updateChecker: UpdateChecker
     @Inject lateinit var offlineArchiveBackfill: OfflineArchiveBackfill
     private lateinit var pagerAdapter: MainPagerAdapter
+
+    /** 主列表滚动显隐状态：true = 列表向下滚动已把底栏滑出屏幕 */
+    private var isBottomBarHiddenByScroll = false
 
     override fun attachBaseContext(newBase: Context) {
         // attachBaseContext 在 Hilt 注入 Activity 字段之前被系统调用，
@@ -117,6 +121,8 @@ class MainActivity : AppCompatActivity(), AppNavigator {
                 if (binding.bottomNavigation.selectedItemId != tabId) {
                     binding.bottomNavigation.selectedItemId = tabId
                 }
+                // 切 Tab 时底栏复位显示（上一页可能处于滚动隐藏状态）
+                showBottomBar()
             }
         })
 
@@ -260,20 +266,32 @@ class MainActivity : AppCompatActivity(), AppNavigator {
     }
 
     /**
-     * 控制底部导航栏整体显隐，并同步调整 ViewPager2 容器约束。
-     * 二级页面隐藏，主页面显示。
+     * 控制底部导航栏整体显隐（二级页面进入/返回、回前台等整体切换时调用），
+     * 并同步调整 ViewPager2 容器约束。二级页面隐藏，主页面显示。
+     * 主页面内的滚动显隐（列表下滑隐藏/上滑显示）由 [onMainListScrolled]/[showBottomBar] 负责。
      */
     fun setBottomNavigationVisibility(visible: Boolean) {
         val bottomNav = binding.bottomNavigation
+        // 整体显隐切换时清掉滚动隐藏状态并复位位移：返回主页时底栏必须完整复位
+        isBottomBarHiddenByScroll = false
+        bottomNav.animate().cancel()
+        bottomNav.translationY = 0f
         // 不做可见性早退：每次调用都完整重应用约束，任何路径留下的错位状态
         // 都会在下一次导航事件中被自愈（BUG-NAV-BAR-FLICKER）
         bottomNav.visibility = if (visible) View.VISIBLE else View.GONE
+        connectNavHostToBottomBar(aboveBottomBar = visible)
+    }
 
+    /**
+     * 切换 ViewPager2 容器约束：底栏可见时内容区止于底栏上方；
+     * 底栏隐藏（二级页面/滚动隐藏）时延伸到屏幕底部。
+     */
+    private fun connectNavHostToBottomBar(aboveBottomBar: Boolean) {
         val constraintLayout = binding.root as ConstraintLayout
         val constraintSet = ConstraintSet()
         constraintSet.clone(constraintLayout)
 
-        if (visible) {
+        if (aboveBottomBar) {
             constraintSet.connect(
                 R.id.nav_host_fragment, ConstraintSet.BOTTOM,
                 R.id.bottom_navigation, ConstraintSet.TOP
@@ -285,6 +303,43 @@ class MainActivity : AppCompatActivity(), AppNavigator {
             )
         }
         constraintSet.applyTo(constraintLayout)
+    }
+
+    // ---- 底栏滚动显隐（BottomBarScrollController，主 Tab 列表回调）----
+
+    override fun onMainListScrolled(dy: Int) {
+        if (dy == 0 || binding.bottomNavigation.visibility != View.VISIBLE) return
+        if (dy > 0 && !isBottomBarHiddenByScroll) {
+            isBottomBarHiddenByScroll = true
+            // 先让内容区延伸到屏幕底部（内容在底栏滑走前已就位，滑出过程无空条），再滑出底栏
+            connectNavHostToBottomBar(aboveBottomBar = false)
+            animateBottomBarTo(binding.bottomNavigation.height.toFloat())
+        } else if (dy < 0 && isBottomBarHiddenByScroll) {
+            isBottomBarHiddenByScroll = false
+            animateBottomBarTo(0f)
+        }
+    }
+
+    override fun showBottomBar() {
+        if (isBottomBarHiddenByScroll && binding.bottomNavigation.visibility == View.VISIBLE) {
+            isBottomBarHiddenByScroll = false
+            animateBottomBarTo(0f)
+        }
+    }
+
+    private fun animateBottomBarTo(targetTranslationY: Float) {
+        binding.bottomNavigation.animate()
+            .translationY(targetTranslationY)
+            .setDuration(200L)
+            .withEndAction {
+                // 滑入结束后才把内容区收回底栏上方（底栏已盖住原区域，内容不闪）；
+                // 按当前状态幂等重算——动画中途被反向滚动或二级页面打断时，
+                // 取消的动画不会走到这里，错位约束由下一次导航事件自愈
+                if (!isBottomBarHiddenByScroll) {
+                    connectNavHostToBottomBar(aboveBottomBar = true)
+                }
+            }
+            .start()
     }
 
     /**
@@ -498,6 +553,8 @@ class MainActivity : AppCompatActivity(), AppNavigator {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         setupWindowInsets()
+        // 旋转等配置变化后按返回栈状态复位底栏（顺带清掉滚动隐藏状态与位移）
+        setBottomNavigationVisibility(supportFragmentManager.backStackEntryCount == 0)
         updateBottomNavVisibility()
     }
 }

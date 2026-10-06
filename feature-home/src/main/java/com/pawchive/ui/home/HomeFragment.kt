@@ -11,12 +11,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.pawchive.common.R
 import com.pawchive.data.repository.AuthRepository
 import com.pawchive.data.repository.BookmarkManager
 import com.pawchive.data.repository.CreatorNameCache
 import com.pawchive.common.databinding.FragmentHomeBinding
 import com.pawchive.common.nav.AppNavigator
+import com.pawchive.common.nav.BottomBarScrollController
 import com.pawchive.ui.adapter.PostAdapter
 import com.pawchive.utils.ErrorStateViewHelper
 import com.pawchive.ui.widget.SkeletonHelper
@@ -171,6 +173,13 @@ class HomeFragment : Fragment() {
 
         binding.rvPosts.layoutManager = buildListLayoutManager(requireContext())
         binding.rvPosts.adapter = postAdapter
+
+        // 底栏滚动显隐：列表下滑隐藏底栏，上滑恢复
+        binding.rvPosts.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                (activity as? BottomBarScrollController)?.onMainListScrolled(dy)
+            }
+        })
     }
 
     /**
