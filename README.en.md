@@ -17,17 +17,7 @@
   <img src="https://img.shields.io/badge/Kotlin-2.3.20-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/API-30%2B-34A853?style=for-the-badge&logo=android&logoColor=white" alt="Min API" />
   <img src="https://img.shields.io/badge/Target_API-36-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Target API" />
-  <img src="https://img.shields.io/github/v/release/FengByX/Pawchive?style=for-the-badge&logo=android&label=Release&color=blue" alt="Release" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" />
-</p>
-
-<p align="center">
-  <a href="https://github.com/FengByX/Pawchive/releases">
-    <img src="https://img.shields.io/badge/Download-Releases-181717?style=for-the-badge&logo=github&logoColor=white" alt="Download" />
-  </a>
-  <a href="https://t.me/PawchiveX">
-    <img src="https://img.shields.io/badge/Telegram-PawchiveX-229ED9?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram Channel" />
-  </a>
 </p>
 
 ---
@@ -182,7 +172,7 @@ Pawchive/
 ### Clone & Build
 
 ```bash
-git clone https://github.com/FengByX/Pawchive.git
+git clone <repository-url>
 cd Pawchive
 ./gradlew assembleRelease
 ```
@@ -200,7 +190,7 @@ cd Pawchive
 
 ### Install
 
-Download the latest APK from [Releases](https://github.com/FengByX/Pawchive/releases) and install on an Android 11+ device.
+Download the latest APK and install on an Android 11+ device.
 
 ---
 

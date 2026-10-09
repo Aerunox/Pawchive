@@ -17,17 +17,7 @@
   <img src="https://img.shields.io/badge/Kotlin-2.3.20-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/API-30%2B-34A853?style=for-the-badge&logo=android&logoColor=white" alt="Min API" />
   <img src="https://img.shields.io/badge/Target_API-36-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Target API" />
-  <img src="https://img.shields.io/github/v/release/FengByX/Pawchive?style=for-the-badge&logo=android&label=Release&color=blue" alt="Release" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" />
-</p>
-
-<p align="center">
-  <a href="https://github.com/FengByX/Pawchive/releases">
-    <img src="https://img.shields.io/badge/下载-Releases-181717?style=for-the-badge&logo=github&logoColor=white" alt="Download" />
-  </a>
-  <a href="https://t.me/PawchiveX">
-    <img src="https://img.shields.io/badge/Telegram-PawchiveX-229ED9?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram Channel" />
-  </a>
 </p>
 
 ---
@@ -185,31 +175,6 @@ node_workers -->|"schedules work"| node_android
 node_updates -->|"checks releases"| node_github
 node_settings -->|"reads and writes"| node_settings_store
 
-click node_app "https://github.com/fengbyx/pawchive/blob/main/app/src/main/java/com/pawchive/ui/MainActivity.kt"
-click node_home "https://github.com/fengbyx/pawchive/blob/main/feature-home/src/main/java/com/pawchive/ui/home/HomeFragment.kt"
-click node_search "https://github.com/fengbyx/pawchive/blob/main/feature-search/src/main/java/com/pawchive/ui/search/SearchFragment.kt"
-click node_post "https://github.com/fengbyx/pawchive/blob/main/feature-post/src/main/java/com/pawchive/ui/post/PostDetailFragment.kt"
-click node_account "https://github.com/fengbyx/pawchive/blob/main/feature-account/src/main/java/com/pawchive/ui/account/AccountFragment.kt"
-click node_settings "https://github.com/fengbyx/pawchive/blob/main/feature-settings/src/main/java/com/pawchive/ui/settings/SettingsFragment.kt"
-click node_downloads_ui "https://github.com/fengbyx/pawchive/blob/main/feature-downloads/src/main/java/com/pawchive/ui/downloads/DownloadsFragment.kt"
-click node_api "https://github.com/fengbyx/pawchive/blob/main/core/src/main/java/com/pawchive/core/api/PawchiveApi.kt"
-click node_clearance "https://github.com/fengbyx/pawchive/blob/main/core/src/main/java/com/pawchive/core/api/CloudflareManager.kt"
-click node_offline "https://github.com/fengbyx/pawchive/blob/main/core/src/main/java/com/pawchive/core/db/OfflineArchiveFts.kt"
-click node_archive "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/data/repository/OfflineArchiveRepository.kt"
-click node_bookmarks "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/data/repository/BookmarkManager.kt"
-click node_session "https://github.com/fengbyx/pawchive/blob/main/core/src/main/java/com/pawchive/core/store/SessionManager.kt"
-click node_subscriptions "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/data/repository/CreatorSubscriptionRepository.kt"
-click node_rules "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/data/repository/DownloadRuleEngine.kt"
-click node_enqueue "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/data/repository/DownloadEnqueuer.kt"
-click node_download "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/data/repository/DownloadCenter.kt"
-click node_http_download "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/data/repository/HttpDownloadManager.kt"
-click node_notifications "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/data/download/DownloadNotificationController.kt"
-click node_download_service "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/data/download/DownloadNotificationService.kt"
-click node_workers "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/work/ContentUpdateWorker.kt"
-click node_updates "https://github.com/fengbyx/pawchive/blob/main/data/src/main/java/com/pawchive/data/github/UpdateChecker.kt"
-click node_settings_store "https://github.com/fengbyx/pawchive/blob/main/core/src/main/java/com/pawchive/core/store/SettingsManager.kt"
-click node_database "https://github.com/fengbyx/pawchive/blob/main/core/src/main/java/com/pawchive/core/db/PawchiveDatabase.kt"
-
 classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
 classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
 classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
@@ -305,7 +270,7 @@ Pawchive/
 ### 克隆 & 构建
 
 ```bash
-git clone https://github.com/FengByX/Pawchive.git
+git clone <仓库地址>
 cd Pawchive
 ./gradlew assembleRelease
 ```
@@ -323,7 +288,7 @@ cd Pawchive
 
 ### 安装
 
-从 [Releases](https://github.com/FengByX/Pawchive/releases) 页面下载最新 APK，安装到 Android 11+ 设备即可。
+下载最新 APK，安装到 Android 11+ 设备即可。
 
 ---
 
