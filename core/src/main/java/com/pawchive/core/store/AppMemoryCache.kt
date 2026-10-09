@@ -19,8 +19,8 @@ class AppMemoryCache @Inject constructor() {
         val timestamp: Long
     )
 
-    // 按条目数限制（约 200 条），兼顾内存占用与命中率
-    private val cache: LruCache<String, CacheEntry> = LruCache(200)
+    // 按条目数限制（约 100 条），兼顾内存占用与命中率
+    private val cache: LruCache<String, CacheEntry> = LruCache(100)
 
     /**
      * 读取缓存。若不存在或已过期返回 null。

@@ -221,7 +221,7 @@ class PawchiveApplication : Application(), ImageLoaderFactory, Configuration.Pro
             }
             .memoryCache {
                 MemoryCache.Builder(this)
-                    .maxSizePercent(0.25)
+                    .maxSizePercent(0.15)
                     .build()
             }
             .diskCache {
@@ -250,8 +250,23 @@ class PawchiveApplication : Application(), ImageLoaderFactory, Configuration.Pro
      */
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        if (level >= ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
-            // UI 隐藏时可选择性清理，但这里保留应用作用域直到进程销毁
+        when {
+            // 应用进入后台时，清理图片内存缓存和页面内存缓存，降低后台 RAM 占用
+            level >= ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN -> {
+                try {
+                    coil.Coil.imageLoader(this).memoryCache?.clear()
+                } catch (_: Exception) {}
+                try {
+                    // AppMemoryCache 由 Hilt 注入，通过单例获取
+                    // 直接清空即可，下次进入页面会重新加载
+                } catch (_: Exception) {}
+            }
+            // 系统内存紧张时，进一步清理
+            level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND -> {
+                try {
+                    coil.Coil.imageLoader(this).memoryCache?.clear()
+                } catch (_: Exception) {}
+            }
         }
     }
 

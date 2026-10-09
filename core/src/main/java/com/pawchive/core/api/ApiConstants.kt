@@ -25,7 +25,7 @@ object ApiConstants {
     const val MEMORY_CACHE_TTL_MS = 5 * 60 * 1000L
 
     /** GET JSON 内存缓存最大条目数（ApiMemoryCache）。 */
-    const val MEMORY_CACHE_MAX_ENTRIES = 200
+    const val MEMORY_CACHE_MAX_ENTRIES = 100
 
     /** Cloudflare 挑战单次过盾超时（CloudflareManager）。 */
     const val CHALLENGE_TIMEOUT_MS = 30_000L
