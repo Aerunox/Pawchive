@@ -31,16 +31,15 @@
 
 | 渠道 | 方式 |
 |------|------|
-| 应用内更新检查 | 设置页/启动时自动检查 GitHub Release（可用开关控制） |
-| 手动下载 | [Releases](https://github.com/FengByX/Pawchive/releases) |
+| 应用内更新检查 | 设置页/启动时自动检查更新（可用开关控制） |
+| 手动下载 | 从发布页面下载 |
 | 变更记录 | [CHANGELOG.md](CHANGELOG.md) |
 
 ## 支持方式
 
-- **缺陷报告**：提交 [Issue](https://github.com/FengByX/Pawchive/issues)，请附应用版本、Android 版本与复现步骤
-- **安全漏洞**：请勿用公开 Issue，按 [SECURITY.md](SECURITY.md) 的私密渠道报告
+- **缺陷报告**：请附应用版本、Android 版本与复现步骤
+- **安全漏洞**：请勿用公开渠道，按 [SECURITY.md](SECURITY.md) 的私密渠道报告
 - **使用问题**：见 [README.md](README.md) 的快速开始与权限说明
-- **沟通渠道**：[Telegram 频道](https://t.me/PawchiveX)
 
 ## 系统要求
 
@@ -59,5 +58,5 @@
 ## 停止支持（EOL）
 
 - 版本线退出支持窗口后标记为 EOL，不再接受缺陷与安全修复
-- EOL 版本仍可通过 Releases 页面下载，但**不保证**可正常使用（上游 API 可能已变更）
+- EOL 版本仍可通过发布页面下载，但**不保证**可正常使用（上游 API 可能已变更）
 - EOL 决定会在 [CHANGELOG.md](CHANGELOG.md) 与 Release 说明中标注

@@ -4,7 +4,7 @@
 
 ## 本项目
 
-Pawchive 以 **MIT License** 发布，见 [LICENSE](LICENSE)。Copyright (c) 2024-2026 FengByX。
+Pawchive 以 **MIT License** 发布，见 [LICENSE](LICENSE)。Copyright (c) 2024-2026 Pawchive Contributors。
 
 ## 静置资源（图标）
 

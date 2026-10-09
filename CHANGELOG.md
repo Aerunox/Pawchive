@@ -359,6 +359,5 @@
 
 ## 更早版本
 
-1.6.6 及更早版本的变更记录见
-[GitHub Releases](https://github.com/FengByX/Pawchive/releases)。
+1.6.6 及更早版本的变更记录见发布页面。
 本文件不对早期版本做追溯补录，以避免记录失实。
