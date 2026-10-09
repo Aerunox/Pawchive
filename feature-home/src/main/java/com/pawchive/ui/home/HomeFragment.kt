@@ -1,0 +1,343 @@
+package com.pawchive.ui.home
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.pawchive.common.R
+import com.pawchive.data.repository.AuthRepository
+import com.pawchive.data.repository.BookmarkManager
+import com.pawchive.data.repository.CreatorNameCache
+import com.pawchive.common.databinding.FragmentHomeBinding
+import com.pawchive.common.nav.AppNavigator
+import com.pawchive.common.nav.BottomBarScrollController
+import com.pawchive.ui.adapter.PostAdapter
+import com.pawchive.utils.ErrorStateViewHelper
+import com.pawchive.ui.widget.SkeletonHelper
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+/**
+ * 首页 Fragment（ARCH-006 / FRONTEND-008）。
+ *
+ * 职责：渲染 [HomeViewModel.uiState]、转发用户事件（排序/刷新/加载更多/导航/收藏变更）。
+ * 网络请求、分页、屏蔽过滤、排序、收藏模式加载全部由 ViewModel 承担。
+ */
+@AndroidEntryPoint
+class HomeFragment : Fragment() {
+
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
+
+    private val viewModel: HomeViewModel by viewModels()
+
+    private lateinit var postAdapter: PostAdapter
+    @Inject
+    lateinit var bookmarkManager: BookmarkManager
+    @Inject lateinit var authRepository: AuthRepository
+    @Inject lateinit var settingsManager: com.pawchive.core.store.SettingsManager
+
+    private var showBookmarksOnly = false
+    // 当前排序（用于按钮文字与对话框索引，ViewModel 持有实际排序状态）
+    private var currentSort = HomePostSortOption.NEWEST_PUBLISHED
+
+    // 已预取的帖子集合签名，避免 uiState 每次刷新都重新发起创作者名预取风暴
+    private var lastPrefetchSignature: String? = null
+
+    // 内嵌错误页（FEATURE-006）
+    private lateinit var errorStateView: ErrorStateViewHelper.Bound
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            showBookmarksOnly = it.getBoolean(ARG_SHOW_BOOKMARKS, false)
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupRecyclerView()
+        setupSwipeRefresh()
+        setupSortButton()
+        setupBatchActions()
+        setupNotificationEntry()
+        // 绑定内嵌错误页（FEATURE-006）
+        errorStateView = ErrorStateViewHelper.bind(binding.root) {
+            viewModel.refresh()
+        }
+
+        observeUiState()
+        viewModel.init(showBookmarksOnly)
+    }
+
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+            // 列表与 footer
+            postAdapter.updatePosts(state.posts)
+            postAdapter.setFooterVisible(state.hasMore)
+            // 加载指示：首次加载显示骨架屏；下拉刷新时由 swipeRefresh 指示
+            if (state.isLoading && state.posts.isEmpty()) {
+                SkeletonHelper.show(binding.skeletonView.root, binding.swipeRefresh)
+            } else if (binding.skeletonView.root.visibility == View.VISIBLE) {
+                SkeletonHelper.hide(binding.skeletonView.root, binding.swipeRefresh)
+            }
+            if (!state.isLoading) {
+                }
+            if (!state.isLoading) {
+                binding.swipeRefresh.isRefreshing = false
+            }
+
+            // 错误状态（FEATURE-006 智能降级：空列表展示错误页，有内容仅 Toast）
+            state.errorMessage?.let { msg ->
+                if (state.posts.isEmpty()) {
+                    binding.tvEmpty.visibility = View.GONE
+                    errorStateView.show(msg)
+                } else {
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                }
+                viewModel.clearError()
+            } ?: run {
+                errorStateView.hide()
+            }
+
+            // 空状态提示
+            if (state.posts.isEmpty() && state.errorMessage == null && !state.isLoading) {
+                binding.tvEmpty.text = getString(state.emptyHintResId)
+                binding.tvEmpty.visibility = View.VISIBLE
+            } else {
+                binding.tvEmpty.visibility = View.GONE
+            }
+
+            // 创作者名字预取（UI 渲染优化）
+            // 仅在帖子集合真正变化时才预取（避免 uiState 每次刷新都重发请求），
+            // 且只取前 20 条，避免一次性发起数十个 getCreatorProfile 请求打满连接池、
+            // 拖慢主请求与图片加载。已缓存的创作者名不会重复请求。
+            if (state.posts.isNotEmpty()) {
+                val signature = state.posts.joinToString(",") { "${it.service}:${it.user}:${it.id}" }
+                if (signature != lastPrefetchSignature) {
+                    lastPrefetchSignature = signature
+                    val prefetchPosts = state.posts.take(20)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        CreatorNameCache.prefetchCreatorNames(prefetchPosts) {
+                            _binding?.rvPosts?.post { postAdapter.refreshCreatorNames() }
+                        }
+                        postAdapter.refreshCreatorNames()
+                    }
+                }
+            }
+                }
+            }
+        }
+    }
+
+    private fun setupRecyclerView() {
+        postAdapter = PostAdapter(
+            posts = emptyList(),
+            bookmarkManager = bookmarkManager,
+            authRepository = authRepository,
+            lifecycleScope = viewLifecycleOwner.lifecycleScope,
+            onPostClicked = { post ->
+                (activity as? AppNavigator)?.openPostDetail(post.service, post.user, post.id)
+            },
+            onCreatorClicked = { service, creatorId ->
+                (activity as? AppNavigator)?.openCreatorProfile(service, creatorId)
+            },
+            onBookmarkChanged = { _, _ ->
+                viewModel.onBookmarkChanged()
+            },
+            onLoadMore = { viewModel.loadMore() },
+            // FEATURE 首页批量屏蔽
+            onPostLongClicked = { enterSelectionMode() },
+            onSelectionCountChanged = { updateBatchHint(it) }
+        )
+
+        binding.rvPosts.layoutManager = buildListLayoutManager(requireContext())
+        binding.rvPosts.adapter = postAdapter
+
+        // 底栏滚动显隐：列表下滑隐藏底栏，上滑恢复
+        binding.rvPosts.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                (activity as? BottomBarScrollController)?.onMainListScrolled(dy)
+            }
+        })
+    }
+
+    /**
+     * 列表网格列数（FEATURE 设置项扩展批次三）：
+     * 1＝单列列表（默认，旧行为）；2/3＝GridLayoutManager 网格。
+     * onResume 时重新应用，设置页修改后返回本页即生效。
+     */
+    private fun buildListLayoutManager(context: android.content.Context): androidx.recyclerview.widget.RecyclerView.LayoutManager {
+        val columns = settingsManager.getGridColumns()
+        return if (columns > 1) {
+            androidx.recyclerview.widget.GridLayoutManager(context, columns)
+        } else {
+            androidx.recyclerview.widget.LinearLayoutManager(context)
+        }
+    }
+
+    // ---------- FEATURE 首页批量屏蔽 ----------
+
+    private fun enterSelectionMode() {
+        if (!postAdapter.isSelectionMode()) {
+            postAdapter.setSelectionMode(true)
+        }
+        binding.batchBar.visibility = View.VISIBLE
+        updateBatchHint(postAdapter.getSelectedCount())
+    }
+
+    private fun exitSelectionMode() {
+        postAdapter.setSelectionMode(false)
+        binding.batchBar.visibility = View.GONE
+    }
+
+    private fun updateBatchHint(count: Int) {
+        binding.tvBatchHint.text = getString(R.string.batch_selected_count, count)
+    }
+
+    private fun setupBatchActions() {
+        binding.btnBatch.setOnClickListener { enterSelectionMode() }
+        binding.btnCancelSelect.setOnClickListener { exitSelectionMode() }
+        binding.btnSelectAll.setOnClickListener {
+            postAdapter.selectAll()
+            updateBatchHint(postAdapter.getSelectedCount())
+        }
+        binding.btnBlockSelected.setOnClickListener {
+            val selected = postAdapter.getSelectedPosts()
+            if (selected.isEmpty()) {
+                Toast.makeText(context, R.string.batch_none_selected, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            // 提取去重后的创作者列表并批量屏蔽
+            val creators = selected
+                .map { it.service to it.user }
+                .distinct()
+            viewModel.blockCreators(creators)
+            Toast.makeText(
+                context,
+                getString(R.string.batch_blocked_count, creators.size),
+                Toast.LENGTH_SHORT
+            ).show()
+            exitSelectionMode()
+        }
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            if (showBookmarksOnly) {
+                // 收藏模式无网络请求，直接重读本地并关闭刷新指示
+                viewModel.loadBookmarks()
+                binding.swipeRefresh.isRefreshing = false
+            } else {
+                viewModel.refresh()
+            }
+        }
+        binding.swipeRefresh.setColorSchemeColors(
+            getThemeColor(com.google.android.material.R.attr.colorPrimary)
+        )
+    }
+
+    private fun getThemeColor(attr: Int): Int {
+        val typedValue = android.util.TypedValue()
+        requireContext().theme.resolveAttribute(attr, typedValue, true)
+        return typedValue.data
+    }
+
+    private fun setupSortButton() {
+        // 与 ViewModel 同步初始排序（FEATURE：设置页"首页默认排序"，未设置时为最新发布）
+        currentSort = viewModel.currentSortOption
+        binding.btnSort.text = getString(currentSort.displayNameRes)
+        binding.btnSort.setOnClickListener {
+            showSortDialog()
+        }
+    }
+
+    /**
+     * 内容更新通知入口（ARCH-FEATURE-003）：顶栏铃铛打开内容更新页，
+     * 角标实时显示订阅新帖未读数。收藏模式实例复用本布局，直接隐藏入口。
+     */
+    private fun setupNotificationEntry() {
+        if (showBookmarksOnly) {
+            binding.notificationEntry.visibility = View.GONE
+            return
+        }
+        binding.btnNotifications.setOnClickListener {
+            (activity as? AppNavigator)?.openContentUpdates()
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.contentUpdateUnreadCount.collect { count ->
+                    if (count > 0) {
+                        binding.tvNotificationBadge.text = if (count > 99) "99+" else count.toString()
+                        binding.tvNotificationBadge.visibility = View.VISIBLE
+                    } else {
+                        binding.tvNotificationBadge.visibility = View.GONE
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showSortDialog() {
+        val options = HomePostSortOption.values().map { getString(it.displayNameRes) }.toTypedArray()
+        val currentIndex = HomePostSortOption.values().indexOf(currentSort)
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.select_sort)
+            .setSingleChoiceItems(options, currentIndex) { dialog, which ->
+                currentSort = HomePostSortOption.values()[which]
+                binding.btnSort.text = getString(currentSort.displayNameRes)
+                viewModel.setSort(currentSort)
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!showBookmarksOnly) {
+            viewModel.refreshBlockedFilter()
+        }
+        // 网格列数可能已在设置页修改：重新应用
+        binding.rvPosts.layoutManager = buildListLayoutManager(requireContext())
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    companion object {
+        private const val ARG_SHOW_BOOKMARKS = "show_bookmarks"
+
+        fun newInstance(showBookmarksOnly: Boolean): HomeFragment {
+            return HomeFragment().apply {
+                arguments = Bundle().apply {
+                    putBoolean(ARG_SHOW_BOOKMARKS, showBookmarksOnly)
+                }
+            }
+        }
+    }
+}
+
+

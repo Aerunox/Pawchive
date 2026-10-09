@@ -1,0 +1,330 @@
+package com.pawchive.ui.post
+
+import android.app.Dialog
+import android.content.pm.ActivityInfo
+import android.os.Build
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
+import android.widget.ImageButton
+import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.ui.PlayerView
+import com.pawchive.common.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+class FullscreenVideoDialog : DialogFragment() {
+
+    /**
+     * 全屏退出回调：把退出时的播放位置与是否在播放状态传回宿主，
+     * 宿主可据此恢复原视频播放（避免双 ExoPlayer 同时存在 + 退出后不恢复）。
+     */
+    interface FullscreenVideoListener {
+        fun onFullscreenClosed(position: Long, isPlaying: Boolean)
+    }
+
+    private var listener: FullscreenVideoListener? = null
+
+    fun setListener(l: FullscreenVideoListener) {
+        listener = l
+    }
+
+    private lateinit var playerView: PlayerView
+    private lateinit var btnPlayPause: ImageButton
+    private lateinit var btnFullscreen: ImageButton
+    private lateinit var btnClose: ImageButton
+    private lateinit var seekbarVideo: SeekBar
+    private lateinit var tvCurrentTime: TextView
+    private lateinit var tvDuration: TextView
+
+    private var videoUrl: String = ""
+    private var videoTitle: String = ""
+    private var currentPosition: Long = 0
+    private var isPlaying: Boolean = false
+    // 标记是否已在首次 STATE_READY 时 seek 到进入全屏的位置，避免缓冲恢复时反复 seek
+    private var hasSeekedToInitial: Boolean = false
+    // 用户正在拖动进度条时暂停自动同步，避免轮询与手势互抢
+    private var isUserSeeking: Boolean = false
+    // 进入全屏前 Activity 的方向，退出时恢复（Bug 17）
+    private var previousOrientation: Int = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+
+    private var videoPlayerManager: VideoPlayerManager? = null
+
+    /**
+     * 宿主（内嵌播放页）传来的播放器实例。全屏直接复用而非新建：
+     * 保留已缓冲数据与精确播放位置，进入全屏秒开、退出秒回，
+     * 避免新建 ExoPlayer 把同一视频从头重新下载（加载明显变慢的根因）。
+     */
+    private var sharedManager: VideoPlayerManager? = null
+    private var usingSharedPlayer = false
+
+    /** 进入全屏前的播放倍速（FEATURE：记住上次倍速，全屏恢复不重置）。 */
+    private var initialSpeed: Float = 1.0f
+
+    fun setSharedPlayer(manager: VideoPlayerManager) {
+        sharedManager = manager
+    }
+
+    companion object {
+        fun newInstance(
+            url: String,
+            title: String,
+            position: Long,
+            isPlaying: Boolean,
+            speed: Float = 1.0f
+        ): FullscreenVideoDialog {
+            val fragment = FullscreenVideoDialog()
+            val args = Bundle().apply {
+                putString("url", url)
+                putString("title", title)
+                putLong("position", position)
+                putBoolean("isPlaying", isPlaying)
+                putFloat("speed", speed)
+            }
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            videoUrl = it.getString("url", "")
+            videoTitle = it.getString("title", "")
+            currentPosition = it.getLong("position", 0)
+            isPlaying = it.getBoolean("isPlaying", false)
+            initialSpeed = it.getFloat("speed", 1.0f)
+        }
+        setStyle(STYLE_NO_TITLE, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.window?.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+        return dialog
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_fullscreen_video, container, false)
+
+        playerView = view.findViewById(R.id.player_view)
+        btnPlayPause = view.findViewById(R.id.btn_play_pause)
+        btnFullscreen = view.findViewById(R.id.btn_fullscreen)
+        btnClose = view.findViewById(R.id.btn_close_video)
+        seekbarVideo = view.findViewById(R.id.seekbar_video)
+        tvCurrentTime = view.findViewById(R.id.tv_current_time)
+        tvDuration = view.findViewById(R.id.tv_duration)
+
+        setupVideoPlayer()
+        setupListeners()
+        startProgressTicker()
+
+        return view
+    }
+
+    @OptIn(UnstableApi::class)
+    private fun setupVideoPlayer() {
+        val shared = sharedManager?.takeIf { it.player != null }
+        if (shared != null) {
+            // 复用内嵌播放器：已在播放位置、已缓冲，无需 prepare/seek
+            usingSharedPlayer = true
+            videoPlayerManager = shared
+            shared.attachPlayerView(playerView)
+            shared.addListener(playerListener)
+            // 进入全屏前正在播放则继续播（宿主打开全屏前会先 pause）
+            if (isPlaying) {
+                shared.resume()
+            }
+        } else {
+            // 兜底（宿主播放器已不存在，如进程恢复）：自建播放器并直接从记忆位置起播
+            videoPlayerManager = VideoPlayerManager(requireContext(), initialSpeed)
+            videoPlayerManager?.attachPlayerView(playerView)
+            videoPlayerManager?.setListener(playerListener)
+            videoPlayerManager?.play(videoUrl, currentPosition)
+        }
+    }
+
+    private val playerListener = object : VideoPlayerManager.VideoPlayerListener {
+        override fun onPlaybackStateChanged(state: Int) {
+            when (state) {
+                Player.STATE_READY -> {
+                    val duration = videoPlayerManager?.duration ?: 0
+                    if (duration > 0) {
+                        seekbarVideo.max = duration.toInt()
+                        tvDuration.text = videoPlayerManager?.formatTime(duration)
+                    }
+                    // 关键修复：STATE_READY 在缓冲恢复后会多次触发，
+                    // 旧实现每次都 seekTo(currentPosition)，导致用户拖动进度条后
+                    // 缓冲结束就被强行拉回进入全屏时的位置，无法正常跳转。
+                    // 改为仅在首次 READY 时 seek 一次。
+                    if (!hasSeekedToInitial && currentPosition > 0) {
+                        videoPlayerManager?.seekTo(currentPosition)
+                        hasSeekedToInitial = true
+                    }
+                    if (isPlaying) {
+                        videoPlayerManager?.resume()
+                    }
+                }
+                Player.STATE_ENDED -> {
+                    btnPlayPause.setImageResource(R.drawable.ic_play)
+                }
+            }
+        }
+
+        override fun onIsPlayingChanged(playing: Boolean) {
+            btnPlayPause.setImageResource(if (playing) R.drawable.ic_pause else R.drawable.ic_play)
+        }
+
+        override fun onVideoSizeChanged(width: Int, height: Int) {}
+
+        override fun onError(message: String) {
+            Toast.makeText(context, "${getString(R.string.video_play_failed)}: $message", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupListeners() {
+        btnPlayPause.setOnClickListener {
+            if (videoPlayerManager?.isPlaying == true) {
+                videoPlayerManager?.pause()
+            } else {
+                videoPlayerManager?.resume()
+            }
+        }
+
+        btnClose.setOnClickListener {
+            dismiss()
+        }
+
+        btnFullscreen.setOnClickListener {
+            dismiss()
+        }
+
+        seekbarVideo.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    tvCurrentTime.text = videoPlayerManager?.formatTime(progress.toLong())
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                isUserSeeking = true
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                isUserSeeking = false
+                val progress = seekBar?.progress ?: 0
+                videoPlayerManager?.seekTo(progress.toLong())
+                tvCurrentTime.text = videoPlayerManager?.formatTime(progress.toLong())
+            }
+        })
+
+        playerView.setOnClickListener {
+            val controls = view?.findViewById<View>(R.id.video_controller_bar)
+            controls?.visibility = if (controls.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        }
+    }
+
+    /**
+     * 进度条自动同步（200ms 轮询，与内嵌页同一机制）。
+     * 全屏页此前没有任何同步逻辑，进度条只在用户拖动时被动更新；
+     * 复用播放器模式下 STATE_READY 不会重放，max/时长标签也在这里兜底初始化。
+     */
+    private fun startProgressTicker() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    videoPlayerManager?.player?.let { p ->
+                        val dur = p.duration
+                        if (dur > 0) {
+                            if (seekbarVideo.max != dur.toInt()) {
+                                seekbarVideo.max = dur.toInt()
+                                tvDuration.text = videoPlayerManager?.formatTime(dur)
+                            }
+                            if (!isUserSeeking) {
+                                seekbarVideo.progress = p.currentPosition.toInt().coerceIn(0, seekbarVideo.max)
+                                seekbarVideo.secondaryProgress = p.bufferedPosition.toInt().coerceIn(0, seekbarVideo.max)
+                                tvCurrentTime.text = videoPlayerManager?.formatTime(p.currentPosition)
+                            }
+                        }
+                    }
+                    delay(200)
+                }
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // 进入全屏：记录原方向 → 切横屏；退出时恢复为原方向，
+        // 旧实现无条件改为竖屏，导致平板/横屏默认设备退出全屏后整个 App 被强制改为竖屏。
+        previousOrientation = requireActivity().requestedOrientation
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            requireActivity().window.insetsController?.hide(
+                android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars()
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            requireActivity().window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                )
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // 恢复进入全屏前的方向，避免强制竖屏
+        requireActivity().requestedOrientation = previousOrientation
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            requireActivity().window.insetsController?.show(
+                android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars()
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            requireActivity().window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+        }
+    }
+
+    override fun onDestroyView() {
+        // 退出全屏前把当前位置与播放状态回调给宿主，宿主据此恢复原视频播放
+        val position = videoPlayerManager?.currentPosition ?: 0L
+        val playing = videoPlayerManager?.isPlaying ?: false
+
+        if (usingSharedPlayer) {
+            // 复用模式：只解绑全屏视图、摘除自己的监听，绝不 release（播放器要还给宿主继续播）。
+            // 必须先解绑再回调——宿主在回调里重新 attachPlayerView，若顺序颠倒会把刚接回的视图又清空
+            videoPlayerManager?.removeListener(playerListener)
+            videoPlayerManager?.detachPlayerView()
+            listener?.onFullscreenClosed(position, playing)
+        } else {
+            listener?.onFullscreenClosed(position, playing)
+            videoPlayerManager?.release()
+        }
+        listener = null
+        videoPlayerManager = null
+        super.onDestroyView()
+    }
+}
