@@ -67,7 +67,7 @@
 - **省流量**：列表默认加载缩略图，可切换为原图
 - **下载参数**：自定义下载目录（SAF）、最大并发数（1–5）、重试次数（1–3）、仅 Wi-Fi 下载、文件命名格式
 - **自动备份**：每日导出备份到所选目录
-- **应用内更新**：自动检查 GitHub Release，语义化版本比较，支持 STABLE / BETA 通道与「忽略此版本」
+- **应用内更新**：1.9.0 为最终版本，此后停止更新，已移除 GitHub 更新检查功能
 
 ---
 
@@ -129,7 +129,6 @@ subgraph group_operations["Background operations"]
   node_notifications["Download notifications"]
   node_download_service["Foreground service"]
   node_workers["Scheduled work"]
-  node_updates["Release checker<br/>[UpdateChecker.kt]"]
 end
 
 subgraph group_platform["Core platform"]
@@ -139,7 +138,6 @@ end
 
 node_user(("App user"))
 node_creator_service{{"Pawchive platform"}}
-node_github{{"GitHub releases"}}
 node_android{{"Android system"}}
 
 node_user -->|"opens"| node_app
@@ -172,7 +170,6 @@ node_download_service -->|"forwards actions"| node_download
 node_downloads_ui -->|"manages tasks"| node_download
 node_workers -->|"checks creators"| node_subscriptions
 node_workers -->|"schedules work"| node_android
-node_updates -->|"checks releases"| node_github
 node_settings -->|"reads and writes"| node_settings_store
 
 classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
@@ -185,8 +182,8 @@ classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
 class node_app,node_home,node_search,node_post,node_account,node_settings,node_downloads_ui,node_user toneBlue
 class node_api,node_clearance,node_offline toneAmber
 class node_archive,node_bookmarks,node_session,node_subscriptions toneMint
-class node_rules,node_enqueue,node_download,node_http_download,node_notifications,node_download_service,node_workers,node_updates toneRose
-class node_settings_store,node_database,node_creator_service,node_github,node_android toneIndigo
+class node_rules,node_enqueue,node_download,node_http_download,node_notifications,node_download_service,node_workers toneRose
+class node_settings_store,node_database,node_creator_service,node_android toneIndigo
 ```
 
 ---
@@ -251,7 +248,7 @@ Pawchive/
 ├── feature-downloads/      # 下载中心
 ├── feature-settings/       # 设置（含下载规则、订阅、备份、缓存管理）
 ├── feature-account/        # 账号 / 登录 / 收藏
-├── data/                   # 业务层：Repository / 下载引擎 / Worker / GitHub 更新检查
+├── data/                   # 业务层：Repository / 下载引擎 / Worker
 ├── core/                   # 基础设施：网络 / 模型 / Room / DataStore / 工具
 └── gradle/libs.versions.toml   # 版本目录（依赖单一事实来源）
 ```

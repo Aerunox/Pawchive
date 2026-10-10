@@ -76,7 +76,6 @@ class SettingsFragment : Fragment() {
         setupAutoCleanCache()
         setupManualCleanCache()
         setupCacheManagerEntry()
-        setupAutoCheckUpdate()
         setupCrashLog()
         setupHideBookmarkedCreators()
         setupDedupeByCreator()
@@ -94,7 +93,6 @@ class SettingsFragment : Fragment() {
         setupSyncInterval()
         setupHomeDefaultSort()
         setupSearchHistoryLimit()
-        setupUpdateFrequency()
         // FEATURE 设置项扩展（批次二：下载参数）
         setupDownloadParams()
         // FEATURE 设置项扩展（批次三）
@@ -103,7 +101,6 @@ class SettingsFragment : Fragment() {
         setupDynamicColor()
         setupReduceAnimations()
         setupGridColumns()
-        setupUpdateChannel()
         setupAutoBackup()
         setupWipeData()
         observeUiState()
@@ -407,13 +404,6 @@ class SettingsFragment : Fragment() {
     private fun setupCacheManagerEntry() {
         binding.rowCacheManager.setOnClickListener {
             (activity as? AppNavigator)?.openFragment(CacheManagerFragment())
-        }
-    }
-
-    private fun setupAutoCheckUpdate() {
-        binding.switchAutoCheckUpdate.isChecked = viewModel.uiState.value.autoCheckUpdateEnabled
-        binding.switchAutoCheckUpdate.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setAutoCheckUpdateEnabled(isChecked)
         }
     }
 
@@ -745,41 +735,6 @@ class SettingsFragment : Fragment() {
         )
     }
 
-    /** 更新检查频率（单选弹窗；仅在自动检查更新开启时生效）。 */
-    private fun setupUpdateFrequency() {
-        refreshUpdateFrequencyValue()
-        binding.rowUpdateFrequency.setOnClickListener {
-            val values = listOf(
-                SettingsManager.UpdateFrequency.EVERY_LAUNCH,
-                SettingsManager.UpdateFrequency.DAILY,
-                SettingsManager.UpdateFrequency.WEEKLY
-            )
-            val options = arrayOf(
-                getString(R.string.update_freq_every_launch),
-                getString(R.string.update_freq_daily),
-                getString(R.string.update_freq_weekly)
-            )
-            val checked = values.indexOf(viewModel.uiState.value.updateFrequency).coerceAtLeast(0)
-            com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.update_frequency_label)
-                .setSingleChoiceItems(options, checked) { dialog, which ->
-                    viewModel.setUpdateFrequency(values[which])
-                    refreshUpdateFrequencyValue()
-                    dialog.dismiss()
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-        }
-    }
-
-    private fun refreshUpdateFrequencyValue() {
-        binding.tvUpdateFrequencyValue.text = when (viewModel.uiState.value.updateFrequency) {
-            SettingsManager.UpdateFrequency.EVERY_LAUNCH -> getString(R.string.update_freq_every_launch)
-            SettingsManager.UpdateFrequency.WEEKLY -> getString(R.string.update_freq_weekly)
-            SettingsManager.UpdateFrequency.DAILY -> getString(R.string.update_freq_daily)
-        }
-    }
-
     /**
      * 批次二：下载参数（仅 Wi-Fi 开关 + 并发数/重试次数单选弹窗）。
      * 上限由 SettingsManager 钳制：并发 1–5（服务器合规）、重试 1–3。
@@ -980,38 +935,6 @@ class SettingsFragment : Fragment() {
             2 -> getString(R.string.grid_columns_2)
             3 -> getString(R.string.grid_columns_3)
             else -> getString(R.string.grid_columns_1)
-        }
-    }
-
-    /** 更新通道（单选弹窗：稳定版 / Beta）。 */
-    private fun setupUpdateChannel() {
-        refreshUpdateChannelValue()
-        binding.rowUpdateChannel.setOnClickListener {
-            val values = listOf(
-                SettingsManager.UpdateChannel.STABLE,
-                SettingsManager.UpdateChannel.BETA
-            )
-            val options = arrayOf(
-                getString(R.string.update_channel_stable),
-                getString(R.string.update_channel_beta)
-            )
-            val checked = values.indexOf(viewModel.uiState.value.updateChannel).coerceAtLeast(0)
-            com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.update_channel_label)
-                .setSingleChoiceItems(options, checked) { dialog, which ->
-                    viewModel.setUpdateChannel(values[which])
-                    refreshUpdateChannelValue()
-                    dialog.dismiss()
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-        }
-    }
-
-    private fun refreshUpdateChannelValue() {
-        binding.tvUpdateChannelValue.text = when (viewModel.uiState.value.updateChannel) {
-            SettingsManager.UpdateChannel.BETA -> getString(R.string.update_channel_beta)
-            SettingsManager.UpdateChannel.STABLE -> getString(R.string.update_channel_stable)
         }
     }
 

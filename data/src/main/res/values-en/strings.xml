@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="offline_action_queued">Offline: the action was saved and will sync automatically.</string>
-    <!-- Update check (UpdateChecker) -->
-    <string name="update_available_title">New version available</string>
-    <string name="update_current_version">Current: %1$s</string>
-    <string name="update_latest_version">Latest: %1$s</string>
-    <string name="update_go_download">Go to Download</string>
-    <string name="update_later">Later</string>
-    <string name="update_ignore_version">Skip this version</string>
-    <string name="update_version_ignored">Version skipped. You will be prompted again when a newer version is released</string>
 
     <!-- Download notification (DownloadWorker) -->
     <string name="download_channel_name">Download progress</string>

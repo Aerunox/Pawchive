@@ -19,13 +19,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.pawchive.BuildConfig
 import com.pawchive.PawchiveApplication
 import com.pawchive.R
 import com.pawchive.core.api.ClearanceCoordinator
 import com.pawchive.core.store.SettingsManager
 import com.pawchive.core.util.ContentUpdateConstants
-import com.pawchive.data.github.UpdateChecker
 import com.pawchive.data.repository.AuthRepository
 import com.pawchive.data.repository.OfflineArchiveBackfill
 import com.pawchive.databinding.ActivityMainBinding
@@ -49,7 +47,6 @@ class MainActivity : AppCompatActivity(), AppNavigator, BottomBarScrollControlle
 
     private lateinit var binding: ActivityMainBinding
     @Inject lateinit var authRepository: AuthRepository
-    @Inject lateinit var updateChecker: UpdateChecker
     @Inject lateinit var offlineArchiveBackfill: OfflineArchiveBackfill
     private lateinit var pagerAdapter: MainPagerAdapter
 
@@ -142,12 +139,6 @@ class MainActivity : AppCompatActivity(), AppNavigator, BottomBarScrollControlle
         }
 
         updateBottomNavVisibility()
-
-        updateChecker.checkAndShowDialog(
-            lifecycleOwner = this,
-            currentVersion = BuildConfig.VERSION_NAME,
-            context = this
-        )
 
         // 内容更新通知点击 → 打开内容更新页（ARCH-FEATURE-003 系统通知推送）
         handleContentUpdateIntent(intent)

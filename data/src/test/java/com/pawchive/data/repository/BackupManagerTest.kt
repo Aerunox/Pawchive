@@ -77,7 +77,6 @@ class BackupManagerTest {
             downloadHistoryManager.clearAll()
         }
         settingsManager.setAutoCleanCacheEnabled(false)
-        settingsManager.setAutoCheckUpdateEnabled(true)
         settingsManager.setHideBookmarkedCreatorsEnabled(false)
     }
 

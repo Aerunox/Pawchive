@@ -62,21 +62,6 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
     }
 
     /**
-     * 更新检查频率（FEATURE：设置项扩展批次一）。
-     * 仅在"自动检查更新"总开关开启时生效。
-     */
-    enum class UpdateFrequency(val key: String) {
-        EVERY_LAUNCH("every_launch"),
-        DAILY("daily"),
-        WEEKLY("weekly");
-
-        companion object {
-            fun fromKey(key: String?): UpdateFrequency =
-                entries.find { it.key == key } ?: DAILY
-        }
-    }
-
-    /**
      * 启动主界面 Tab（FEATURE：启动页可配置）。
      * 用户进入 App 后默认停留的主 Tab，可在设置页修改。
      */
@@ -107,21 +92,6 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
         companion object {
             fun fromKey(key: String?): FilenameFormat =
                 entries.find { it.key == key } ?: TIMESTAMP
-        }
-    }
-
-    /**
-     * 更新通道（FEATURE：设置项扩展批次三）。
-     * - STABLE：仅正式版（GitHub releases/latest 语义）；
-     * - BETA：包含预发布版本（取语义化版本号最新的一条，含 beta/rc）。
-     */
-    enum class UpdateChannel(val key: String) {
-        STABLE("stable"),
-        BETA("beta");
-
-        companion object {
-            fun fromKey(key: String?): UpdateChannel =
-                entries.find { it.key == key } ?: STABLE
         }
     }
 
@@ -290,14 +260,6 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
         write { it[KEY_AUTO_CLEAN_CACHE] = enabled }
     }
 
-    fun isAutoCheckUpdateEnabled(): Boolean {
-        return read { it[KEY_AUTO_CHECK_UPDATE] } ?: true
-    }
-
-    fun setAutoCheckUpdateEnabled(enabled: Boolean) {
-        write { it[KEY_AUTO_CHECK_UPDATE] = enabled }
-    }
-
     /**
      * 首页是否隐藏已收藏创作者的帖子（ARCH-FEATURE-006）。
      * 默认关闭；开启后首页信息流过滤掉已收藏创作者发布的内容。
@@ -416,15 +378,6 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
         write { it[KEY_SEARCH_HISTORY_LIMIT] = limit.coerceIn(MIN_SEARCH_HISTORY_LIMIT, MAX_SEARCH_HISTORY_LIMIT) }
     }
 
-    /** 更新检查频率（仅在自动检查更新开启时生效）。 */
-    fun getUpdateFrequency(): UpdateFrequency {
-        return UpdateFrequency.fromKey(read { it[KEY_UPDATE_FREQUENCY] })
-    }
-
-    fun setUpdateFrequency(frequency: UpdateFrequency) {
-        write { it[KEY_UPDATE_FREQUENCY] = frequency.key }
-    }
-
     /** 列表加载原图（默认关＝省流量：缩略图 CDN 优先，失败回退原图）。 */
     fun isListOriginalImageEnabled(): Boolean {
         return read { it[KEY_LIST_ORIGINAL_IMAGE] } ?: false
@@ -472,7 +425,7 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
         write { it[KEY_WIFI_ONLY_DOWNLOAD] = enabled }
     }
 
-    // ---------- 设置项扩展（批次三：命名格式 / 更新通道 / 外观增强 / 隐私 / 自动备份） ----------
+    // ---------- 设置项扩展（批次三：命名格式 / 外观增强 / 隐私 / 自动备份） ----------
 
     /** 下载文件命名格式（默认时间戳命名＝旧版行为）。 */
     fun getFilenameFormat(): FilenameFormat {
@@ -481,15 +434,6 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
 
     fun setFilenameFormat(format: FilenameFormat) {
         write { it[KEY_FILENAME_FORMAT] = format.key }
-    }
-
-    /** 更新通道（默认稳定版）。 */
-    fun getUpdateChannel(): UpdateChannel {
-        return UpdateChannel.fromKey(read { it[KEY_UPDATE_CHANNEL] })
-    }
-
-    fun setUpdateChannel(channel: UpdateChannel) {
-        write { it[KEY_UPDATE_CHANNEL] = channel.key }
     }
 
     /** 主题强调色（默认 Pawchive 蓝）。 */
@@ -751,7 +695,6 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
         private val KEY_DOWNLOAD_TREE_URI = stringPreferencesKey("download_tree_uri")
         private val KEY_DOWNLOAD_LOCATION_NAME = stringPreferencesKey("download_location_name")
         private val KEY_AUTO_CLEAN_CACHE = booleanPreferencesKey("auto_clean_cache")
-        private val KEY_AUTO_CHECK_UPDATE = booleanPreferencesKey("auto_check_update")
         private val KEY_HIDE_BOOKMARKED_CREATORS = booleanPreferencesKey("hide_bookmarked_creators")
         private val KEY_DEDUPE_BY_CREATOR = booleanPreferencesKey("dedupe_by_creator")
         private val KEY_AUTO_SUBSCRIBE_ON_BOOKMARK = booleanPreferencesKey("auto_subscribe_on_bookmark")
@@ -778,7 +721,6 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
         private val KEY_LAST_PLAYBACK_SPEED = floatPreferencesKey("last_playback_speed")
         private val KEY_HOME_DEFAULT_SORT = stringPreferencesKey("home_default_sort")
         private val KEY_SEARCH_HISTORY_LIMIT = intPreferencesKey("search_history_limit")
-        private val KEY_UPDATE_FREQUENCY = stringPreferencesKey("update_frequency")
         private val KEY_LIST_ORIGINAL_IMAGE = booleanPreferencesKey("list_original_image")
         private val KEY_MAX_CONCURRENT_DOWNLOADS = intPreferencesKey("max_concurrent_downloads")
         private val KEY_DOWNLOAD_MAX_RETRY = intPreferencesKey("download_max_retry")
@@ -786,7 +728,6 @@ class SettingsManager @Inject constructor(@ApplicationContext context: Context) 
 
         // 设置项扩展（批次三）
         private val KEY_FILENAME_FORMAT = stringPreferencesKey("filename_format")
-        private val KEY_UPDATE_CHANNEL = stringPreferencesKey("update_channel")
         private val KEY_ACCENT_THEME = stringPreferencesKey("accent_theme")
         private val KEY_DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
         private val KEY_REDUCE_ANIMATIONS = booleanPreferencesKey("reduce_animations")

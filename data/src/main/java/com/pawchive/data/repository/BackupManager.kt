@@ -24,7 +24,6 @@ data class BackupSettings(
     val language: String? = null,
     val appearance: String? = null,
     val autoCleanCache: Boolean? = null,
-    val autoCheckUpdate: Boolean? = null,
     val hideBookmarkedCreators: Boolean? = null
 )
 
@@ -99,7 +98,6 @@ class BackupManager @Inject constructor(
                 language = settingsManager.getLanguage().code,
                 appearance = settingsManager.getAppearance().name,
                 autoCleanCache = settingsManager.isAutoCleanCacheEnabled(),
-                autoCheckUpdate = settingsManager.isAutoCheckUpdateEnabled(),
                 hideBookmarkedCreators = settingsManager.isHideBookmarkedCreatorsEnabled()
             )
         )
@@ -148,7 +146,6 @@ class BackupManager @Inject constructor(
                 ?.let { settingsManager.setAppearance(it) }
         }
         settings.autoCleanCache?.let { settingsManager.setAutoCleanCacheEnabled(it) }
-        settings.autoCheckUpdate?.let { settingsManager.setAutoCheckUpdateEnabled(it) }
         settings.hideBookmarkedCreators?.let { settingsManager.setHideBookmarkedCreatorsEnabled(it) }
     }
 

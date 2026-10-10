@@ -31,7 +31,7 @@ import javax.inject.Inject
  * - [language] / [appearance]：当前语言与外观选择
  * - [blockedCount]：已屏蔽创作者数量（订阅 Flow 自动刷新）
  * - [downloadLocationText]：已格式化的下载位置显示文本
- * - [autoCleanCacheEnabled] / [autoCheckUpdateEnabled]：开关状态
+ * - [autoCleanCacheEnabled]：开关状态
  * - [cacheSizeText]：已格式化的缓存大小文本
  * - [versionName]：语义化版本号
  * - [isCleaningCache]：缓存清理进行中（Fragment 控制 loading Toast）
@@ -44,7 +44,6 @@ data class SettingsUiState(
     val blockedCount: Int = 0,
     val downloadLocationText: String = "",
     val autoCleanCacheEnabled: Boolean = false,
-    val autoCheckUpdateEnabled: Boolean = true,
     val hideBookmarkedCreatorsEnabled: Boolean = false,
     val dedupeByCreatorEnabled: Boolean = true,
     val autoSubscribeOnBookmarkEnabled: Boolean = true,
@@ -64,14 +63,12 @@ data class SettingsUiState(
     val syncIntervalMinutes: Int = SettingsManager.DEFAULT_SYNC_INTERVAL_MINUTES,
     val homeDefaultSort: String? = null,
     val searchHistoryLimit: Int = SettingsManager.DEFAULT_SEARCH_HISTORY_LIMIT,
-    val updateFrequency: SettingsManager.UpdateFrequency = SettingsManager.UpdateFrequency.DAILY,
     // FEATURE 设置项扩展（批次二：下载参数）
     val maxConcurrentDownloads: Int = SettingsManager.DEFAULT_MAX_CONCURRENT_DOWNLOADS,
     val downloadMaxRetry: Int = SettingsManager.DEFAULT_DOWNLOAD_MAX_RETRY,
     val wifiOnlyDownloadEnabled: Boolean = false,
     // FEATURE 设置项扩展（批次三）
     val filenameFormat: SettingsManager.FilenameFormat = SettingsManager.FilenameFormat.TIMESTAMP,
-    val updateChannel: SettingsManager.UpdateChannel = SettingsManager.UpdateChannel.STABLE,
     val accentTheme: SettingsManager.AccentTheme = SettingsManager.AccentTheme.DEFAULT,
     val dynamicColorEnabled: Boolean = false,
     val reduceAnimationsEnabled: Boolean = false,
@@ -120,7 +117,6 @@ class SettingsViewModel @Inject constructor(
                 appearance = settingsManager.getAppearance(),
                 startupTab = settingsManager.getStartupTab(),
                 autoCleanCacheEnabled = settingsManager.isAutoCleanCacheEnabled(),
-                autoCheckUpdateEnabled = settingsManager.isAutoCheckUpdateEnabled(),
                 hideBookmarkedCreatorsEnabled = settingsManager.isHideBookmarkedCreatorsEnabled(),
                 dedupeByCreatorEnabled = settingsManager.isDedupeByCreatorEnabled(),
                 autoSubscribeOnBookmarkEnabled = settingsManager.isAutoSubscribeOnBookmarkEnabled(),
@@ -135,12 +131,10 @@ class SettingsViewModel @Inject constructor(
                 syncIntervalMinutes = settingsManager.getSyncIntervalMinutes(),
                 homeDefaultSort = settingsManager.getHomeDefaultSort(),
                 searchHistoryLimit = settingsManager.getSearchHistoryLimit(),
-                updateFrequency = settingsManager.getUpdateFrequency(),
                 maxConcurrentDownloads = settingsManager.getMaxConcurrentDownloads(),
                 downloadMaxRetry = settingsManager.getDownloadMaxRetry(),
                 wifiOnlyDownloadEnabled = settingsManager.isWifiOnlyDownloadEnabled(),
                 filenameFormat = settingsManager.getFilenameFormat(),
-                updateChannel = settingsManager.getUpdateChannel(),
                 accentTheme = settingsManager.getAccentTheme(),
                 dynamicColorEnabled = settingsManager.isDynamicColorEnabled(),
                 reduceAnimationsEnabled = settingsManager.isReduceAnimationsEnabled(),
@@ -189,11 +183,6 @@ class SettingsViewModel @Inject constructor(
     fun setAutoCleanCacheEnabled(enabled: Boolean) {
         settingsManager.setAutoCleanCacheEnabled(enabled)
         _uiState.update { it.copy(autoCleanCacheEnabled = enabled) }
-    }
-
-    fun setAutoCheckUpdateEnabled(enabled: Boolean) {
-        settingsManager.setAutoCheckUpdateEnabled(enabled)
-        _uiState.update { it.copy(autoCheckUpdateEnabled = enabled) }
     }
 
     fun setHideBookmarkedCreatorsEnabled(enabled: Boolean) {
@@ -279,11 +268,6 @@ class SettingsViewModel @Inject constructor(
         _uiState.update { it.copy(searchHistoryLimit = settingsManager.getSearchHistoryLimit()) }
     }
 
-    fun setUpdateFrequency(frequency: SettingsManager.UpdateFrequency) {
-        settingsManager.setUpdateFrequency(frequency)
-        _uiState.update { it.copy(updateFrequency = frequency) }
-    }
-
     // ---------- 设置项扩展（批次二：下载参数） ----------
 
     fun setMaxConcurrentDownloads(count: Int) {
@@ -307,12 +291,6 @@ class SettingsViewModel @Inject constructor(
     fun setFilenameFormat(format: SettingsManager.FilenameFormat) {
         settingsManager.setFilenameFormat(format)
         _uiState.update { it.copy(filenameFormat = format) }
-    }
-
-    /** 更新通道（稳定版 / Beta）。 */
-    fun setUpdateChannel(channel: SettingsManager.UpdateChannel) {
-        settingsManager.setUpdateChannel(channel)
-        _uiState.update { it.copy(updateChannel = channel) }
     }
 
     /** 主题强调色（选择后由 Fragment 重建 Activity 以应用新主题）。 */

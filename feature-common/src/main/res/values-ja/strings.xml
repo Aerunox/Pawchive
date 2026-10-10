@@ -84,10 +84,6 @@
     <string name="network_privacy_section">ネットワークとプライバシー</string>
     <string name="search_history_limit_label">検索履歴の保存件数</string>
     <string name="history_limit_value_fmt">%1$d 件</string>
-    <string name="update_frequency_label">更新確認の頻度</string>
-    <string name="update_freq_every_launch">起動時毎回</string>
-    <string name="update_freq_daily">毎日</string>
-    <string name="update_freq_weekly">毎週</string>
 
     <!-- FEATURE 設定拡張（バッチ3） -->
     <string name="filename_format_label">ダウンロードファイル名</string>
@@ -109,9 +105,6 @@
     <string name="grid_columns_1">1列</string>
     <string name="grid_columns_2">2列</string>
     <string name="grid_columns_3">3列</string>
-    <string name="update_channel_label">更新チャネル</string>
-    <string name="update_channel_stable">安定版</string>
-    <string name="update_channel_beta">Beta（プレリリース含む）</string>
     <string name="wipe_data_label">ローカルデータを全消去</string>
     <string name="wipe_data_desc">ブックマーク・履歴・ブロックリスト・進捗・全設定を削除し、サインアウトします</string>
     <string name="wipe_data_continue">続行</string>
@@ -238,16 +231,6 @@
     <string name="download_timeout">ダウンロードタイムアウト</string>
     <string name="network_error">ネットワークエラー</string>
 
-    <!-- Update Checker -->
-    <string name="update_available_title">新しいバージョンがあります</string>
-    <string name="update_current_version">現在のバージョン：%1$s</string>
-    <string name="update_latest_version">最新バージョン：%1$s</string>
-    <string name="update_go_download">ダウンロードへ</string>
-    <string name="update_later">後で</string>
-    <string name="check_for_updates">アップデート確認</string>
-    <string name="update_already_latest">最新バージョンです</string>
-    <string name="update_check_failed">アップデート確認に失敗しました</string>
-
     <!-- Login / Sync -->
     <string name="login_success_syncing">ログイン成功！ブックマークを同期中...</string>
     <string name="logout_failed">ログアウト失敗</string>
@@ -294,8 +277,6 @@
     <string name="auto_clean_cache_desc">アプリ起動時に一時キャッシュファイルを自動的にクリーンアップ</string>
     <string name="manual_clean_cache">キャッシュをクリーンアップ</string>
     <string name="manual_clean_cache_desc">キャッシュデータが使用するストレージ容量を解放</string>
-    <string name="auto_check_update">アップデート自動確認</string>
-    <string name="auto_check_update_desc">アプリ起動時に新バージョンを確認</string>
     <string name="crash_log">クラッシュログを表示</string>
     <string name="crash_log_desc">最近のクラッシュログを表示して問題を報告</string>
     <string name="crash_log_empty">クラッシュログはありません</string>

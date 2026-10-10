@@ -18,6 +18,17 @@
 3. 修复重试后暂停可能写入失效断点的问题：总长未知的下载重传时同步清零持久化检查点，
    避免旧的高断点在暂停落库时污染续传起点。
 
+### Removed（1.9.0 为最终版本，停止后续更新）
+- 移除应用内更新检查全部功能与代码：账号页"检查更新"按钮、设置页"自动检查更新/
+  更新检查频率/更新通道"、启动时自动检查弹窗、UpdateChecker/GithubApi/GithubRelease
+  整链路——应用不再向 GitHub API 发起任何请求，不再携带作者仓库地址与用户名
+- User-Agent 从 `Pawchive-Android (https://github.com/FengByX/Pawchive)` 改为
+  `Pawchive-Android`（运维方"可识别 UA"要求仍满足；cf_clearance 与 UA 强绑定，
+  升级后首次请求触发一次重新过盾，属预期）
+- 移除设置持久化项 update_frequency/update_channel/auto_check_update 的读写代码
+  （旧值残留无害）；备份包不再包含 autoCheckUpdate 字段
+- README 架构图与功能列表同步更新
+
 工程师视角（BUG-STALL-RETRY）：
 - 根因链：HttpDownloadManager.downloadToFile 重试循环 attempt>1 时 resumeOffset=0
   从头下载（无 ETag 校验的续传对服务端文件变更不安全，设计正确），但不通知上层；

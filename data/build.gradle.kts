@@ -54,9 +54,6 @@ dependencies {
     // WorkManager - @HiltWorker 下载/缓存任务
     implementation(libs.androidx.work.runtime.ktx)
 
-    // Chrome Custom Tabs - UpdateChecker 打开下载页
-    implementation("androidx.browser:browser:1.8.0")
-
     // Jetpack DataStore - BookmarkManager/SearchHistoryManager/BlockedCreatorManager 等持久化
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 

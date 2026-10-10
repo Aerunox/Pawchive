@@ -112,25 +112,6 @@
                     android:gravity="start|center_vertical"
                     android:paddingHorizontal="16dp" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="8dp"
-                    android:background="?attr/colorOutlineVariant" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_check_update_logged_out"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:text="@string/check_for_updates"
-                    android:textSize="16sp"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_update"
-                    app:iconGravity="textStart"
-                    android:gravity="start|center_vertical"
-                    android:paddingHorizontal="16dp" />
-
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
@@ -238,25 +219,6 @@
                     android:textSize="16sp"
                     app:cornerRadius="12dp"
                     app:icon="@drawable/ic_settings"
-                    app:iconGravity="textStart"
-                    android:gravity="start|center_vertical"
-                    android:paddingHorizontal="16dp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="8dp"
-                    android:background="?attr/colorOutlineVariant" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_check_update"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:text="@string/check_for_updates"
-                    android:textSize="16sp"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_update"
                     app:iconGravity="textStart"
                     android:gravity="start|center_vertical"
                     android:paddingHorizontal="16dp" />

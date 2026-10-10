@@ -67,7 +67,7 @@
 - **Data saving**: Lists load thumbnails by default; switchable to originals
 - **Download parameters**: Custom directory (SAF), max concurrency (1–5), retry count (1–3), Wi-Fi-only, filename format
 - **Auto backup**: Daily backup export to a chosen directory
-- **In-app updates**: Auto-check GitHub Releases with semantic version comparison, STABLE / BETA channels, and "ignore this version"
+- **In-app updates**: 1.9.0 is the final release; the GitHub update check has been removed
 
 ---
 
@@ -153,7 +153,7 @@ Pawchive/
 ├── feature-downloads/      # Download center
 ├── feature-settings/       # Settings (download rules, subscriptions, backup, cache management)
 ├── feature-account/        # Account / login / bookmarks
-├── data/                   # Business layer: Repository / download engine / Worker / GitHub update check
+├── data/                   # Business layer: Repository / download engine / Worker
 ├── core/                   # Infrastructure: network / models / Room / DataStore / utilities
 └── gradle/libs.versions.toml   # Version catalog (single source of dependencies)
 ```

@@ -84,10 +84,6 @@
     <string name="network_privacy_section">Network &amp; Privacy</string>
     <string name="search_history_limit_label">Search History Limit</string>
     <string name="history_limit_value_fmt">%1$d items</string>
-    <string name="update_frequency_label">Update Check Frequency</string>
-    <string name="update_freq_every_launch">Every launch</string>
-    <string name="update_freq_daily">Daily</string>
-    <string name="update_freq_weekly">Weekly</string>
 
     <!-- FEATURE settings extension (batch 3) -->
     <string name="filename_format_label">Download file naming</string>
@@ -109,9 +105,6 @@
     <string name="grid_columns_1">Single column</string>
     <string name="grid_columns_2">Two columns</string>
     <string name="grid_columns_3">Three columns</string>
-    <string name="update_channel_label">Update channel</string>
-    <string name="update_channel_stable">Stable</string>
-    <string name="update_channel_beta">Beta (incl. pre-releases)</string>
     <string name="wipe_data_label">Clear all local data</string>
     <string name="wipe_data_desc">Deletes bookmarks, history, blocklist, progress and all settings, and signs out</string>
     <string name="wipe_data_continue">Continue</string>
@@ -238,16 +231,6 @@
     <string name="download_timeout">Download timeout</string>
     <string name="network_error">Network error</string>
 
-    <!-- Update Checker -->
-    <string name="update_available_title">New version available</string>
-    <string name="update_current_version">Current: %1$s</string>
-    <string name="update_latest_version">Latest: %1$s</string>
-    <string name="update_go_download">Go to Download</string>
-    <string name="update_later">Later</string>
-    <string name="check_for_updates">Check for Updates</string>
-    <string name="update_already_latest">Already up to date</string>
-    <string name="update_check_failed">Update check failed</string>
-
     <!-- Login / Sync -->
     <string name="login_success_syncing">Login successful! Syncing bookmarks...</string>
     <string name="logout_failed">Logout failed</string>
@@ -294,8 +277,6 @@
     <string name="auto_clean_cache_desc">Automatically clear temporary cache files on app launch</string>
     <string name="manual_clean_cache">Clear Cache Now</string>
     <string name="manual_clean_cache_desc">Free up storage used by cached data</string>
-    <string name="auto_check_update">Auto-check Updates</string>
-    <string name="auto_check_update_desc">Check for new versions on app startup</string>
     <string name="crash_log">View Crash Logs</string>
     <string name="crash_log_desc">View recent crash reports to help troubleshoot issues</string>
     <string name="crash_log_empty">No crash logs</string>

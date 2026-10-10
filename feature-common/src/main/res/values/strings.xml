@@ -85,10 +85,6 @@
     <string name="network_privacy_section">网络与隐私</string>
     <string name="search_history_limit_label">搜索历史保留条数</string>
     <string name="history_limit_value_fmt">%1$d 条</string>
-    <string name="update_frequency_label">更新检查频率</string>
-    <string name="update_freq_every_launch">每次启动</string>
-    <string name="update_freq_daily">每天</string>
-    <string name="update_freq_weekly">每周</string>
 
     <!-- FEATURE 设置项扩展（批次三） -->
     <string name="filename_format_label">下载文件命名</string>
@@ -110,9 +106,6 @@
     <string name="grid_columns_1">单列</string>
     <string name="grid_columns_2">双列</string>
     <string name="grid_columns_3">三列</string>
-    <string name="update_channel_label">更新通道</string>
-    <string name="update_channel_stable">稳定版</string>
-    <string name="update_channel_beta">Beta（含预发布）</string>
     <string name="wipe_data_label">清除本地全部数据</string>
     <string name="wipe_data_desc">删除收藏、历史、屏蔽名单、进度与全部设置，并退出登录</string>
     <string name="wipe_data_continue">继续</string>
@@ -239,16 +232,6 @@
     <string name="download_timeout">下载超时</string>
     <string name="network_error">网络错误</string>
 
-    <!-- Update Checker -->
-    <string name="update_available_title">发现新版本</string>
-    <string name="update_current_version">当前版本：%1$s</string>
-    <string name="update_latest_version">最新版本：%1$s</string>
-    <string name="update_go_download">前往下载</string>
-    <string name="update_later">稍后再说</string>
-    <string name="check_for_updates">检查更新</string>
-    <string name="update_already_latest">已是最新版本</string>
-    <string name="update_check_failed">检查更新失败</string>
-
     <!-- Login / Sync -->
     <string name="login_success_syncing">登录成功！正在同步收藏...</string>
     <string name="logout_failed">登出失败</string>
@@ -295,8 +278,6 @@
     <string name="auto_clean_cache_desc">在应用启动时自动清理临时缓存文件</string>
     <string name="manual_clean_cache">立即清理缓存</string>
     <string name="manual_clean_cache_desc">释放缓存占用的存储空间</string>
-    <string name="auto_check_update">自动检查更新</string>
-    <string name="auto_check_update_desc">应用启动时检查新版本</string>
     <string name="crash_log">查看崩溃日志</string>
     <string name="crash_log_desc">查看最近的崩溃记录，便于反馈问题</string>
     <string name="crash_log_empty">暂无崩溃日志</string>

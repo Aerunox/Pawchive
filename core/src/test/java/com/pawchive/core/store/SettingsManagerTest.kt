@@ -37,7 +37,6 @@ class SettingsManagerTest {
         settingsManager.setLanguage(SettingsManager.Language.CHINESE)
         settingsManager.setAppearance(SettingsManager.Appearance.FOLLOW_SYSTEM)
         settingsManager.setAutoCleanCacheEnabled(false)
-        settingsManager.setAutoCheckUpdateEnabled(true)
         settingsManager.setDownloadTreeUri(null, "")
         settingsManager.setAutoSubscribeOnBookmarkEnabled(true)
     }
@@ -128,17 +127,6 @@ class SettingsManagerTest {
         settingsManager.setAutoCleanCacheEnabled(true)
         settingsManager.setAutoCleanCacheEnabled(false)
         assertFalse(settingsManager.isAutoCleanCacheEnabled())
-    }
-
-    @Test
-    fun `default auto check update is enabled`() {
-        assertTrue(settingsManager.isAutoCheckUpdateEnabled())
-    }
-
-    @Test
-    fun `setAutoCheckUpdateEnabled false persists`() {
-        settingsManager.setAutoCheckUpdateEnabled(false)
-        assertFalse(settingsManager.isAutoCheckUpdateEnabled())
     }
 
     @Test

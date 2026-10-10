@@ -48,11 +48,14 @@ object CloudflareManager {
      * 应用专属 User-Agent。
      *
      * 文件服务器（file.pawchive.pw / img.pawchive.pw）运维方明确要求：
-     * - 使用可识别的 UA（最好带联系方式），不要伪装成浏览器；
+     * - 使用可识别的 UA（应用名标识），不要伪装成浏览器；
      * - cf_clearance 与过盾时使用的 UA 强绑定，因此 WebView 过盾前必须把 UA 设为该值，
      *   后续 OkHttp 注入的也是同一个 UA，过盾与请求保持一致。
+     *
+     * v1.9.0 起移除 UA 中的 GitHub 仓库地址（不再暴露作者仓库/用户名）。
+     * 注意：cf_clearance 与 UA 强绑定，升级后首次请求会因 UA 变化触发一次重新过盾，属预期行为。
      */
-    const val APP_USER_AGENT = "Pawchive-Android (https://github.com/FengByX/Pawchive)"
+    const val APP_USER_AGENT = "Pawchive-Android"
 
     // 过盾超时时间（毫秒）
     private const val CHALLENGE_TIMEOUT_MS = ApiConstants.CHALLENGE_TIMEOUT_MS
