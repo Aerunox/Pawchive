@@ -1,7 +1,6 @@
 package com.pawchive.ui.adapter
 
 import android.content.Context
-import android.content.res.Configuration
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +17,7 @@ import com.pawchive.data.repository.BookmarkManager
 import com.pawchive.data.repository.CreatorNameCache
 import com.pawchive.common.databinding.ItemLoadMoreFooterBinding
 import com.pawchive.common.databinding.ItemPostBinding
+import com.pawchive.utils.ServiceBadgeHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -122,6 +122,8 @@ class PostAdapter(
         private const val THUMBNAIL_SIZE_PX = 160
         // PERF-010：创作者名称局部更新 payload，仅刷新名称文本，避免全量 rebind 重载图片
         private const val PAYLOAD_CREATOR_NAME = "payload_creator_name"
+        // PERF-012：HTML 标签正则提取为静态常量，避免每次 bind() 都重新编译 Pattern
+        private val HTML_TAG_REGEX = Regex("<[^>]*>")
     }
 
     fun updatePosts(newPosts: List<Post>) {
@@ -243,8 +245,8 @@ class PostAdapter(
             // Set service badge color based on platform
             setServiceBadgeColor(binding, post.service, binding.root.context)
 
-            // Simple HTML tag removal for content preview
-            val plainText = post.content?.replace(Regex("<[^>]*>"), "") ?: ""
+            // Simple HTML tag removal for content preview (PERF-012: use precompiled regex)
+            val plainText = post.content?.replace(HTML_TAG_REGEX, "") ?: ""
             binding.tvPreview.text = if (plainText.length > 120) plainText.take(120) + "..." else plainText
 
             // Load thumbnail if main file or attachments are images
@@ -293,6 +295,7 @@ class PostAdapter(
             binding.btnBookmark.setOnClickListener {
                 val key = postKey(post)
                 // 使用 per-post Mutex 串行化同一帖子的书签操作，防止快速点击竞态（ARCH-BUG-MINOR-13）
+                // PERF-013：withLock 完成后立即 remove，避免 ConcurrentHashMap 无限增长
                 val mutex = bookmarkMutexes.computeIfAbsent(key) { Mutex() }
                 lifecycleScope?.launch {
                     mutex.withLock {
@@ -332,6 +335,8 @@ class PostAdapter(
                             }
                         }
                     }
+                    // PERF-013：操作完成后释放 Mutex，避免 map 无限增长
+                    bookmarkMutexes.remove(key)
                 }
             }
 
@@ -378,10 +383,11 @@ class PostAdapter(
 
             binding.root.setOnClickListener {
                 if (selectionMode) {
-                    val position = posts.indexOfFirst {
-                        it.service == post.service && it.user == post.user && it.id == post.id
+                    // PERF-014：用 bindingAdapterPosition 替代 O(n) indexOfFirst
+                    val position = bindingAdapterPosition
+                    if (position != RecyclerView.NO_POSITION && position < posts.size) {
+                        toggleSelection(position)
                     }
-                    if (position >= 0) toggleSelection(position)
                 } else {
                     onPostClicked(post)
                 }
@@ -389,10 +395,11 @@ class PostAdapter(
             binding.root.setOnLongClickListener {
                 if (!selectionMode) {
                     selectionMode = true
-                    val position = posts.indexOfFirst {
-                        it.service == post.service && it.user == post.user && it.id == post.id
+                    // PERF-014：用 bindingAdapterPosition 替代 O(n) indexOfFirst
+                    val position = bindingAdapterPosition
+                    if (position != RecyclerView.NO_POSITION && position < posts.size) {
+                        selectedKeys.add(postKey(post))
                     }
-                    if (position >= 0) selectedKeys.add(postKey(post))
                     notifyDataSetChanged()
                     onSelectionCountChanged(selectedKeys.size)
                     onPostLongClicked(post)
@@ -410,28 +417,8 @@ class PostAdapter(
         }
 
         private fun setServiceBadgeColor(binding: ItemPostBinding, service: String, context: Context) {
-            val isDarkMode = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-            
-            val (bgColorRes, textColorRes) = when (service.lowercase()) {
-                "patreon" -> if (isDarkMode) {
-                    (R.color.patreon_bg_dark to R.color.patreon_text_dark)
-                } else {
-                    (R.color.patreon_bg_light to R.color.patreon_text_light)
-                }
-                "fanbox" -> if (isDarkMode) {
-                    (R.color.fanbox_bg_dark to R.color.fanbox_text_dark)
-                } else {
-                    (R.color.fanbox_bg_light to R.color.fanbox_text_light)
-                }
-                else -> if (isDarkMode) {
-                    (R.color.service_bg_default_dark to R.color.service_text_default_dark)
-                } else {
-                    (R.color.service_bg_default_light to R.color.service_text_default_light)
-                }
-            }
-            
-            binding.cardServiceBadge.setCardBackgroundColor(context.getColor(bgColorRes))
-            binding.tvService.setTextColor(context.getColor(textColorRes))
+            // PERF-018：委托给 ServiceBadgeHelper，消除与 CreatorAdapter 的重复逻辑
+            ServiceBadgeHelper.applyBadgeColors(binding.cardServiceBadge, binding.tvService, context)
         }
 
         private fun updateBookmarkIcon(isBookmarked: Boolean) {

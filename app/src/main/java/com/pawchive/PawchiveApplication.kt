@@ -91,6 +91,9 @@ class PawchiveApplication : Application(), ImageLoaderFactory, Configuration.Pro
     @Inject
     lateinit var pendingFavoriteActionRepository: com.pawchive.data.repository.PendingFavoriteActionRepository
 
+    @Inject
+    lateinit var appMemoryCache: com.pawchive.core.store.AppMemoryCache
+
     @OptIn(PredictiveBackControl::class)
     override fun onCreate() {
         super.onCreate() // Hilt 在此完成字段注入
@@ -256,9 +259,10 @@ class PawchiveApplication : Application(), ImageLoaderFactory, Configuration.Pro
                 try {
                     coil.Coil.imageLoader(this).memoryCache?.clear()
                 } catch (_: Exception) {}
+                // PERF-016：真正清空 AppMemoryCache（此前是空 try/catch 死代码，
+                // 注释描述了意图但从未实现，导致页面内存缓存从未被回收）。
                 try {
-                    // AppMemoryCache 由 Hilt 注入，通过单例获取
-                    // 直接清空即可，下次进入页面会重新加载
+                    appMemoryCache.clear()
                 } catch (_: Exception) {}
             }
             // 系统内存紧张时，进一步清理

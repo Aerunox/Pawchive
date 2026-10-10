@@ -277,14 +277,18 @@ class HomeViewModel @Inject constructor(
      * 收藏模式：从本地 BookmarkManager 读取并排序（无网络请求）。
      */
     fun loadBookmarks() {
-        val posts = bookmarkManager.getBookmarkedPosts()
-        _uiState.value = _uiState.value.copy(
-            posts = sortPosts(posts),
-            isLoading = false,
-            hasMore = false,
-            errorMessage = null,
-            emptyHintResId = R.string.no_favorites
-        )
+        // PERF-015：getBookmarkedPosts() 内部 ensureLoaded() 可能 runBlocking 等待
+        // 磁盘加载，切到后台线程避免阻塞主线程（滑动刷新场景）。
+        viewModelScope.launch {
+            val posts = bookmarkManager.getBookmarkedPosts()
+            _uiState.value = _uiState.value.copy(
+                posts = sortPosts(posts),
+                isLoading = false,
+                hasMore = false,
+                errorMessage = null,
+                emptyHintResId = R.string.no_favorites
+            )
+        }
     }
 
     private fun applySort(emit: Boolean = true) {

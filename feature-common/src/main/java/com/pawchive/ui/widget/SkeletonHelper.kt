@@ -81,8 +81,11 @@ object SkeletonHelper {
      * 对骨架屏中的所有子 View 启动平移动画，模拟 shimmer 效果。
      */
     private fun startShimmer(root: View) {
+        // PERF-017：缓存 shimmerView 列表到 root.tag，stopShimmer 时复用，
+        // 避免每次 show/hide 都完整遍历布局树。
         val shimmerViews = mutableListOf<View>()
         collectViews(root, shimmerViews)
+        root.tag = shimmerViews
         for ((index, view) in shimmerViews.withIndex()) {
             val animator = ValueAnimator.ofFloat(0.8f, 1f, 0.8f).apply {
                 duration = SHIMMER_DURATION_MS
@@ -103,8 +106,12 @@ object SkeletonHelper {
      * 停止所有 shimmer 动画。
      */
     private fun stopShimmer(root: View) {
-        val shimmerViews = mutableListOf<View>()
-        collectViews(root, shimmerViews)
+        // PERF-017：优先使用缓存列表（show 时存入），无缓存时才遍历。
+        val shimmerViews = (root.tag as? MutableList<View>) ?: run {
+            val collected = mutableListOf<View>()
+            collectViews(root, collected)
+            collected
+        }
         for (view in shimmerViews) {
             val animator = view.tag as? ValueAnimator
             animator?.cancel()
@@ -127,6 +134,7 @@ object SkeletonHelper {
         }
     }
 
-    // tag stored directly on view.tag
+    // root.tag: MutableList<View> (cached shimmer views, PERF-017)
+    // view.tag: ValueAnimator (active shimmer animation)
 }
 

@@ -1,7 +1,6 @@
 package com.pawchive.ui.adapter
 
 import android.content.Context
-import android.content.res.Configuration
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +12,7 @@ import coil.load
 import com.pawchive.common.R
 import com.pawchive.core.model.Creator
 import com.pawchive.common.databinding.ItemCreatorBinding
+import com.pawchive.utils.ServiceBadgeHelper
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -222,28 +222,8 @@ class CreatorAdapter(
         }
 
         private fun setServiceBadgeColor(service: String, context: Context) {
-            val isDarkMode = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-
-            val (bgColorRes, textColorRes) = when (service.lowercase()) {
-                "patreon" -> if (isDarkMode) {
-                    (R.color.patreon_bg_dark to R.color.patreon_text_dark)
-                } else {
-                    (R.color.patreon_bg_light to R.color.patreon_text_light)
-                }
-                "fanbox" -> if (isDarkMode) {
-                    (R.color.fanbox_bg_dark to R.color.fanbox_text_dark)
-                } else {
-                    (R.color.fanbox_bg_light to R.color.fanbox_text_light)
-                }
-                else -> if (isDarkMode) {
-                    (R.color.service_bg_default_dark to R.color.service_text_default_dark)
-                } else {
-                    (R.color.service_bg_default_light to R.color.service_text_default_light)
-                }
-            }
-
-            binding.cardServiceBadge.setCardBackgroundColor(context.getColor(bgColorRes))
-            binding.tvService.setTextColor(context.getColor(textColorRes))
+            // PERF-018：委托给 ServiceBadgeHelper，消除与 PostAdapter 的重复逻辑
+            ServiceBadgeHelper.applyBadgeColors(binding.cardServiceBadge, binding.tvService, context)
         }
 
         private fun getThemeColor(context: Context, attr: Int): Int {

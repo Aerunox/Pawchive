@@ -5,6 +5,17 @@
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)；
 版本分节结构参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [1.8.8] - 2026-10-09
+
+### 性能优化（无行为变更）
+- **PERF-012**：列表 HTML 正则提取为静态常量，避免每次 `bind()` 重新编译 Pattern
+- **PERF-013**：书签操作 `Mutex` 完成后立即从 map 移除，根治长期使用后的内存泄漏
+- **PERF-014**：多选模式点击/长按用 `bindingAdapterPosition` 替代 O(n) `indexOfFirst`
+- **PERF-015**：`BookmarkManager.isPostBookmarked()` 改为非阻塞读取，消除主线程 `runBlocking`
+- **PERF-016**：`Application.onTrimMemory` 真正清空 `AppMemoryCache`（此前为空 try/catch 死代码）
+- **PERF-017**：骨架屏 shimmer View 列表缓存复用，避免每次 show/hide 完整遍历布局树
+- **PERF-018**：提取 `ServiceBadgeHelper`，消除 `PostAdapter` / `CreatorAdapter` 重复的品牌色逻辑
+
 ## [1.8.5] - 2026-10-06
 
 1. 底栏新交互：首页/搜索/收藏/下载的列表向下滚动时底栏自动滑出、向上滚动时滑回，看内容更沉浸啦~ 切 Tab、进出详情页都会自动复位（账户页没有滚动列表，底栏保持常驻）

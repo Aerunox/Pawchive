@@ -64,11 +64,27 @@ class BookmarkManager @Inject constructor(
 
     // 确保缓存已从磁盘加载；仅在未加载时短暂阻塞（IO 线程），
     // 避免基于空缓存计算并写入导致旧数据丢失。
-    // PERF-003：等待已在执行中的异步加载，而非重新发起 IO 操作
+    // PERF-003：等待已在执行中的异步加载，而非重新发起 IO 操作。
+    //
+    // PERF-015：仅写操作（bookmarkPost / unbookmarkPost / getBookmarkedPosts）
+    // 调用此方法并阻塞等待。读操作 [isPostBookmarked] 已改为非阻塞，
+    // 冷启动期间缓存为空时返回 false，不阻塞主线程。
     private fun ensureLoaded() {
         if (!loaded.get()) {
             runBlocking(Dispatchers.IO) { loadDeferred.await() }
         }
+    }
+
+    /**
+     * 非阻塞读取：缓存未加载完成时返回默认值（false），不阻塞调用线程。
+     *
+     * 用于 UI 层（如 PostAdapter.bind()）的书签状态判断——冷启动期间
+     * 缓存尚未从磁盘加载，此时返回 false 仅影响书签图标显示，
+     * 待加载完成后下次 rebind 会自动修正，不会导致数据丢失。
+     */
+    fun isPostBookmarked(service: String, creatorId: String, postId: String): Boolean {
+        if (!loaded.get()) return false
+        return cache[getPostKey(service, creatorId, postId)] ?: false
     }
 
     private suspend fun loadCache() {
@@ -112,12 +128,6 @@ class BookmarkManager @Inject constructor(
             runCatching { offlineArchiveRepository.remove(service, creatorId, postId) }
                 .onFailure { Log.w("BookmarkManager", "remove offline archive failed", it) }
         }
-    }
-
-    fun isPostBookmarked(service: String, creatorId: String, postId: String): Boolean {
-        // ensureLoaded：冷启动异步加载未完成时缓存为空，直接读会误判"未收藏"（BUG-IMPORT-STATE）
-        ensureLoaded()
-        return cache[getPostKey(service, creatorId, postId)] ?: false
     }
 
     /**
