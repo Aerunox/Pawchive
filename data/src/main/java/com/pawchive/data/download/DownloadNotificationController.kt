@@ -358,7 +358,16 @@ class DownloadNotificationController @Inject constructor(
             val dt = now - lastElapsedMs
             if (dt < MIN_SAMPLE_INTERVAL_MS) return
             val dBytes = currentBytes - lastBytes
-            if (dBytes < 0) return
+            if (dBytes < 0) {
+                // BUG-STALL-RETRY：下载失败静默重传时字节数从高位回落到 0 重新爬升。
+                // 旧实现直接 return，lastBytes 停留在失败点，此后每个样本 dBytes 恒为负、
+                // 速度永远冻结在 0、ETA 永不更新（直到重传字节数再次追平失败点）。
+                // 回落 = 重传信号：重置基线并清 EMA 速度，从当前样本重新测速。
+                lastBytes = currentBytes
+                lastElapsedMs = now
+                emaSpeed = 0.0
+                return
+            }
             lastBytes = currentBytes
             lastElapsedMs = now
             val instant = dBytes * 1000.0 / dt

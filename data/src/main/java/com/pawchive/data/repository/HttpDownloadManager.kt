@@ -235,6 +235,12 @@ class HttpDownloadManager @Inject constructor(
                 // 失败重试一律从头开始：失败路径已删除临时文件，
                 // 且无 ETag 校验的续传对"服务端文件已变更"场景不安全
                 resumeOffset = 0L
+                // BUG-STALL-RETRY：重试从头下载必须向上层发"进度归零"信号。
+                // 否则 DownloadCenter 的步长门限（percent - lastReported >= 5）
+                // 因 lastReported 停在失败点而永远不再落库，
+                // 表现为"进度卡在 9x% 不动、但流量一直在跑"（整文件静默重传）。
+                // persistedExpectedTotal 为 0 时上层走"total 未知"的归零分支。
+                onProgress(0L, persistedExpectedTotal)
             }
 
             try {

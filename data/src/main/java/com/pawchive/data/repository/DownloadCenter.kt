@@ -407,10 +407,20 @@ class DownloadCenter @Inject constructor(
                 lastBytes[recordId] = currentBytes to totalBytes
                 if (totalBytes > 0) {
                     val percent = (currentBytes * 100 / totalBytes).toInt().coerceIn(0, 99)
-                    if (percent - lastReported >= PROGRESS_STEP) {
+                    // BUG-STALL-RETRY：失败重试从头下载时 percent 回落（94 → 0）。
+                    // 步长门限假设进度单调递增，回落后差值永远 < 5，Room 进度冻结在
+                    // 失败点直到重传接近完成（= 用户看到的"94% 卡住但流量一直在跑"）。
+                    // 回落仅由重传的 0 点信号触发（单次事件，不会破坏步长门限的高频保护）：
+                    // 立即重置门限并把当前样本落库，之后的正常步长逻辑继续生效。
+                    val resetByRestart = percent < lastReported
+                    if (resetByRestart || percent - lastReported >= PROGRESS_STEP) {
                         lastReported = percent
                         lastProgress[recordId] = percent
-                        Log.d(TAG, "Download progress: $recordId $percent% / $totalBytes")
+                        Log.d(
+                            TAG,
+                            if (resetByRestart) "Download restarted (retry): $recordId $percent%"
+                            else "Download progress: $recordId $percent% / $totalBytes"
+                        )
                         // 用 runBlocking 直接写 Room。
                         // 此 lambda 在 HttpDownloadManager.progressScope（Dispatchers.IO）执行，
                         // 不会阻塞 UI。HttpDownloadManager.download() 在返回前会先 join
@@ -423,6 +433,19 @@ class DownloadCenter @Inject constructor(
                                 recordId, DownloadStatus.RUNNING, percent, currentBytes, totalBytes
                             )
                         }
+                    }
+                } else if (currentBytes == 0L && lastReported >= 0) {
+                    // BUG-STALL-RETRY：total 未知时的 0 点上报 = HttpDownloadManager
+                    // 重试信号（persistedExpectedTotal 为 0 的新下载失败后重发）。
+                    // 清掉失败点的门限与检查点并落 0%，让随后的重传进度正常恢复上报；
+                    // 旧检查点若保留，暂停落库时会写入已失效的高断点。
+                    lastReported = -1
+                    lastProgress.remove(recordId)
+                    Log.d(TAG, "Download restarted (retry, total unknown): $recordId")
+                    runBlocking {
+                        historyManager.updateStatusAndCheckpoint(
+                            recordId, DownloadStatus.RUNNING, 0, 0L, 0L
+                        )
                     }
                 }
             }
