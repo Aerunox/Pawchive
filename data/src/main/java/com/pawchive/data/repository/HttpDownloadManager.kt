@@ -325,20 +325,41 @@ class HttpDownloadManager @Inject constructor(
 
                 var read = 0L
 
-                body.byteStream().use { input ->
-                    FileOutputStream(tempFile, resumed).use { out ->
+                // 异步写入：读取与写入分离，避免磁盘 IO 瓶颈阻塞读循环，
+                // 导致进度卡住但流量还在跑的问题。
+                // 读协程负责从网络读取并发到 Channel，写协程负责落盘。
+                val writeChannel = kotlinx.coroutines.channels.Channel<ByteArray>(capacity = 8)
+
+                val writeJob = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                    try {
+                        FileOutputStream(tempFile, resumed).use { out ->
+                            for (chunk in writeChannel) {
+                                out.write(chunk)
+                            }
+                            out.flush()
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Write failed", e)
+                    }
+                }
+
+                try {
+                    body.byteStream().use { input ->
                         val buffer = ByteArray(READ_BUFFER_SIZE)
                         while (true) {
                             // 每块之间检查协程活跃性：取消/暂停可即时打断
                             currentCoroutineContext().ensureActive()
                             val n = input.read(buffer)
                             if (n == -1) break
-                            out.write(buffer, 0, n)
+                            val chunk = buffer.copyOf(n)
+                            writeChannel.send(chunk)
                             read += n
                             onProgress(startOffset + read, total)
                         }
-                        out.flush()
                     }
+                } finally {
+                    writeChannel.close()
+                    writeJob.join()
                 }
 
                 // 截断检测（续传时按"剩余长度"比对）。
