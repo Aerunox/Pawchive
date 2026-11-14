@@ -38,27 +38,32 @@
 
 > [!TIP]
 > **本项目与 [Aerunox/Archive](https://github.com/Aerunox/Archive) 不是简单的版本先后关系，而是两条设计取向不同的产品线**：Pawchive 追求**极致轻量简洁**，Archive 追求**功能丰富**。选择哪一款取决于你更看重「小而快」还是「大而全」，详见下方[设计取向与对比](#设计取向pawchive-vs-archive)。
+>
+> 两者并非完全独立：Archive 直接复用了本仓库的 `core` / `data` 模块作为共同基座，只重写了 UI 层。本仓库是那份基座的**原始出处**。
 
 ---
 
 ## 设计取向：Pawchive vs Archive
 
-两个项目同源，但设计目标相反。Pawchive 是**减法**的产物，Archive 是**加法**的产物。
+两个项目同源，但设计目标相反。Pawchive 是**减法**的产物，Archive 是**加法**的产物——后者直接复用了本仓库的 `core` / `data` 模块作为共同基座，只重写 UI 层。
 
 | 维度 | **Pawchive**（本仓库） | **[Archive](https://github.com/Aerunox/Archive)** |
 | --- | --- | --- |
 | **设计取向** | 🪶 极致轻量简洁 | 🧰 功能丰富、能力齐全 |
 | **核心信条** | 只保留最高频的能力，不为低频需求付出体积与认知成本 | 尽可能覆盖所有使用场景，功能密度优先 |
-| **UI 框架** | XML + ViewBinding，Material Design 3 | Jetpack Compose + Miuix（HyperOS 风格） |
+| **同源关系** | `core` / `data` 模块的**原始出处** | 直接复用 Pawchive 的 `core` / `data`，仅重写 `app` 层 |
+| **UI 框架** | XML + ViewBinding，Material Design 3 | Jetpack Compose（BOM 2026.09.00）+ Miuix 0.9.4（HyperOS 风格） |
 | **模块划分** | 10 个 Gradle 模块，按 `feature-*` 逐功能拆分 | 3 个 Gradle 模块（`app` / `data` / `core`） |
 | **代码规模** | 150 个 Kotlin 文件 · 约 2.7 万行 | 188 个 Kotlin 文件 · 约 3.5 万行 |
 | **依赖数量** | 37 个第三方库 | 47 个第三方库 |
+| **构建工具链** | AGP 9.3.2 · Gradle 9.5.1 · JDK 17 | AGP 9.4.1 · Gradle 9.8.0 · JDK 21 |
 | **安装包体积** | 约 **15 MB**（universal 单包） | 约 **35–97 MB**（按 ABI 拆包，universal 约 97 MB） |
-| **AI 能力** | ❌ 不内置 | ✅ 多供应商 AI、多模型档案、翻译与识图 |
-| **OCR 文字识别** | ❌ 不内置 | ✅ 端上 PP-OCRv4（ONNX Runtime） |
-| **多语言** | 简体中文 / English / 日本語（3 种） | 12 种语言完整本地化（含阿拉伯语整页 RTL） |
+| **AI 能力** | ❌ 不内置 | ✅ 多供应商 AI（OpenAI / Anthropic / Gemini）、多模型档案、结构保真翻译 |
+| **OCR 文字识别** | ❌ 不内置 | ✅ 端上 PP-OCRv4（PaddleOCR + ONNX Runtime） |
+| **多语言** | 简体中文 / English / 日本語（3 种） | 12 种语言（含阿拉伯语整页 RTL） |
 | **外观定制** | 默认 + 5 套强调色，Material You 动态取色 | 配色 6 态、Monet 动态取色 + 种子色、即时切换 |
 | **应用内更新** | ❌ 已移除（1.9.0 起） | ✅ 内置 GitHub Release 检查 |
+| **自动化测试** | 27 个单元测试类 + 1 个仪器化套件 | 19 个单元测试类 |
 | **项目状态** | 🔒 1.9.0 为最终版本，已 EOL | 🚀 持续开发中 |
 | **开源协议** | MIT | GPL-3.0 |
 
@@ -67,7 +72,7 @@
 **怎么选？**
 
 - 想要一个**装完就走、不占空间、打开即用**的浏览工具 → 选 **Pawchive**
-- 想要 **OCR 识字、AI 翻译、12 语言界面、Monet 深度定制**等能力 → 选 **[Archive](https://github.com/Aerunox/Archive)**
+- 想要 **OCR 识字、AI 翻译、发现页全量创作者、12 语言界面、Monet 深度定制**等能力 → 选 **[Archive](https://github.com/Aerunox/Archive)**
 
 ---
 
@@ -419,8 +424,10 @@ cd Pawchive
 
 | 渠道 | 说明 |
 | --- | --- |
-| [Telegram 频道 · Pawchive Archive](https://t.me/Pawchive_Archive) | 版本发布公告与项目动态 |
-| [新世代仓库 · Aerunox/Archive](https://github.com/Aerunox/Archive) | 本项目的下一世代版本，后续开发与更新在此进行 |
+| [Telegram 频道 · Pawchive Archive](https://t.me/Pawchive_Archive) | 版本发布公告与项目动态，两个项目共用 |
+| [新世代仓库 · Aerunox/Archive](https://github.com/Aerunox/Archive) | 本项目的下一世代版本，后续开发与更新在此进行（GPL-3.0） |
+
+Archive 沿用本项目的 `core` / `data` 基座（网络层、Cloudflare 过盾、下载引擎、Room 与加密会话），并在其上重建了 Compose + Miuix 的 UI 层，同时新增 AI 翻译、端上 OCR、发现页全量创作者缓存、12 语言本地化等能力。如果你需要的就是这些能力，请直接使用 [Archive](https://github.com/Aerunox/Archive)；如果你只需要一个够快够小的客户端，本仓库的 1.9.0 仍是可用且完整的最终版本。
 
 ---
 
@@ -439,8 +446,10 @@ cd Pawchive
 
 本项目基于 **MIT License** 开源，Copyright (c) 2024-2026 FengByX。第三方组件与图标授权详见 [NOTICE.md](NOTICE.md)。
 
+**与本项目代码复用相关的说明**：下一世代项目 [Archive](https://github.com/Aerunox/Archive) 直接复用了本仓库的 `core` / `data` 模块（同一作者），该两模块在 Archive 中随其整体转为 GPL-3.0 发布。如果你希望**闭源使用或二次分发**，应以本仓库的 MIT 版本为基线。
+
 ---
 
 <p align="center">
-  <sub>图标资源来自 <a href="https://lucide.dev">Lucide</a> · 设计灵感来自 Material Design 3</sub>
+  <sub>图标资源来自 <a href="https://lucide.dev">Lucide</a> · 设计灵感来自 Material Design 3 · 数据来自 <a href="https://pawchive.pw">Pawchive</a> 平台（本项目为非官方客户端）</sub>
 </p>

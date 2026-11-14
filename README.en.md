@@ -38,27 +38,32 @@
 
 > [!TIP]
 > **This project and [Aerunox/Archive](https://github.com/Aerunox/Archive) are not simply an old and new version of the same app — they are two product lines with different design goals**: Pawchive chases **ultra-lightweight minimalism**, Archive chases **feature richness**. Which one to pick depends on whether you value "small and fast" or "big and complete" — see [Design Philosophy](#design-philosophy-pawchive-vs-archive) below.
+>
+> They are not fully independent either: Archive **reuses this repository's `core` / `data` modules** as a shared foundation and only rewrites the UI layer. This repository is the **original source** of that foundation.
 
 ---
 
 ## Design Philosophy: Pawchive vs Archive
 
-Both projects share a common origin, but their design goals are opposite. Pawchive is the product of **subtraction**; Archive is the product of **addition**.
+Both projects share a common origin, but their design goals are opposite. Pawchive is the product of **subtraction**; Archive is the product of **addition** — and it actually reuses this repository's `core` / `data` modules as a shared foundation, rewriting only the UI layer.
 
 | Dimension | **Pawchive** (this repo) | **[Archive](https://github.com/Aerunox/Archive)** |
 | --- | --- | --- |
 | **Design goal** | 🪶 Ultra-lightweight and minimal | 🧰 Feature-rich and complete |
 | **Core belief** | Keep only the highest-frequency capabilities; pay no size or cognitive cost for rare needs | Cover as many scenarios as possible; feature density first |
-| **UI framework** | XML + ViewBinding, Material Design 3 | Jetpack Compose + Miuix (HyperOS style) |
+| **Shared origin** | **Original source** of the `core` / `data` modules | Reuses Pawchive's `core` / `data`, rewrites only the `app` layer |
+| **UI framework** | XML + ViewBinding, Material Design 3 | Jetpack Compose (BOM 2026.09.00) + Miuix 0.9.4 (HyperOS style) |
 | **Module layout** | 10 Gradle modules, split per `feature-*` | 3 Gradle modules (`app` / `data` / `core`) |
 | **Code size** | 150 Kotlin files · ~27k lines | 188 Kotlin files · ~35k lines |
 | **Dependencies** | 37 third-party libraries | 47 third-party libraries |
+| **Toolchain** | AGP 9.3.2 · Gradle 9.5.1 · JDK 17 | AGP 9.4.1 · Gradle 9.8.0 · JDK 21 |
 | **Package size** | ~**15 MB** (single universal APK) | ~**35–97 MB** (per-ABI splits; ~97 MB universal) |
-| **AI features** | ❌ None | ✅ Multi-provider AI, model profiles, translation and vision |
-| **OCR** | ❌ None | ✅ On-device PP-OCRv4 (ONNX Runtime) |
-| **Localization** | Simplified Chinese / English / Japanese (3) | 12 fully localized languages (incl. RTL Arabic) |
+| **AI features** | ❌ None | ✅ Multi-provider AI (OpenAI / Anthropic / Gemini), model profiles, structure-preserving translation |
+| **OCR** | ❌ None | ✅ On-device PP-OCRv4 (PaddleOCR + ONNX Runtime) |
+| **Localization** | Simplified Chinese / English / Japanese (3) | 12 languages (incl. RTL Arabic) |
 | **Theming** | Default + 5 accent themes, Material You dynamic color | 6 color modes, Monet dynamic color + seed color, instant switching |
 | **In-app updates** | ❌ Removed in 1.9.0 | ✅ Built-in GitHub Release check |
+| **Automated tests** | 27 unit test classes + 1 instrumented suite | 19 unit test classes |
 | **Project status** | 🔒 1.9.0 is final, EOL | 🚀 Actively developed |
 | **License** | MIT | GPL-3.0 |
 
@@ -67,7 +72,7 @@ Both projects share a common origin, but their design goals are opposite. Pawchi
 **Which one should you pick?**
 
 - Want a **install-and-go browsing tool that takes no space** → **Pawchive**
-- Want **OCR, AI translation, 12-language UI, deep Monet theming** → **[Archive](https://github.com/Aerunox/Archive)**
+- Want **OCR, AI translation, a full creator discovery page, 12-language UI, deep Monet theming** → **[Archive](https://github.com/Aerunox/Archive)**
 
 ---
 
@@ -419,8 +424,10 @@ The following limitations are design decisions or platform constraints and are n
 
 | Channel | Description |
 | --- | --- |
-| [Telegram channel · Pawchive Archive](https://t.me/Pawchive_Archive) | Release announcements and project updates |
-| [Next-generation repository · Aerunox/Archive](https://github.com/Aerunox/Archive) | The next generation of this project — future development and updates happen here |
+| [Telegram channel · Pawchive Archive](https://t.me/Pawchive_Archive) | Release announcements and project updates, shared by both projects |
+| [Next-generation repository · Aerunox/Archive](https://github.com/Aerunox/Archive) | The next generation of this project — future development and updates happen here (GPL-3.0) |
+
+Archive keeps this project's `core` / `data` foundation (networking, Cloudflare clearance, download engine, Room and encrypted sessions) and rebuilds the UI layer on top with Compose + Miuix, adding AI translation, on-device OCR, a discovery page with the full creator cache, 12-language localization and more. If that is what you need, use [Archive](https://github.com/Aerunox/Archive) directly; if you just want a fast, small client, 1.9.0 in this repository remains a complete and usable final release.
 
 ---
 
@@ -439,8 +446,10 @@ Issues and pull requests are welcome. Before submitting, please make sure:
 
 This project is open-sourced under the **MIT License**, Copyright (c) 2024-2026 FengByX. Third-party components and icon licenses are listed in [NOTICE.md](NOTICE.md).
 
+**A note on code reuse**: the next-generation project [Archive](https://github.com/Aerunox/Archive) directly reuses this repository's `core` / `data` modules (same author), and those two modules ship under GPL-3.0 as part of Archive. If you need to use or redistribute the code **in a closed-source product**, base it on the MIT-licensed version in this repository.
+
 ---
 
 <p align="center">
-  <sub>Icons from <a href="https://lucide.dev">Lucide</a> · Design inspired by Material Design 3</sub>
+  <sub>Icons from <a href="https://lucide.dev">Lucide</a> · Design inspired by Material Design 3 · Data from <a href="https://pawchive.pw">Pawchive</a> (this is an unofficial client)</sub>
 </p>

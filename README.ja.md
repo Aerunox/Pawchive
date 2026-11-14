@@ -38,27 +38,32 @@
 
 > [!TIP]
 > **本プロジェクトと [Aerunox/Archive](https://github.com/Aerunox/Archive) は単純な新旧バージョンの関係ではなく、設計思想の異なる 2 つの製品ラインです**：Pawchive は**究極の軽量・シンプル**を、Archive は**機能の豊富さ**を追求します。「小さく速い」か「大きく全部入り」か、重視するものに応じて選んでください。詳細は下記の[設計思想と比較](#設計思想pawchive-vs-archive)をご覧ください。
+>
+> 両者は完全に独立しているわけでもありません。Archive は**本リポジトリの `core` / `data` モジュールを共通基盤として再利用**し、UI 層のみを書き直しています。本リポジトリはその基盤の**原典**です。
 
 ---
 
 ## 設計思想：Pawchive vs Archive
 
-両プロジェクトは源流を同じくしますが、設計目標は正反対です。Pawchive は**引き算**の産物、Archive は**足し算**の産物です。
+両プロジェクトは源流を同じくしますが、設計目標は正反対です。Pawchive は**引き算**の産物、Archive は**足し算**の産物であり、後者は本リポジトリの `core` / `data` モジュールを共通基盤としてそのまま再利用し、UI 層だけを書き直しています。
 
 | 観点 | **Pawchive**（本リポジトリ） | **[Archive](https://github.com/Aerunox/Archive)** |
 | --- | --- | --- |
 | **設計思想** | 🪶 究極の軽量・シンプル | 🧰 機能豊富で全部入り |
 | **基本方針** | 高頻度の機能だけを残し、低頻度の要望にサイズと認知コストを払わない | できるだけ多くの利用シーンをカバーし、機能密度を優先 |
-| **UI フレームワーク** | XML + ViewBinding、Material Design 3 | Jetpack Compose + Miuix（HyperOS 風） |
+| **同源関係** | `core` / `data` モジュールの**原典** | Pawchive の `core` / `data` を再利用し、`app` 層のみ書き直し |
+| **UI フレームワーク** | XML + ViewBinding、Material Design 3 | Jetpack Compose（BOM 2026.09.00）+ Miuix 0.9.4（HyperOS 風） |
 | **モジュール構成** | Gradle 10 モジュール、`feature-*` ごとに分割 | Gradle 3 モジュール（`app` / `data` / `core`） |
 | **コード規模** | Kotlin 150 ファイル・約 2.7 万行 | Kotlin 188 ファイル・約 3.5 万行 |
 | **依存ライブラリ数** | 37 | 47 |
+| **ツールチェーン** | AGP 9.3.2 · Gradle 9.5.1 · JDK 17 | AGP 9.4.1 · Gradle 9.8.0 · JDK 21 |
 | **パッケージサイズ** | 約 **15 MB**（universal 単一 APK） | 約 **35〜97 MB**（ABI 別分割、universal は約 97 MB） |
-| **AI 機能** | ❌ 非搭載 | ✅ 複数プロバイダーの AI、モデルプロファイル、翻訳・画像認識 |
-| **OCR 文字認識** | ❌ 非搭載 | ✅ オンデバイス PP-OCRv4（ONNX Runtime） |
-| **多言語対応** | 簡体中文／English／日本語（3 言語） | 12 言語を完全ローカライズ（アラビア語の RTL 含む） |
+| **AI 機能** | ❌ 非搭載 | ✅ 複数プロバイダーの AI（OpenAI / Anthropic / Gemini）、モデルプロファイル、構造保持型翻訳 |
+| **OCR 文字認識** | ❌ 非搭載 | ✅ オンデバイス PP-OCRv4（PaddleOCR + ONNX Runtime） |
+| **多言語対応** | 簡体中文／English／日本語（3 言語） | 12 言語（アラビア語の RTL 含む） |
 | **外観カスタマイズ** | 既定 + 5 種のアクセントカラー、Material You ダイナミックカラー | 配色 6 種、Monet ダイナミックカラー + シードカラー、即時切替 |
 | **アプリ内アップデート** | ❌ 1.9.0 で削除 | ✅ GitHub Release を参照する更新チェックを内蔵 |
+| **自動テスト** | 27 の単体テストクラス + 1 の計装テストスイート | 19 の単体テストクラス |
 | **プロジェクト状況** | 🔒 1.9.0 が最終版・EOL | 🚀 継続開発中 |
 | **ライセンス** | MIT | GPL-3.0 |
 
@@ -67,7 +72,7 @@
 **どちらを選ぶ？**
 
 - **インストールしてすぐ使え、容量を取らない閲覧ツール**が欲しい → **Pawchive**
-- **OCR・AI 翻訳・12 言語 UI・Monet による深いカスタマイズ**が欲しい → **[Archive](https://github.com/Aerunox/Archive)**
+- **OCR・AI 翻訳・発見ページの全クリエイターキャッシュ・12 言語 UI・Monet による深いカスタマイズ**が欲しい → **[Archive](https://github.com/Aerunox/Archive)**
 
 ---
 
@@ -419,8 +424,10 @@ cd Pawchive
 
 | チャンネル | 説明 |
 | --- | --- |
-| [Telegram チャンネル · Pawchive Archive](https://t.me/Pawchive_Archive) | リリース情報とプロジェクトの最新情報 |
-| [次世代リポジトリ · Aerunox/Archive](https://github.com/Aerunox/Archive) | 本プロジェクトの次世代版。今後の開発と更新はこちらで行われます |
+| [Telegram チャンネル · Pawchive Archive](https://t.me/Pawchive_Archive) | リリース情報とプロジェクトの最新情報（両プロジェクト共通） |
+| [次世代リポジトリ · Aerunox/Archive](https://github.com/Aerunox/Archive) | 本プロジェクトの次世代版。今後の開発と更新はこちらで行われます（GPL-3.0） |
+
+Archive は本プロジェクトの `core` / `data` 基盤（ネットワーク層、Cloudflare クリアランス、ダウンロードエンジン、Room、暗号化セッション）をそのまま引き継ぎ、その上に Compose + Miuix の UI 層を再構築したうえで、AI 翻訳・オンデバイス OCR・発見ページの全クリエイターキャッシュ・12 言語ローカライズなどを追加しています。それらが必要なら [Archive](https://github.com/Aerunox/Archive) を直接ご利用ください。速くて小さいクライアントが欲しいだけなら、本リポジトリの 1.9.0 が今も完全に使える最終版です。
 
 ---
 
@@ -439,8 +446,10 @@ Issue と Pull Request を歓迎します。投稿前にお手元で以下をご
 
 本プロジェクトは **MIT License** で公開されています。Copyright (c) 2024-2026 FengByX。サードパーティコンポーネントとアイコンのライセンスは [NOTICE.md](NOTICE.md) に記載しています。
 
+**コード再利用に関する注意**：次世代プロジェクト [Archive](https://github.com/Aerunox/Archive) は本リポジトリの `core` / `data` モジュールを直接再利用しており（同一作者）、その 2 モジュールは Archive の一部として GPL-3.0 で配布されます。**クローズドソースでの利用や再配布**を行いたい場合は、本リポジトリの MIT 版をベースにしてください。
+
 ---
 
 <p align="center">
-  <sub>アイコン提供：<a href="https://lucide.dev">Lucide</a> · デザインの着想：Material Design 3</sub>
+  <sub>アイコン提供：<a href="https://lucide.dev">Lucide</a> · デザインの着想：Material Design 3 · データ提供：<a href="https://pawchive.pw">Pawchive</a> プラットフォーム（本アプリは非公式クライアントです）</sub>
 </p>
