@@ -5,12 +5,12 @@
 <h1 align="center">Pawchive</h1>
 
 <p align="center">
-  <a href="README.md">中文</a> | <a href="README.en.md">English</a>
+  <a href="README.md">简体中文</a> | <a href="README.en.md">English</a>
 </p>
 
 <p align="center">
-  <a href="https://pawchive.pw">Pawchive</a> プラットフォームの完全な体験をもたらす、洗練されたサードパーティ製 Android クライアント。<br/>
-  Patreon、Fanbox、Discord などのクリエイターコンテンツを集約し、閲覧・検索・ブックマーク・没入型メディア再生に対応。
+  洗練された、スムーズな動作のサードパーティ Android クライアント。<a href="https://pawchive.pw">Pawchive</a> プラットフォームの体験をまるごとお届けします。<br/>
+  Patreon・Fanbox・Discord などのクリエイターコンテンツを集約し、閲覧・検索・ブックマーク・没入型メディア再生に対応。
 </p>
 
 <p align="center">
@@ -18,126 +18,228 @@
   <img src="https://img.shields.io/badge/API-30%2B-34A853?style=for-the-badge&logo=android&logoColor=white" alt="Min API" />
   <img src="https://img.shields.io/badge/Target_API-36-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Target API" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" />
+  <a href="https://t.me/Pawchive_Archive"><img src="https://img.shields.io/badge/Telegram-Channel-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram Channel" /></a>
+  <a href="https://github.com/Aerunox/Archive"><img src="https://img.shields.io/badge/Next_Gen-Archive-181717?style=for-the-badge&logo=github&logoColor=white" alt="Next Generation Repository" /></a>
 </p>
 
+> [!IMPORTANT]
+> 🚀 **新世代プロジェクト**：Pawchive 1.9.0 が本リポジトリの最終バージョンです。今後の開発は新世代リポジトリ **[Aerunox/Archive](https://github.com/Aerunox/Archive)** に移行しました。ぜひチェック＆Star をお願いします！
+>
+> 📢 **Telegram チャンネル**：[Pawchive Archive](https://t.me/Pawchive_Archive) に参加して、リリース情報やプロジェクトの最新動向をいち早くゲット。
+
 ---
 
-## 機能
+## 機能ハイライト
 
 ### コンテンツ閲覧
-- **ホームフィード**：最新コンテンツのページネーション読み込み、キーワードフィルタに対応。「同一クリエイターは 1 件のみ」「ブックマーク済みクリエイターを非表示」も選択可能
-- **クリエイタープロフィール**：投稿 / お知らせ / 関連アカウント / 類似クリエイターをページで表示（スワイプで切替）、タグ絞り込みとファンカードにも対応
-- **投稿詳細**：完全な本文（ホワイトリスト HTML レンダリング）、コメント、改訂履歴、添付ファイルのダウンロード
-- **マルチプラットフォーム**：Patreon、Fanbox、Discord などを集約、プラットフォームタグはブランドカラー
+- **ホームフィード**：最新コンテンツをページネーションで読み込み、キーワードフィルター対応。「同一クリエイターは1件のみ表示」「ブックマーク済みクリエイターの投稿を非表示」も選択可能
+- **クリエイターページ**：投稿 / お知らせ / 関連アカウント / 類似クリエイターをページ単位で閲覧（左右スワイプで切り替え）、タグフィルター、ファンカード一覧
+- **投稿詳細**：本文全文（ホワイトリスト方式 HTML レンダリング）、コメント、編集履歴、添付ファイルのダウンロード
+- **マルチプラットフォーム集約**：Patreon / Fanbox / Discord などのソースに対応、プラットフォームタグはブランドカラーで区別
 
-### スマート検索
-- **キーワード検索**：投稿とクリエイターを同時に検索、タブで結果を切り替え
-- **ファイルハッシュ検索**：MD5 / SHA-256 のハッシュを検索ボックスに貼り付けて出典を追跡、Discord の結果にも対応
-- **オフライン全文検索**：Room FTS4 と CJK バイグラム分割によるインデックスで、ネットワークなしでもブックマークを検索可能
-- **検索履歴**：ローカルに永続化、保持件数は設定可能（5〜50）、個別削除と全消去に対応
+### 精密検索
+- **キーワード検索**：投稿とクリエイターを同時に検索、タブ切り替えで表示
+- **ファイルハッシュ逆引き**：検索ボックスにファイルハッシュ（MD5 / SHA-256）を貼り付けて素材の出典を追跡。Discord の結果にも対応
+- **オフライン全文検索**：Room FTS4 による中国語分かち書きインデックス。オフラインでもブックマーク内容を検索可能
+- **検索履歴**：ローカルに永続化、保持件数は設定可能（5〜50）。個別削除とワンタップ全消去に対応
 
 ### 没入型メディア
-- **画像ビューア**：ピンチズーム、ダブルタップズーム、境界制約付きドラッグ
-- **アニメーション画像**：GIF / アニメーション WebP / アニメーション HEIF に対応。リストでは「GIF」バッジで判別可能
-- **動画再生**：Media3 ExoPlayer ベース、Bilibili 風コントロール、再生速度、前回位置から再開、ピクチャーインピクチャー。フルスクリーンはインラインプレーヤーのインスタンスを再利用し、出入りで再バッファリングなし、アスペクト比を維持した表示
-- **段階的フォールバック**：原画を優先し、存在しない場合はサムネイルへ自動的に切り替え
+- **大画像ビューア**：ピンチズーム、ダブルタップズーム、境界制約付きドラッグ
+- **アニメーション画像**：GIF / アニメーション WebP / アニメーション HEIF に対応、リストには「GIF」バッジ付き
+- **動画再生**：Media3 ExoPlayer、Bilibili 風コントローラー、倍速再生・レジューム再生・ピクチャーインピクチャー対応。フルスクリーンとインラインでプレイヤーインスタンスを共用し、フルスクリーン切り替え時の再バッファリングはゼロ。アスペクト比を維持してスケーリング
+- **多段階フォールバック**：元画像を優先し、欠落時はサムネイルへ自動フォールバック
 
 ### ブックマークとアカウント
-- **マルチアカウント切り替え**：ブックマーク / 履歴 / ダウンロードをアカウントごとに分離
-- **クラウドブックマーク**：ログイン時に保存した投稿とクリエイターを同期し、書き込み後は即座にキャッシュを無効化。オフライン中の操作はキューに入り、オンライン後に自動同期
-- **ローカルブックマーク**：ログイン不要。ブックマークするとオフラインアーカイブのインデックスも作成
-- **オフライン閲覧**：ブックマークした投稿の全文アーカイブ（Room FTS4）により、オフラインでも検索と閲覧が可能
+- **マルチアカウント切り替え**：アカウントごとにブックマーク / 履歴 / ダウンロードデータを分離
+- **クラウドブックマーク**：ログイン後にブックマークした投稿とクリエイターを同期。書き込み後すぐにキャッシュを無効化。オフライン中の操作は自動でキューイングされ、オンライン復帰後にバックグラウンドで同期
+- **ローカルブックマーク**：ログイン不要。ブックマークすると即座にオフラインアーカイブインデックスを作成
+- **オフライン閲覧**：ブックマークした投稿を全文アーカイブ（Room FTS4）。オフラインでも検索・閲覧可能
 
-### コンテンツ購読と通知
-- **クリエイター購読**：お気に入りのクリエイターを登録すると新着投稿を定期的に確認（間隔は設定可能、最小 15 分）。「ブックマークで自動購読」も選択可能
-- **システム通知**：新着投稿を検知すると即座に通知。いつでもオフにできます
-- **アプリ内通知センター**：ホームのベルアイコンから直接開け、未読バッジはリアルタイム更新。個別既読とすべて既読に対応し、購読管理ページでいつでも解除できます
+### 購読と通知
+- **クリエイターを購読**：お気に入りのクリエイターをフォローし、新着投稿を定期チェック（間隔は調整可能、最小 15 分）。「ブックマーク＝購読」も選択可能
+- **システム通知**：新着投稿を検出したら即座にプッシュ。いつでもオフにできる
+- **アプリ内通知センター**：ホームのベルからワンタップでアクセス、未読バッジはリアルタイム更新。個別/一括既読に対応し、購読管理ページからいつでも解除可能
 
 ### ダウンロードセンター
-- **HTTP Range レジューム**：一時停止時は一時ファイルを保持し、中断位置はローカル DB に記録。アプリ再起動後も中断位置から再開します。サーバーが Range を無視した場合は全量ダウンロードに自動降格
-- **タスクごとの通知**：1 タスクにつき 1 件の通知で、進捗率・ダウンロード済みサイズ・速度（EMA 平滑化）・残り時間を表示。通知内から一時停止 / 再開 / キャンセルが可能
-- **バックグラウンド継続**：`dataSync` フォアグラウンドサービスで保活し、バックグラウンドでも中断しない
-- **ダウンロードルール**：クリエイター / サービス / ファイル種別ごとに自動的にキューへ追加
-- **サーバー配慮**：同時実行は 5 に制限、同一ファイルの再試行間隔は 1 秒以上、識別可能な独自 User-Agent
+- **HTTP Range レジュームダウンロード**：一時停止時は一時ファイルを保持し、中断位置を DB に保存。アプリ再起動後も中断位置から再開。サーバーが Range 非対応の場合は全量ダウンロードへ自動フォールバック
+- **タスクごとの個別通知**：タスクごとに1件の通知を表示し、パーセンテージ / ダウンロード済みサイズ / 速度（EMA 平滑化）/ 残り時間をリアルタイム表示。通知から一時停止・再開・キャンセルが可能
+- **バックグラウンド継続ダウンロード**：`dataSync` フォアグラウンドサービスで維持。バックグラウンドに移行しても中断しない
+- **ダウンロードルール**：クリエイター / サービス / ファイル種別で自動キューイング
+- **コンプライアンス制約**：同時実行数は最大 5 に制限、同一ファイルのリトライ間隔は 1 秒以上、識別可能なカスタム User-Agent
 
-### カスタマイズ
-- **多言語**：中文 / English / 日本語、即時切り替え
-- **外観**：ライト / ダーク / システム従属、6 種類のアクセントテーマ、Material Design 3。Android 12 以降はダイナミック カラー（Material You）、没入型ステータスバーに対応
-- **表示と拡大**：UI 全体の拡大率と文字サイズを連続スライダーで調整、リアルタイムプレビューと即時反映
-- **通信量節約**：リストは既定でサムネイルを読み込み、原画に切り替え可能
-- **ダウンロード設定**：カスタムディレクトリ（SAF）、最大同時実行数（1〜5）、再試行回数（1〜3）、Wi-Fi のみ、ファイル命名形式
-- **自動バックアップ**：選択したディレクトリへ毎日バックアップを書き出し
-- **アプリ内更新**：1.9.0 を最終版として以降の更新は終了し、GitHub 更新確認機能は削除済み
-
----
-
-## 技術スタック
-
-| カテゴリ | 技術 | 備考 |
-|----------|------|------|
-| **言語** | Kotlin 2.3.20 | AGP 9.3.2 に同梱。Kotlin プラグインの個別適用は不要 |
-| **最小 SDK** | API 30 (Android 11) | アクティブ端末の大多数をカバー |
-| **ターゲット / コンパイル SDK** | API 36 (minorApiLevel 1) | 最新 Android バージョン |
-| **UI** | XML + ViewBinding | 宣言的レイアウト、型安全アクセス |
-| **デザイン** | Material Design 3 | カードグループ、セグメントボタン、ブランドカラータグ |
-| **モジュール化** | 10 個の Gradle モジュール | `app` / 7×`feature-*` / `data` / `core` |
-| **DI** | Hilt 2.59.2 + KSP 2.3.6 | `@HiltAndroidApp` / `@AndroidEntryPoint` |
-| **ストレージ** | Room 2.8.4 + DataStore 1.1.1 | ダウンロード履歴とオフラインアーカイブは Room、設定は DataStore |
-| **ダウンロード** | 独自 OkHttp ストリーミング | 1.7.0 で okdownload を置換。単一接続 + HTTP Range レジューム |
-| **ネットワーク** | Retrofit 2.9.0 + OkHttp 4.12.0 | 型安全 HTTP クライアント |
-| **画像** | Coil 2.6.0 + coil-gif | コルーチンネイティブ。`ImageDecoderDecoder` を登録しアニメーション画像に対応 |
-| **動画** | AndroidX Media3 1.4.1 | ExoPlayer + OkHttp データソース |
-| **バックグラウンド処理** | WorkManager 2.9.0 + Hilt | 定期購読同期、自動バックアップ、キャッシュ整理 |
-| **ビルド** | Gradle 9.5.0 + AGP 9.3.2 | バージョンカタログ（`libs.versions.toml`）を依存の唯一の情報源とする |
-| **品質ゲート** | Kover 0.9.9 | コア層（core + data）の行カバレッジ 45% 以上 |
+### パーソナライズ設定
+- **多言語**：中文 / English / 日本語、リアルタイム切り替え
+- **外観**：ライト / ダーク / システムに従う、6 種のテーマアクセントカラー、Material Design 3。Android 12+ ではダイナミックカラー（Material You）対応、没入型ステータスバー
+- **表示とスケーリング**：UI 全体スケールとグローバル文字サイズのスライダー。リアルタイムプレビュー、即時反映
+- **データ節約**：リストはデフォルトでサムネイルを読み込み、元画像に切り替え可能
+- **ダウンロード設定**：ダウンロード先ディレクトリ（SAF）、最大同時数（1〜5）、リトライ回数（1〜3）、Wi-Fi のみダウンロード、ファイル命名形式をカスタマイズ
+- **自動バックアップ**：毎日、選択したディレクトリへバックアップをエクスポート
+- **アプリ内アップデート**：1.9.0 が最終バージョンとなり、以後の更新は終了。GitHub アップデートチェック機能は削除済み。今後の開発は新世代リポジトリ [Aerunox/Archive](https://github.com/Aerunox/Archive) をご覧ください
 
 ---
 
-## 主な技術的ハイライト
+## 技術アーキテクチャ
 
-### 1. Cloudflare チャレンジの自動回避
+| カテゴリ | 技術選定 | 説明 |
+|------|---------|------|
+| **言語** | Kotlin 2.3.20 | AGP 9.3.2 に内蔵。Kotlin プラグインの個別適用は不要 |
+| **最小 SDK** | API 30 (Android 11) | 稼働中デバイスの大多数をカバー |
+| **ターゲット / コンパイル SDK** | API 36 (minorApiLevel 1) | 最新の Android バージョン |
+| **UI フレームワーク** | XML + ViewBinding | 宣言的レイアウト、型安全なアクセス |
+| **デザイン言語** | Material Design 3 | カードグループ、セグメントボタン、ブランドカラータグ |
+| **モジュール化** | Gradle モジュール 10 個 | `app` / 7×`feature-*` / `data` / `core` |
+| **依存性注入** | Hilt 2.59.2 + KSP 2.3.6 | `@HiltAndroidApp` / `@AndroidEntryPoint` |
+| **ローカルストレージ** | Room 2.8.4 + DataStore 1.1.1 | ダウンロード履歴 / オフラインアーカイブ FTS4 は Room、設定は DataStore |
+| **ダウンロードエンジン** | 独自開発の OkHttp ストリーミングダウンロード | 1.7.0 で okdownload を置き換え。単一接続・単一リクエスト + Range レジューム |
+| **ネットワーク層** | Retrofit 2.9.0 + OkHttp 4.12.0 | 型安全 HTTP クライアント |
+| **画像読み込み** | Coil 2.6.0 + coil-gif | コルーチンネイティブ。`ImageDecoderDecoder` を登録してアニメーション画像に対応 |
+| **動画再生** | AndroidX Media3 1.4.1 | ExoPlayer + OkHttp データソース |
+| **バックグラウンドタスク** | WorkManager 2.9.0 + Hilt | 定期購読同期、自動バックアップ、キャッシュクリーンアップ |
+| **ビルドツール** | Gradle 9.5.0 + AGP 9.3.2 | バージョンカタログ（`libs.versions.toml`）で一元管理 |
+| **品質ゲート** | Kover 0.9.9 | コア層（core + data）の行カバレッジ ≥ 45% |
 
-対象サイトは Cloudflare 保護下にあり、通常の OkHttp リクエストは 403 で遮断されます。`CloudflareManager` が非表示 WebView で JS チャレンジを実行し、`cf_clearance` Cookie を抽出して、**それが紐付く User-Agent とともに**以降の全 OkHttp リクエストへ注入します：
+### アーキテクチャ概要
 
-- **シングルフライト**：並行呼び出しは 1 つの `CompletableDeferred` を共有するため、複数の WebView が同時に起動することはありません
-- **認証情報の永続化**：EncryptedSharedPreferences に保存し、25 分の TTL 内であればコールドスタートでもチャレンジを省略
-- **`session` の除去**：WebView が書き込む匿名 session Cookie は実際のログインセッションに重なり 401 の誤判定を招くため、注入前に必ず除去
-- **堅牢化**：WebView の生成と設定は全体をフォールバック保護（サードパーティ実装が `Error` を投げてもクラッシュしない）。`onRenderProcessGone` をオーバーライドし、レンダラのクラッシュがプロセス全体を巻き込まないようにしています
+モジュール連携とデータフローの図（ノードをクリックすると対応するソースファイルへジャンプ）：
+
+```mermaid
+flowchart TD
+
+subgraph group_ui["App and features"]
+  node_app["Main app<br/>[MainActivity.kt]"]
+  node_home["Home feed<br/>[HomeFragment.kt]"]
+  node_search["Search UI<br/>[SearchFragment.kt]"]
+  node_post["Post details"]
+  node_account["Account and creator<br/>[AccountFragment.kt]"]
+  node_settings["Settings"]
+  node_downloads_ui["Download center UI"]
+end
+
+subgraph group_content["Content access"]
+  node_api["Platform API<br/>[PawchiveApi.kt]"]
+  node_clearance["Challenge clearance"]
+  node_offline[("Offline search")]
+end
+
+subgraph group_library["Saved library"]
+  node_archive["Offline archive"]
+  node_bookmarks["Bookmarks<br/>[BookmarkManager.kt]"]
+  node_session[("Account sessions<br/>[SessionManager.kt]")]
+  node_subscriptions["Creator subscriptions"]
+end
+
+subgraph group_operations["Background operations"]
+  node_rules["Download rules"]
+  node_enqueue["Download enqueue"]
+  node_download["Download execution<br/>[DownloadCenter.kt]"]
+  node_http_download["HTTP transfer"]
+  node_notifications["Download notifications"]
+  node_download_service["Foreground service"]
+  node_workers["Scheduled work"]
+end
+
+subgraph group_platform["Core platform"]
+  node_settings_store[("Preferences<br/>[SettingsManager.kt]")]
+  node_database[("Room database")]
+end
+
+node_user(("App user"))
+node_creator_service{{"Pawchive platform"}}
+node_android{{"Android system"}}
+
+node_user -->|"opens"| node_app
+node_app -->|"shows tab"| node_home
+node_app -->|"shows tab"| node_search
+node_app -->|"shows tab"| node_downloads_ui
+node_user -->|"opens content"| node_post
+node_user -->|"manages account"| node_account
+node_user -->|"configures"| node_settings
+node_home -->|"loads feed"| node_api
+node_search -->|"searches online"| node_api
+node_api -->|"requests content"| node_creator_service
+node_api -->|"obtains clearance"| node_clearance
+node_search -->|"searches archive"| node_offline
+node_post -->|"saves content"| node_bookmarks
+node_bookmarks -->|"indexes saved posts"| node_archive
+node_archive -->|"stores archive"| node_database
+node_offline -->|"queries index"| node_database
+node_account -->|"manages sessions"| node_session
+node_settings -->|"manages subscriptions"| node_subscriptions
+node_subscriptions -->|"persists subscriptions"| node_database
+node_post -->|"applies rules"| node_rules
+node_rules -->|"enqueues matches"| node_enqueue
+node_enqueue -->|"adds tasks"| node_download
+node_download -->|"transfers files"| node_http_download
+node_http_download -->|"writes files"| node_android
+node_download -->|"updates progress"| node_notifications
+node_notifications -->|"starts service"| node_download_service
+node_download_service -->|"forwards actions"| node_download
+node_downloads_ui -->|"manages tasks"| node_download
+node_workers -->|"checks creators"| node_subscriptions
+node_workers -->|"schedules work"| node_android
+node_settings -->|"reads and writes"| node_settings_store
+
+classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
+classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
+classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
+classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
+classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
+classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
+class node_app,node_home,node_search,node_post,node_account,node_settings,node_downloads_ui,node_user toneBlue
+class node_api,node_clearance,node_offline toneAmber
+class node_archive,node_bookmarks,node_session,node_subscriptions toneMint
+class node_rules,node_enqueue,node_download,node_http_download,node_notifications,node_download_service,node_workers toneRose
+class node_settings_store,node_database,node_creator_service,node_android toneIndigo
+```
+
+---
+
+## コア技術ハイライト
+
+### 1. Cloudflare マネージドチャレンジの自動突破
+
+対象サイトは Cloudflare で保護されており、素の OkHttp リクエストは 403 でブロックされる。`CloudflareManager` は非表示の WebView で JS チャレンジを実行し、`cf_clearance` Cookie を抽出して、**それに紐づく User-Agent と一緒に**以後のすべての OkHttp リクエストへ注入する：
+
+- **シングルフライト**：並行呼び出しは同一の `CompletableDeferred` を再利用し、複数の WebView を同時起動しない
+- **資格情報の永続化**：暗号化ストレージ（EncryptedSharedPreferences）に保存。25 分の TTL 内のコールドスタートはチャレンジ不要
+- **`session` セグメントの強制除去**：WebView が書き込む匿名 session は実際のログインセッションと重なり 401 の誤判定を招くため、注入前に必ず剥離
+- **堅牢化**：構築と設定を丸ごとグレースフルデグラデーションで保護（サードパーティ WebView 実装が `Error` を投げてもクラッシュしない）。`onRenderProcessGone` をオーバーライドし、レンダラープロセスのクラッシュがアプリを巻き込まないように
 
 ### 2. OkHttp 直結ストリーミングダウンロードエンジン
 
-1.7.0 で okdownload を撤去しました。ソースレベルでの検証により、sync スレッドの `LockSupport.park()` にタイムアウトがなく、マルチブロックダウンロードがサーバーのレート制限方針に反する並行 Range リクエストを発行し、応答切断時には不可解なエラーを投げることが判明したためです。現在は単一接続のストリーミングダウンロードです：
+1.7.0 で okdownload を削除（ソースコードレベルの検証で判明：sync スレッドがタイムアウトなしでブロック、マルチチャンク並行リクエストがサーバーのレート制限要件に違反、レスポンス切断時にブレークポイント検証が不明瞭なエラーを送出）。単一接続のストリーミングダウンロードへ移行：
 
-- **一時停止 / 再開**：一時停止時は一時ファイルを保持し、`Range: bytes=N-` で再開。サーバーが Range を無視して 200 を返した場合は全量ダウンロードに静かに降格
-- **切断検知**：`Content-Length` と実読み取りバイト数を比較し、途中で切れた場合は即座に失敗してバックオフ再試行
-- **中断可能**：読み取りループは 64KB ごとにコルーチンの生存を確認するため、キャンセルはダウンロードと書き出しの両フェーズで即座に効きます
-- **一時ファイルの分離**：まず一時ファイルへ書き込み、成功後にのみターゲットストリームへコピーするため、再試行が書き出し済みバイトを汚染しません
-- **4 種類のクライアント分離**：ダウンロード用クライアントは `callTimeout` を設定しません（設定すると 60 秒で転送しきれないファイルがウォッチドッグに切断されるため）。メモリキャッシュインターセプターも装着しません
+- **一時停止 / 再開**：一時停止時は一時ファイルを保持し、再開時は `Range: bytes=N-` で続行。サーバーが Range を無視して 200 を返した場合は全量ダウンロードへサイレントフォールバック
+- **切断検出**：`Content-Length` と実際の読み取りバイト数を照合し、レスポンス切断時は即座に失敗させてバックオフ付きでリトライ
+- **キャンセル可能**：読み取りループは 64KB ごとにコルーチンの活性をチェック。キャンセルはダウンロードと書き出しの両段階を即座に中断
+- **一時ファイル隔離**：まず一時ファイルに書き込み、成功後にターゲットストリームへ一括コピー。リトライが書き出し済みバイトを汚染しない
+- **4 種類のクライアント分離**：ダウンロードクライアントには `callTimeout` を設定しない（設定すると 60 秒で完了しないファイルがウォッチドッグに切断される）。メモリキャッシュインターセプターも付与しない
 
 ### 3. スマートインターセプターチェーン
 
-- **スコープ限定注入**：Cookie・Referer・User-Agent はメインドメイン `pawchive.pw` にのみ注入。CDN サブドメインには User-Agent のみを注入（ホットリンク対策や認証情報の漏洩を回避）
-- **403 フォールバック**：`ClearanceRetryInterceptor` が 403 時に強制リフレッシュして 1 回再試行
-- **ログのマスク処理**：`Authorization` / `Cookie` / `Set-Cookie` は常にマスクされ、release ビルドではログ出力自体が無効
-- **アカウント単位のキャッシュ**：GET の JSON 応答を 5 分間キャッシュ。キーはセッションハッシュの名前空間を持ち（アカウント間の再利用を排除）、パス単位で正確に無効化できます
+- **資格情報注入**：Cookie + Referer + UA はメインドメイン `pawchive.pw` にのみ注入。CDN サブドメインには UA のみ（ホットリンク保護の誤発動と資格情報の漏洩を回避）
+- **403 フォールバック**：`ClearanceRetryInterceptor` が 403 時にクリアランスを強制更新して 1 回リトライ
+- **ログのマスキング**：`Authorization` / `Cookie` / `Set-Cookie` は常にマスク出力。release ビルドではログレベルをオフ
+- **アカウント単位のキャッシュ**：GET JSON レスポンスを 5 分キャッシュ。キーに session ハッシュの名前空間を含め（アカウント間の再利用を完全に排除）、パス単位の精密な無効化に対応
 
-### 4. シングル Activity + モジュラーナビゲーション
+### 4. シングル Activity + モジュール式ナビゲーション
 
-- ボトムナビゲーションと **ViewPager2** が双方向に連動し、メイン Tab は指のスワイプに追従
-- `offscreenPageLimit = 1`：ホームとブックマークが同時にプリロードして同じチャレンジ処理を奪い合うのを防ぎます
-- **AppNavigator インターフェース**：各 feature はインターフェース経由で遷移し、モジュール間の直接依存はゼロ
+- ボトムナビゲーションと **ViewPager2** が双方向に連動。メインタブは指のスワイプに追従して切り替わる
+- `offscreenPageLimit = 1`：ホームとブックマークページの同時プリロードによる、同一クリアランスタスクの競合を回避
+- **AppNavigator インターフェース**：各 feature はインターフェース経由でナビゲーション。モジュール間の直接依存はゼロ
 
 ### 5. オフラインアーカイブと全文検索
 
-- ブックマーク時に Room のエンティティ行と FTS4 のシャドウ行を 1 トランザクションで書き込み、両者の整合性を保証
-- **CJK バイグラム分割**：分かち書きが不要な中国語も検索可能
-- **関連度の重み付け**：タイトル > クリエイター > 本文/添付の順に層別検索し、重み順にマージして重複を除去
+- ブックマーク時に Room エンティティテーブル + FTS4 シャドウテーブルへ書き込み、トランザクションで両者の整合性を保証
+- **CJK bigram 分かち書き**：中国語はスペースなしでもヒット
+- **関連度の重み付け**：タイトル > クリエイター > 本文/添付。階層検索の後、重み順にマージ・重複排除
 
-### 6. パフォーマンスと使い勝手
+### 6. パフォーマンスと体験
 
-- **スケルトンローディング**：カスタム `SkeletonHelper` による shimmer パルスアニメーション（「アニメーションを減らす」で全体を無効化可能）
-- **起動パスのノンブロッキング化**：言語・外観・拡大率は軽量な SharedPreferences の起動キャッシュから読み、DataStore には触れません
-- **メモリスナップショット + 非同期書き込み**：設定とブックマークはメモリから読み、書き込みは非同期。UI は即座に反応します
+- **スケルトンスクリーン**：カスタム `SkeletonHelper` による shimmer パルスアニメーション。グローバルで無効化可能（モーション削減）
+- **起動パスのゼロブロッキング**：言語 / 外観 / スケールは軽量な SharedPreferences 起動キャッシュから読み取り、DataStore には触れない
+- **メモリスナップショット + 非同期永続化**：設定とブックマークはメモリから読み取り、書き込みは非同期。UI は即時応答
 
 ---
 
@@ -145,17 +247,17 @@
 
 ```
 Pawchive/
-├── app/                    # アセンブリ層：Application / MainActivity / メインページャー
-├── feature-common/         # 共通 UI：SkeletonHelper / ZoomableImageView / 共通アダプター / AppNavigator
+├── app/                    # 組み立て層：Application / MainActivity / メイン Pager
+├── feature-common/         # 共有 UI：SkeletonHelper / ZoomableImageView / 共通 adapter / AppNavigator
 ├── feature-home/           # ホームフィード
 ├── feature-search/         # 検索（オンライン + オフライン全文）
-├── feature-post/           # 投稿詳細 / 画像ビューア / 動画再生
+├── feature-post/           # 投稿詳細 / 大画像ビューア / 動画再生
 ├── feature-downloads/      # ダウンロードセンター
-├── feature-settings/       # 設定（ダウンロードルール、購読、バックアップ、キャッシュ管理）
+├── feature-settings/       # 設定（ダウンロードルール、購読、バックアップ、キャッシュ管理を含む）
 ├── feature-account/        # アカウント / ログイン / ブックマーク
 ├── data/                   # ビジネス層：Repository / ダウンロードエンジン / Worker
-├── core/                   # インフラ：ネットワーク / モデル / Room / DataStore / ユーティリティ
-└── gradle/libs.versions.toml   # バージョンカタログ（依存の唯一の情報源）
+├── core/                   # 基盤：ネットワーク / モデル / Room / DataStore / ユーティリティ
+└── gradle/libs.versions.toml   # バージョンカタログ（依存関係の唯一の情報源）
 ```
 
 **依存方向**：`:app` → `:feature-*` → `:data` → `:core`
@@ -164,10 +266,10 @@ Pawchive/
 
 ## クイックスタート
 
-### 要件
-- **Android Studio** Meerkat (2024.3+) 以上
+### 動作環境
+- **Android Studio** Meerkat (2024.3+) 以降
 - **JDK** 17+（CI は 21 を使用）
-- **Gradle** 9.5.0（ラッパー同梱、SHA-256 検証あり）
+- **Gradle** 9.5.0（wrapper を同梱、SHA-256 整合性チェック付き）
 
 ### クローン & ビルド
 
@@ -177,8 +279,8 @@ cd Pawchive
 ./gradlew assembleRelease
 ```
 
-> APK 出力先：`app/build/outputs/apk/release/Pawchive-v<バージョン>.apk`
-> （ファイル名は `gradle.properties` の `VERSION_NAME` に由来。同ファイルがバージョンの唯一の情報源で、未設定または不正な場合はビルドが失敗します）
+> APK 出力パス：`app/build/outputs/apk/release/Pawchive-v<バージョン>.apk`
+> （ファイル名は `gradle.properties` の `VERSION_NAME` に由来。同ファイルがバージョン番号の唯一の情報源であり、欠落・不正時はビルドが即座に失敗する）
 
 ### よく使うタスク
 
@@ -190,34 +292,34 @@ cd Pawchive
 
 ### インストール
 
-最新 APK をダウンロードし、Android 11+ 端末にインストールしてください。
+最新の APK をダウンロードし、Android 11+ のデバイスにインストールするだけ。
 
 ---
 
-## 権限
+## 権限の説明
 
 | 権限 | 用途 |
 |------|------|
 | `INTERNET` | ネットワークリクエスト |
-| `ACCESS_NETWORK_STATE` | ネットワーク状態検出（Wi-Fi のみのダウンロード、接続確認） |
-| `POST_NOTIFICATIONS` | ダウンロード進捗通知とコンテンツ更新通知（Android 13+ では実行時に要求。拒否してもダウンロードと閲覧は継続） |
-| `FOREGROUND_SERVICE` | ダウンロードフォアグラウンドサービス |
-| `FOREGROUND_SERVICE_DATA_SYNC` | フォアグラウンドサービスの種別（Android 14+ で必須。バックグラウンドのダウンロード継続に必要） |
-| `WRITE_EXTERNAL_STORAGE` | API 28 以下のみ宣言。新しいバージョンは MediaStore を使用 |
-| `ACCESS_MEDIA_LOCATION` | API 32 以下のみ宣言。メディアの位置情報メタデータを読み取り |
+| `ACCESS_NETWORK_STATE` | ネットワーク状態の検出（Wi-Fi のみダウンロード、接続可否の判定） |
+| `POST_NOTIFICATIONS` | ダウンロード進捗通知とコンテンツ更新通知（Android 13+ ではランタイム申請。拒否してもダウンロードと閲覧には影響なし） |
+| `FOREGROUND_SERVICE` | ダウンロードのフォアグラウンドサービス |
+| `FOREGROUND_SERVICE_DATA_SYNC` | ダウンロードのフォアグラウンドサービスタイプ（Android 14+ では宣言必須。バックグラウンドダウンロードの中断を防ぐ） |
+| `WRITE_EXTERNAL_STORAGE` | API ≤ 28 のみ宣言。新しいシステムは MediaStore を使うため不要 |
+| `ACCESS_MEDIA_LOCATION` | API ≤ 32 のみ宣言。メディアの位置メタデータを読み取る |
 
 ---
 
 ## エンジニアリング品質
 
-| 仕組み | 内容 |
+| 仕組み | 説明 |
 |------|------|
-| **CI パイプライン** | ビルド（debug + R8 release）、ユニットテスト、Lint、カバレッジゲート、依存レビューの 4 ジョブ構成 |
-| **カバレッジのラチェット** | コア層（core + data）の行カバレッジ下限 45%、増加のみ許可。下回ると CI がブロック |
-| **R8 マッピングの保管** | release は難読化とリソース圧縮を有効化。`mapping.txt` を CI が 90 日間保管し、実機クラッシュのスタックを復元可能 |
-| **依存レビュー** | PR 段階で高リスク以上の脆弱性を含む依存をブロック |
-| **クラッシュ診断** | グローバルな `CrashHandler` がクラッシュログを書き出し、FileProvider 経由で共有・エクスポート可能 |
-| **3 言語の完全性** | 中国語 / 英語 / 日本語の文字列リソースはキーが完全に一致 |
+| **CI パイプライン** | ビルド（debug + R8 release）、ユニットテスト、Lint、カバレッジゲート、依存関係審査の 4 グループのジョブ |
+| **カバレッジラチェット** | コア層（core + data）の行カバレッジ下限 45%。引き上げのみで、下回ると CI がブロック |
+| **R8 マッピングのアーカイブ** | release では難読化とリソース圧縮を有効化。`mapping.txt` を CI で 90 日間アーカイブし、本番クラッシュを逆難読化可能 |
+| **依存関係審査** | PR 段階で高リスク以上の脆弱性を持つ依存をブロック |
+| **クラッシュ診断** | グローバル `CrashHandler` がクラッシュログをディスクに保存し、FileProvider 経由で共有エクスポート |
+| **3 言語完全対応** | 中文 / English / 日本語 の 3 セットの文字列リソースの key を完全一致 |
 
 ---
 
@@ -225,30 +327,39 @@ cd Pawchive
 
 | ドキュメント | 内容 |
 |------|------|
-| [SUPPORT.md](SUPPORT.md) | サポート期間、更新サイクル、要件、既知の制限、EOL ポリシー |
-| [SECURITY.md](SECURITY.md) | 脆弱性の報告窓口と対応期限 |
+| [SUPPORT.md](SUPPORT.md) | サポート期間、更新頻度、システム要件、既知の制約、EOL ポリシー |
+| [SECURITY.md](SECURITY.md) | 脆弱性の報告チャネルと応答期限 |
 | [CHANGELOG.md](CHANGELOG.md) | バージョン変更履歴 |
-| [NOTICE.md](NOTICE.md) | サードパーティコンポーネントとライセンス |
+| [NOTICE.md](NOTICE.md) | サードパーティコンポーネントとライセンス表記 |
 
 ---
 
-## コントリビューション
+## コミュニティと今後の開発
+
+| チャネル | 説明 |
+| --- | --- |
+| [Telegram チャンネル · Pawchive Archive](https://t.me/Pawchive_Archive) | リリース告知とプロジェクトの最新動向 |
+| [新世代リポジトリ · Aerunox/Archive](https://github.com/Aerunox/Archive) | 本プロジェクトの新世代版。今後の開発と更新はこちらで進行 |
+
+---
+
+## コントリビュート
 
 Issue と Pull Request を歓迎します。提出前に以下を確認してください：
 
-1. コードスタイルを既存コードに合わせる
-2. 新機能には 3 言語の文字列リソースを追加する（`values/`、`values-en/`、`values-ja/` のキーを揃える）
-3. Material Design 3 ガイドラインに従う
-4. コア層の新しいロジックにはユニットテストを添え、カバレッジをゲート以下に落とさない
+1. コードスタイルを既存のコードと一致させる
+2. 新機能は 3 言語の文字列リソースに対応する（`values/`、`values-en/`、`values-ja/` の key を揃える）
+3. Material Design 3 のデザインガイドラインに従う
+4. コア層の新規ロジックにはユニットテストを付け、カバレッジをゲート未満に下げない
 
 ---
 
 ## ライセンス
 
-本プロジェクトは **MIT License** の下でオープンソース化されています。
+本プロジェクトは **MIT License** のもとでオープンソース公開されています。
 
 ---
 
 <p align="center">
-  <sub>アイコンは <a href="https://lucide.dev">Lucide</a> より · Material Design 3 に触発されています</sub>
+  <sub>アイコンは <a href="https://lucide.dev">Lucide</a> · デザインは Material Design 3 にインスパイア</sub>
 </p>
