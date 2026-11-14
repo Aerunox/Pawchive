@@ -75,16 +75,16 @@ Both projects share a common origin, but their design goals are opposite. Pawchi
 
 <p align="center">
   <img src="docs/screenshots/pawchive-1.png" width="22%" alt="Home feed" />
-  <img src="docs/screenshots/pawchive-2.png" width="22%" alt="Post details" />
-  <img src="docs/screenshots/pawchive-3.png" width="22%" alt="Immersive media" />
-  <img src="docs/screenshots/pawchive-4.png" width="22%" alt="Downloads" />
+  <img src="docs/screenshots/pawchive-2.png" width="22%" alt="Live search" />
+  <img src="docs/screenshots/pawchive-3.png" width="22%" alt="Account center" />
+  <img src="docs/screenshots/pawchive-4.png" width="22%" alt="Download center" />
 </p>
 
 <p align="center">
-  <sub>Home feed · Post details · Immersive media · Downloads</sub>
+  <sub>Home feed · Live search · Account center · Download center</sub>
 </p>
 
-> Images live in `docs/screenshots/` and are currently **placeholders**. To use real device screenshots, overwrite them with the same filenames and aspect ratio (1080 × 2160 recommended) — no edits to this file required.
+> Screenshots live in `docs/screenshots/`, all at 1080 × 2282. To swap them, overwrite with the same filenames and aspect ratio — no edits to this file required.
 
 ---
 

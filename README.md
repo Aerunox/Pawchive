@@ -75,16 +75,16 @@
 
 <p align="center">
   <img src="docs/screenshots/pawchive-1.png" width="22%" alt="首页信息流" />
-  <img src="docs/screenshots/pawchive-2.png" width="22%" alt="帖子详情" />
-  <img src="docs/screenshots/pawchive-3.png" width="22%" alt="沉浸式媒体" />
+  <img src="docs/screenshots/pawchive-2.png" width="22%" alt="实时搜索" />
+  <img src="docs/screenshots/pawchive-3.png" width="22%" alt="账号中心" />
   <img src="docs/screenshots/pawchive-4.png" width="22%" alt="下载中心" />
 </p>
 
 <p align="center">
-  <sub>首页信息流 · 帖子详情 · 沉浸式媒体 · 下载中心</sub>
+  <sub>首页信息流 · 实时搜索 · 账号中心 · 下载中心</sub>
 </p>
 
-> 图片位于 `docs/screenshots/`，当前为**占位图**。替换为真机截图时保持同名同比例（建议 1080 × 2160）即可直接生效，无需改动本文件。
+> 截图位于 `docs/screenshots/`，尺寸统一为 1080 × 2282。替换为其他截图时保持同名同比例即可生效，无需改动本文件。
 
 ---
 

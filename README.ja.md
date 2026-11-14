@@ -75,16 +75,16 @@
 
 <p align="center">
   <img src="docs/screenshots/pawchive-1.png" width="22%" alt="ホームフィード" />
-  <img src="docs/screenshots/pawchive-2.png" width="22%" alt="投稿詳細" />
-  <img src="docs/screenshots/pawchive-3.png" width="22%" alt="没入型メディア" />
-  <img src="docs/screenshots/pawchive-4.png" width="22%" alt="ダウンロード" />
+  <img src="docs/screenshots/pawchive-2.png" width="22%" alt="リアルタイム検索" />
+  <img src="docs/screenshots/pawchive-3.png" width="22%" alt="アカウント" />
+  <img src="docs/screenshots/pawchive-4.png" width="22%" alt="ダウンロードセンター" />
 </p>
 
 <p align="center">
-  <sub>ホームフィード · 投稿詳細 · 没入型メディア · ダウンロード</sub>
+  <sub>ホームフィード · リアルタイム検索 · アカウント · ダウンロードセンター</sub>
 </p>
 
-> 画像は `docs/screenshots/` にあり、現在は**プレースホルダー**です。実機のスクリーンショットに差し替える場合は、同じファイル名・同じアスペクト比（1080 × 2160 推奨）で上書きすれば、本ファイルの編集は不要です。
+> スクリーンショットは `docs/screenshots/` にあり、サイズはすべて 1080 × 2282 です。差し替える場合は同じファイル名・同じアスペクト比で上書きすれば、本ファイルの編集は不要です。
 
 ---
 
