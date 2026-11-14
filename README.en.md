@@ -9,8 +9,13 @@
 </p>
 
 <p align="center">
-  A polished, fluid third-party Android client that brings you the full <a href="https://pawchive.pw">Pawchive</a> platform experience.<br/>
-  Aggregates creator content from Patreon, Fanbox, Discord and more — browse, search, bookmark, and enjoy immersive media playback.
+  An <b>ultra-lightweight and minimal</b> third-party Android client that aggregates creator content from Patreon, Fanbox, Discord and more.<br/>
+  Deliberately narrow scope, zero redundant dependencies: about 15 MB installed, focused on browsing, search, bookmarks, and immersive media playback.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Design-ultra--light%20%26%20minimal-6366F1?style=for-the-badge" alt="Design Philosophy" />
+  <img src="https://img.shields.io/badge/Scope-restrained%20%26%20sufficient-0EA5E9?style=for-the-badge" alt="Feature Scope" />
 </p>
 
 <p align="center">
@@ -30,6 +35,56 @@
 
 > [!NOTE]
 > This is an **unofficial third-party client** with no affiliation or partnership with the operators of `pawchive.pw`. The app neither hosts nor distributes any content — it is only a browsing and downloading tool. All content rights belong to the original creators and their respective platforms. Breakage caused by upstream API changes is outside the support commitment.
+
+> [!TIP]
+> **This project and [Aerunox/Archive](https://github.com/Aerunox/Archive) are not simply an old and new version of the same app — they are two product lines with different design goals**: Pawchive chases **ultra-lightweight minimalism**, Archive chases **feature richness**. Which one to pick depends on whether you value "small and fast" or "big and complete" — see [Design Philosophy](#design-philosophy-pawchive-vs-archive) below.
+
+---
+
+## Design Philosophy: Pawchive vs Archive
+
+Both projects share a common origin, but their design goals are opposite. Pawchive is the product of **subtraction**; Archive is the product of **addition**.
+
+| Dimension | **Pawchive** (this repo) | **[Archive](https://github.com/Aerunox/Archive)** |
+| --- | --- | --- |
+| **Design goal** | 🪶 Ultra-lightweight and minimal | 🧰 Feature-rich and complete |
+| **Core belief** | Keep only the highest-frequency capabilities; pay no size or cognitive cost for rare needs | Cover as many scenarios as possible; feature density first |
+| **UI framework** | XML + ViewBinding, Material Design 3 | Jetpack Compose + Miuix (HyperOS style) |
+| **Module layout** | 10 Gradle modules, split per `feature-*` | 3 Gradle modules (`app` / `data` / `core`) |
+| **Code size** | 150 Kotlin files · ~27k lines | 188 Kotlin files · ~35k lines |
+| **Dependencies** | 37 third-party libraries | 47 third-party libraries |
+| **Package size** | ~**15 MB** (single universal APK) | ~**35–97 MB** (per-ABI splits; ~97 MB universal) |
+| **AI features** | ❌ None | ✅ Multi-provider AI, model profiles, translation and vision |
+| **OCR** | ❌ None | ✅ On-device PP-OCRv4 (ONNX Runtime) |
+| **Localization** | Simplified Chinese / English / Japanese (3) | 12 fully localized languages (incl. RTL Arabic) |
+| **Theming** | Default + 5 accent themes, Material You dynamic color | 6 color modes, Monet dynamic color + seed color, instant switching |
+| **In-app updates** | ❌ Removed in 1.9.0 | ✅ Built-in GitHub Release check |
+| **Project status** | 🔒 1.9.0 is final, EOL | 🚀 Actively developed |
+| **License** | MIT | GPL-3.0 |
+
+> Every number above comes from each repository's actual build configuration and release artifacts (Pawchive 1.9.0 / Archive 1.0.2) — none are estimates.
+
+**Which one should you pick?**
+
+- Want a **install-and-go browsing tool that takes no space** → **Pawchive**
+- Want **OCR, AI translation, 12-language UI, deep Monet theming** → **[Archive](https://github.com/Aerunox/Archive)**
+
+---
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/pawchive-1.png" width="22%" alt="Home feed" />
+  <img src="docs/screenshots/pawchive-2.png" width="22%" alt="Post details" />
+  <img src="docs/screenshots/pawchive-3.png" width="22%" alt="Immersive media" />
+  <img src="docs/screenshots/pawchive-4.png" width="22%" alt="Downloads" />
+</p>
+
+<p align="center">
+  <sub>Home feed · Post details · Immersive media · Downloads</sub>
+</p>
+
+> Images live in `docs/screenshots/` and are currently **placeholders**. To use real device screenshots, overwrite them with the same filenames and aspect ratio (1080 × 2160 recommended) — no edits to this file required.
 
 ---
 

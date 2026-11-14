@@ -9,8 +9,13 @@
 </p>
 
 <p align="center">
-  洗練された操作感を備えたサードパーティ製 Android クライアント。Pawchive プラットフォームの体験をまるごと手元に。<br/>
-  Patreon・Fanbox・Discord など複数プラットフォームのクリエイター投稿を集約し、閲覧・検索・ブックマーク・没入型のメディア再生を提供します。
+  <b>究極の軽量・シンプルさ</b>を核としたサードパーティ製 Android クライアント。Patreon・Fanbox・Discord など複数プラットフォームのクリエイター投稿を集約します。<br/>
+  機能範囲は意図的に絞り込み、無駄な依存はゼロ。インストールサイズは約 15 MB で、閲覧・検索・ブックマーク・没入型メディア再生に集中します。
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/設計思想-究極の軽量・シンプル-6366F1?style=for-the-badge" alt="Design Philosophy" />
+  <img src="https://img.shields.io/badge/機能範囲-抑制と十分性-0EA5E9?style=for-the-badge" alt="Feature Scope" />
 </p>
 
 <p align="center">
@@ -30,6 +35,56 @@
 
 > [!NOTE]
 > 本アプリは `pawchive.pw` の運営元とは一切関係のない**非公式のサードパーティ製クライアント**です。アプリ自体はコンテンツを保有・配信せず、閲覧とダウンロードのためのツールにすぎません。コンテンツに関する権利はすべて原著作者および各プラットフォームに帰属します。上流 API の変更に起因する不具合はサポート対象外です。
+
+> [!TIP]
+> **本プロジェクトと [Aerunox/Archive](https://github.com/Aerunox/Archive) は単純な新旧バージョンの関係ではなく、設計思想の異なる 2 つの製品ラインです**：Pawchive は**究極の軽量・シンプル**を、Archive は**機能の豊富さ**を追求します。「小さく速い」か「大きく全部入り」か、重視するものに応じて選んでください。詳細は下記の[設計思想と比較](#設計思想pawchive-vs-archive)をご覧ください。
+
+---
+
+## 設計思想：Pawchive vs Archive
+
+両プロジェクトは源流を同じくしますが、設計目標は正反対です。Pawchive は**引き算**の産物、Archive は**足し算**の産物です。
+
+| 観点 | **Pawchive**（本リポジトリ） | **[Archive](https://github.com/Aerunox/Archive)** |
+| --- | --- | --- |
+| **設計思想** | 🪶 究極の軽量・シンプル | 🧰 機能豊富で全部入り |
+| **基本方針** | 高頻度の機能だけを残し、低頻度の要望にサイズと認知コストを払わない | できるだけ多くの利用シーンをカバーし、機能密度を優先 |
+| **UI フレームワーク** | XML + ViewBinding、Material Design 3 | Jetpack Compose + Miuix（HyperOS 風） |
+| **モジュール構成** | Gradle 10 モジュール、`feature-*` ごとに分割 | Gradle 3 モジュール（`app` / `data` / `core`） |
+| **コード規模** | Kotlin 150 ファイル・約 2.7 万行 | Kotlin 188 ファイル・約 3.5 万行 |
+| **依存ライブラリ数** | 37 | 47 |
+| **パッケージサイズ** | 約 **15 MB**（universal 単一 APK） | 約 **35〜97 MB**（ABI 別分割、universal は約 97 MB） |
+| **AI 機能** | ❌ 非搭載 | ✅ 複数プロバイダーの AI、モデルプロファイル、翻訳・画像認識 |
+| **OCR 文字認識** | ❌ 非搭載 | ✅ オンデバイス PP-OCRv4（ONNX Runtime） |
+| **多言語対応** | 簡体中文／English／日本語（3 言語） | 12 言語を完全ローカライズ（アラビア語の RTL 含む） |
+| **外観カスタマイズ** | 既定 + 5 種のアクセントカラー、Material You ダイナミックカラー | 配色 6 種、Monet ダイナミックカラー + シードカラー、即時切替 |
+| **アプリ内アップデート** | ❌ 1.9.0 で削除 | ✅ GitHub Release を参照する更新チェックを内蔵 |
+| **プロジェクト状況** | 🔒 1.9.0 が最終版・EOL | 🚀 継続開発中 |
+| **ライセンス** | MIT | GPL-3.0 |
+
+> 上記の数値はすべて各リポジトリの実際のビルド設定とリリース成果物に基づくものです（Pawchive 1.9.0 / Archive 1.0.2）。推定値は含みません。
+
+**どちらを選ぶ？**
+
+- **インストールしてすぐ使え、容量を取らない閲覧ツール**が欲しい → **Pawchive**
+- **OCR・AI 翻訳・12 言語 UI・Monet による深いカスタマイズ**が欲しい → **[Archive](https://github.com/Aerunox/Archive)**
+
+---
+
+## スクリーンショット
+
+<p align="center">
+  <img src="docs/screenshots/pawchive-1.png" width="22%" alt="ホームフィード" />
+  <img src="docs/screenshots/pawchive-2.png" width="22%" alt="投稿詳細" />
+  <img src="docs/screenshots/pawchive-3.png" width="22%" alt="没入型メディア" />
+  <img src="docs/screenshots/pawchive-4.png" width="22%" alt="ダウンロード" />
+</p>
+
+<p align="center">
+  <sub>ホームフィード · 投稿詳細 · 没入型メディア · ダウンロード</sub>
+</p>
+
+> 画像は `docs/screenshots/` にあり、現在は**プレースホルダー**です。実機のスクリーンショットに差し替える場合は、同じファイル名・同じアスペクト比（1080 × 2160 推奨）で上書きすれば、本ファイルの編集は不要です。
 
 ---
 

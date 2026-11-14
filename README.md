@@ -9,8 +9,13 @@
 </p>
 
 <p align="center">
-  一款精致、流畅的第三方 Android 客户端，为你带来 <a href="https://pawchive.pw">Pawchive</a> 平台的完整体验。<br/>
-  聚合 Patreon、Fanbox、Discord 等平台的创作者内容，支持浏览、搜索、收藏与沉浸式媒体播放。
+  以 <b>极致轻量简洁</b> 为核心的第三方 Android 客户端，聚合 Patreon、Fanbox、Discord 等平台的创作者内容。<br/>
+  克制的功能边界、零冗余依赖：安装包约 15 MB，专注浏览、搜索、收藏与沉浸式媒体播放。
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/设计取向-极致轻量简洁-6366F1?style=for-the-badge" alt="Design Philosophy" />
+  <img src="https://img.shields.io/badge/功能取向-克制·够用就好-0EA5E9?style=for-the-badge" alt="Feature Scope" />
 </p>
 
 <p align="center">
@@ -30,6 +35,56 @@
 
 > [!NOTE]
 > 本项目为**非官方第三方客户端**，与 `pawchive.pw` 运营方无隶属或合作关系；应用本身不托管、不分发任何内容，仅作为浏览与下载的客户端工具，内容版权归原作者与对应平台所有。因上游 API 变更导致的功能失效不在修复承诺范围内。
+
+> [!TIP]
+> **本项目与 [Aerunox/Archive](https://github.com/Aerunox/Archive) 不是简单的版本先后关系，而是两条设计取向不同的产品线**：Pawchive 追求**极致轻量简洁**，Archive 追求**功能丰富**。选择哪一款取决于你更看重「小而快」还是「大而全」，详见下方[设计取向与对比](#设计取向pawchive-vs-archive)。
+
+---
+
+## 设计取向：Pawchive vs Archive
+
+两个项目同源，但设计目标相反。Pawchive 是**减法**的产物，Archive 是**加法**的产物。
+
+| 维度 | **Pawchive**（本仓库） | **[Archive](https://github.com/Aerunox/Archive)** |
+| --- | --- | --- |
+| **设计取向** | 🪶 极致轻量简洁 | 🧰 功能丰富、能力齐全 |
+| **核心信条** | 只保留最高频的能力，不为低频需求付出体积与认知成本 | 尽可能覆盖所有使用场景，功能密度优先 |
+| **UI 框架** | XML + ViewBinding，Material Design 3 | Jetpack Compose + Miuix（HyperOS 风格） |
+| **模块划分** | 10 个 Gradle 模块，按 `feature-*` 逐功能拆分 | 3 个 Gradle 模块（`app` / `data` / `core`） |
+| **代码规模** | 150 个 Kotlin 文件 · 约 2.7 万行 | 188 个 Kotlin 文件 · 约 3.5 万行 |
+| **依赖数量** | 37 个第三方库 | 47 个第三方库 |
+| **安装包体积** | 约 **15 MB**（universal 单包） | 约 **35–97 MB**（按 ABI 拆包，universal 约 97 MB） |
+| **AI 能力** | ❌ 不内置 | ✅ 多供应商 AI、多模型档案、翻译与识图 |
+| **OCR 文字识别** | ❌ 不内置 | ✅ 端上 PP-OCRv4（ONNX Runtime） |
+| **多语言** | 简体中文 / English / 日本語（3 种） | 12 种语言完整本地化（含阿拉伯语整页 RTL） |
+| **外观定制** | 默认 + 5 套强调色，Material You 动态取色 | 配色 6 态、Monet 动态取色 + 种子色、即时切换 |
+| **应用内更新** | ❌ 已移除（1.9.0 起） | ✅ 内置 GitHub Release 检查 |
+| **项目状态** | 🔒 1.9.0 为最终版本，已 EOL | 🚀 持续开发中 |
+| **开源协议** | MIT | GPL-3.0 |
+
+> 两套数字均取自各自仓库的实际配置文件与发布产物（Pawchive 1.9.0 / Archive 1.0.2），非估算。
+
+**怎么选？**
+
+- 想要一个**装完就走、不占空间、打开即用**的浏览工具 → 选 **Pawchive**
+- 想要 **OCR 识字、AI 翻译、12 语言界面、Monet 深度定制**等能力 → 选 **[Archive](https://github.com/Aerunox/Archive)**
+
+---
+
+## 界面预览
+
+<p align="center">
+  <img src="docs/screenshots/pawchive-1.png" width="22%" alt="首页信息流" />
+  <img src="docs/screenshots/pawchive-2.png" width="22%" alt="帖子详情" />
+  <img src="docs/screenshots/pawchive-3.png" width="22%" alt="沉浸式媒体" />
+  <img src="docs/screenshots/pawchive-4.png" width="22%" alt="下载中心" />
+</p>
+
+<p align="center">
+  <sub>首页信息流 · 帖子详情 · 沉浸式媒体 · 下载中心</sub>
+</p>
+
+> 图片位于 `docs/screenshots/`，当前为**占位图**。替换为真机截图时保持同名同比例（建议 1080 × 2160）即可直接生效，无需改动本文件。
 
 ---
 
