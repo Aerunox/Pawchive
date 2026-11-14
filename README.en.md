@@ -14,18 +14,22 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Kotlin-2.3.20-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
+  <img src="https://img.shields.io/badge/Release-v1.9.0-4B5563?style=for-the-badge&logo=github&logoColor=white" alt="Release" />
   <img src="https://img.shields.io/badge/API-30%2B-34A853?style=for-the-badge&logo=android&logoColor=white" alt="Min API" />
   <img src="https://img.shields.io/badge/Target_API-36-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Target API" />
+  <img src="https://img.shields.io/badge/Kotlin-Android-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" />
   <a href="https://t.me/Pawchive_Archive"><img src="https://img.shields.io/badge/Telegram-Channel-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram Channel" /></a>
   <a href="https://github.com/Aerunox/Archive"><img src="https://img.shields.io/badge/Next_Gen-Archive-181717?style=for-the-badge&logo=github&logoColor=white" alt="Next Generation Repository" /></a>
 </p>
 
 > [!IMPORTANT]
-> 🚀 **Next generation**: Pawchive 1.9.0 is the final release of this repository. Development has moved to the next-generation repository **[Aerunox/Archive](https://github.com/Aerunox/Archive)** — head over and give it a star!
+> 🚀 **Next generation**: Pawchive 1.9.0 is the **final release** of this repository. The project is end-of-life (EOL) — no further bug fixes or security patches will be published. Development has moved to the next-generation repository **[Aerunox/Archive](https://github.com/Aerunox/Archive)** — head over and give it a star!
 >
 > 📢 **Telegram channel**: Join [Pawchive Archive](https://t.me/Pawchive_Archive) for release announcements and project updates.
+
+> [!NOTE]
+> This is an **unofficial third-party client** with no affiliation or partnership with the operators of `pawchive.pw`. The app neither hosts nor distributes any content — it is only a browsing and downloading tool. All content rights belong to the original creators and their respective platforms. Breakage caused by upstream API changes is outside the support commitment.
 
 ---
 
@@ -46,7 +50,7 @@
 ### Immersive Media
 - **Large image viewer**: pinch zoom, double-tap zoom, boundary-constrained panning
 - **Animated images**: GIF / animated WebP / animated HEIF, with a "GIF" corner badge in lists
-- **Video playback**: Media3 ExoPlayer with Bilibili-style controls, playback speed, resume from last position, picture-in-picture; fullscreen and inline share a single player instance — zero re-buffering when entering/exiting fullscreen, aspect-ratio-preserving scaling
+- **Video playback**: Media3 ExoPlayer with Bilibili-style controls, playback speed, resume from last position; fullscreen and inline share a single player instance — zero re-buffering when entering/exiting fullscreen, aspect-ratio-preserving scaling
 - **Multi-level fallback**: original image first, automatically falls back to the thumbnail when missing
 
 ### Bookmarks & Accounts
@@ -69,12 +73,12 @@
 
 ### Personalization
 - **Multi-language**: 中文 / English / 日本語, live switching
-- **Appearance**: light / dark / follow system, 6 accent themes, Material Design 3; dynamic color on Android 12+ (Material You); immersive status bar
-- **Display & scaling**: global UI-scale and font-size sliders with live preview, applied instantly
+- **Appearance**: light / dark / follow system, a default theme plus 5 accent themes (6 color schemes in total), Material Design 3; dynamic color on Android 12+ (Material You); immersive status bar
+- **Display & scaling**: global UI-scale and font-size sliders with live preview, applied instantly; grid columns (1–3); all motion can be disabled
 - **Data saver**: lists load thumbnails by default, switchable to originals
 - **Download settings**: custom download directory (SAF), max concurrency (1–5), retries (1–3), Wi-Fi-only downloads, file naming format
 - **Auto backup**: daily backup export to a directory of your choice
-- **In-app updates**: 1.9.0 is the final version; updates have ended and the GitHub update check has been removed — follow the next-generation repository [Aerunox/Archive](https://github.com/Aerunox/Archive) for future development
+- **In-app updates**: 1.9.0 is the final version; updates have ended and the whole GitHub update-check chain has been removed
 
 ---
 
@@ -82,30 +86,32 @@
 
 | Category | Choice | Notes |
 |------|---------|------|
-| **Language** | Kotlin 2.3.20 | Bundled with AGP 9.3.2 — no separate Kotlin plugin needed |
+| **Language** | Kotlin | Bundled with AGP 9.3.2 — no separate Kotlin Gradle plugin needed; JVM 17 bytecode target |
 | **Min SDK** | API 30 (Android 11) | Covers the vast majority of active devices |
 | **Target / compile SDK** | API 36 (minorApiLevel 1) | Latest Android release |
-| **UI framework** | XML + ViewBinding | Declarative layouts, type-safe access |
-| **Design language** | Material Design 3 | Card grouping, segmented buttons, brand-colored tags |
+| **UI framework** | XML + ViewBinding | Declarative layouts, type-safe access (not Compose) |
+| **Design language** | Material Design 3 | Card grouping, segmented buttons, brand-colored tags, dynamic color |
 | **Modularization** | 10 Gradle modules | `app` / 7×`feature-*` / `data` / `core` |
-| **Dependency injection** | Hilt 2.59.2 + KSP 2.3.6 | `@HiltAndroidApp` / `@AndroidEntryPoint` |
+| **Dependency injection** | Hilt 2.59.2 + KSP 2.3.6 | `@HiltAndroidApp` / `@AndroidEntryPoint` / `HiltWorkerFactory` |
 | **Local storage** | Room 2.8.4 + DataStore 1.1.1 | Room for download history / offline archive FTS4, DataStore for settings |
+| **Secure storage** | security-crypto 1.1.0 | `EncryptedSharedPreferences` for `cf_clearance` and session credentials |
 | **Download engine** | In-house OkHttp streaming downloader | Replaced okdownload since 1.7.0; single connection, single request + Range resume |
-| **Networking** | Retrofit 2.9.0 + OkHttp 4.12.0 | Type-safe HTTP client |
+| **Networking** | Retrofit 2.9.0 + OkHttp 4.12.0 | Type-safe HTTP client + custom interceptor chain |
 | **Image loading** | Coil 2.6.0 + coil-gif | Coroutine-native; `ImageDecoderDecoder` registered for animated images |
 | **Video playback** | AndroidX Media3 1.4.1 | ExoPlayer + OkHttp data source |
-| **Background work** | WorkManager 2.9.0 + Hilt | Periodic subscription sync, auto backup, cache cleanup |
-| **Build tooling** | Gradle 9.5.0 + AGP 9.3.2 | Centrally managed via the version catalog (`libs.versions.toml`) |
+| **Navigation** | Single Activity + ViewPager2 1.1.0 | Bottom navigation and swipe gestures stay in sync both ways |
+| **Background work** | WorkManager 2.12.0 + Hilt | Periodic subscription sync, auto backup, cache cleanup |
+| **Build tooling** | Gradle 9.5.1 + AGP 9.3.2 | Centrally managed via the version catalog (`libs.versions.toml`) |
 | **Quality gate** | Kover 0.9.9 | Core layers (core + data) line coverage ≥ 45% |
 
 ### Architecture Overview
 
-Module collaboration & data-flow diagram (click a node to jump to its source file):
+Module collaboration & data-flow diagram:
 
 ```mermaid
 flowchart TD
 
-subgraph group_ui["App and features"]
+subgraph group_ui["Assembly and feature layers"]
   node_app["Main app<br/>[MainActivity.kt]"]
   node_home["Home feed<br/>[HomeFragment.kt]"]
   node_search["Search UI<br/>[SearchFragment.kt]"]
@@ -117,11 +123,11 @@ end
 
 subgraph group_content["Content access"]
   node_api["Platform API<br/>[PawchiveApi.kt]"]
-  node_clearance["Challenge clearance"]
+  node_clearance["Clearance and credentials"]
   node_offline[("Offline search")]
 end
 
-subgraph group_library["Saved library"]
+subgraph group_library["Bookmarks and archive"]
   node_archive["Offline archive"]
   node_bookmarks["Bookmarks<br/>[BookmarkManager.kt]"]
   node_session[("Account sessions<br/>[SessionManager.kt]")]
@@ -138,16 +144,16 @@ subgraph group_operations["Background operations"]
   node_workers["Scheduled work"]
 end
 
-subgraph group_platform["Core platform"]
+subgraph group_platform["Infrastructure"]
   node_settings_store[("Preferences<br/>[SettingsManager.kt]")]
   node_database[("Room database")]
 end
 
 node_user(("App user"))
-node_creator_service{{"Pawchive platform"}}
+node_creator_service{{"pawchive.pw platform"}}
 node_android{{"Android system"}}
 
-node_user -->|"opens"| node_app
+node_user -->|"launches"| node_app
 node_app -->|"shows tab"| node_home
 node_app -->|"shows tab"| node_search
 node_app -->|"shows tab"| node_downloads_ui
@@ -262,25 +268,29 @@ Pawchive/
 
 **Dependency direction**: `:app` → `:feature-*` → `:data` → `:core`
 
+By the numbers: 150 Kotlin source files (~27k lines), 42 layout files, 27 unit test classes + 1 instrumentation suite.
+
 ---
 
 ## Quick Start
 
 ### Requirements
 - **Android Studio** Meerkat (2024.3+) or newer
-- **JDK** 17+ (CI uses 21)
-- **Gradle** 9.5.0 (wrapper included, with SHA-256 integrity verification)
+- **JDK** 17 (`compileOptions` sets `sourceCompatibility` / `targetCompatibility` to `VERSION_17`; no module script declares `jvmTarget` — the Kotlin bytecode target comes from the Kotlin compiler bundled with AGP 9.3.2)
+- **Gradle** 9.5.1 (wrapper included, with `distributionSha256Sum` integrity verification — no manual install needed)
 
 ### Clone & Build
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/Aerunox/Pawchive.git
 cd Pawchive
 ./gradlew assembleRelease
 ```
 
 > APK output path: `app/build/outputs/apk/release/Pawchive-v<version>.apk`
 > (The filename comes from `VERSION_NAME` in `gradle.properties` — the single source of truth for the version number; the build fails outright if it is missing or invalid.)
+>
+> Without a `keystore.properties` file, the release variant falls back to debug signing so you can build locally; supply your own keystore for official distribution.
 
 ### Common Tasks
 
@@ -292,7 +302,7 @@ cd Pawchive
 
 ### Installation
 
-Download the latest APK and install it on an Android 11+ device.
+Download the latest APK ([Releases · v1.9.0](https://github.com/Aerunox/Pawchive/releases/tag/v1.9.0)) and install it on an Android 11+ device.
 
 ---
 
@@ -305,7 +315,7 @@ Download the latest APK and install it on an Android 11+ device.
 | `POST_NOTIFICATIONS` | Download progress and content update notifications (runtime request on Android 13+; downloads and browsing are unaffected if denied) |
 | `FOREGROUND_SERVICE` | Download foreground service |
 | `FOREGROUND_SERVICE_DATA_SYNC` | Download foreground service type (mandatory declaration on Android 14+ to keep background downloads alive) |
-| `WRITE_EXTERNAL_STORAGE` | Declared only on API ≤ 28; newer systems use MediaStore and don't need it |
+| `WRITE_EXTERNAL_STORAGE` | Declared only on API ≤ 28; newer systems use MediaStore / SAF and don't need it |
 | `ACCESS_MEDIA_LOCATION` | Declared only on API ≤ 32; reads media location metadata |
 
 ---
@@ -314,12 +324,26 @@ Download the latest APK and install it on an Android 11+ device.
 
 | Mechanism | Description |
 |------|------|
-| **CI pipeline** | Four job groups: build (debug + R8 release), unit tests, Lint, coverage gate, dependency review |
-| **Coverage ratchet** | Core layers (core + data) line coverage floor of 45% — only goes up; dropping below fails CI |
-| **R8 mapping archival** | Obfuscation and resource shrinking enabled in release; `mapping.txt` archived by CI for 90 days so production crashes can be deobfuscated |
-| **Dependency review** | PRs are blocked for dependencies with high-severity or worse vulnerabilities |
+| **Single version source** | `VERSION_NAME` / `VERSION_CODE` in `gradle.properties` are the only version source: `:app` enforces them via `requireNotNull` (missing or invalid values fail the build, no fallback), and `:feature-common` shares the same properties via `buildConfigField` |
+| **Single dependency source** | Dependency versions live in the `gradle/libs.versions.toml` version catalog |
+| **Coverage ratchet** | Core layers (core + data) line coverage floor of 45% — only goes up; `./gradlew koverVerify` fails if it drops |
+| **Reproducible builds** | Gradle wrapper pinned to 9.5.1 with `distributionSha256Sum` verification; mirror repositories are preferred to work around TLS handshake failures on the official sources |
+| **R8 obfuscation & resource shrinking** | Release builds enable `isMinifyEnabled` + `isShrinkResources`; `mapping.txt` is written to `app/build/outputs/mapping/release/` for deobfuscating production crashes |
+| **Signing fallback** | Uses the release keystore when `keystore.properties` exists, otherwise falls back to debug signing so external contributors can build |
+| **Static analysis** | `lintDebug`; `app/src/main/lint.xml` opts in to Media3 `UnstableApi` globally and disables only `UnsafeOptInUsageError` |
+| **Automated tests** | 27 unit test classes (core 15 / data 12) + 1 instrumentation suite, powered by Robolectric 4.14.1 |
 | **Crash diagnostics** | Global `CrashHandler` writes crash logs to disk, exportable via FileProvider sharing |
-| **Full trilingual coverage** | String resource keys fully aligned across 中文 / English / 日本語 |
+| **Trilingual alignment** | String keys in `core` / `data` / `feature-common` are fully aligned across `values/`, `values-en/`, `values-ja/` (449 / 29 / 15 entries) |
+
+---
+
+## Known Boundaries
+
+The following limitations are design decisions or platform constraints and are not treated as defects:
+
+1. **Android 15+ foreground-service time cap**: `dataSync` foreground services are subject to the system's "6 hours accumulated per 24 hours" limit; very long downloads get interrupted by the system and must be resumed manually
+2. **WebView content ignores in-app scaling**: the UI-scale setting applies to native surfaces; web content uses its own viewport density
+3. **Upstream service changes**: this app does not control the API or anti-bot policy of `pawchive.pw`; unilateral upstream changes may break features
 
 ---
 
@@ -328,9 +352,11 @@ Download the latest APK and install it on an Android 11+ device.
 | Document | Contents |
 |------|------|
 | [SUPPORT.md](SUPPORT.md) | Support window, update cadence, system requirements, known boundaries, EOL policy |
-| [SECURITY.md](SECURITY.md) | Vulnerability reporting channels and response times |
+| [SECURITY.md](SECURITY.md) | Vulnerability reporting channels, response times, security design notes |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 | [NOTICE.md](NOTICE.md) | Third-party components and license notices |
+
+> ⚠️ Since 1.9.0 the project is end-of-life (EOL): no further bug or security fixes, and the in-app update check has been removed. Existing users can keep using it and install the APK from the Releases page manually.
 
 ---
 
@@ -347,8 +373,8 @@ Download the latest APK and install it on an Android 11+ device.
 
 Issues and pull requests are welcome. Before submitting, please make sure:
 
-1. Code style is consistent with the existing code
-2. New features cover all three string resource languages (`values/`, `values-en/`, `values-ja/` keys must stay aligned)
+1. Code style is consistent with the existing code (`kotlin.code.style=official`)
+2. New strings cover all three resource languages (keys must stay aligned across `values/`, `values-en/`, `values-ja/` in `core` / `data` / `feature-common`)
 3. Material Design 3 guidelines are followed
 4. New core-layer logic comes with unit tests and does not drop coverage below the gate
 
@@ -356,7 +382,7 @@ Issues and pull requests are welcome. Before submitting, please make sure:
 
 ## License
 
-This project is open-sourced under the **MIT License**.
+This project is open-sourced under the **MIT License**, Copyright (c) 2024-2026 FengByX. Third-party components and icon licenses are listed in [NOTICE.md](NOTICE.md).
 
 ---
 
