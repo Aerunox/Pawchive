@@ -442,6 +442,24 @@ Archive 沿用本项目的 `core` / `data` 基座（网络层、Cloudflare 过�
 
 ---
 
+## Star 趋势
+
+<p align="center">
+  <a href="https://star-history.com/#Aerunox/Pawchive&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Aerunox/Pawchive&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Aerunox/Pawchive&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Aerunox/Pawchive&type=Date" width="760" />
+    </picture>
+  </a>
+</p>
+
+<p align="center">
+  <sub>本项目已归档（1.9.0 为最终版），Star 数趋于平稳；如需关注后续开发，请移步 <a href="https://github.com/Aerunox/Archive">Aerunox/Archive</a>。</sub>
+</p>
+
+---
+
 ## 开源协议
 
 本项目基于 **MIT License** 开源，Copyright (c) 2024-2026 FengByX。第三方组件与图标授权详见 [NOTICE.md](NOTICE.md)。

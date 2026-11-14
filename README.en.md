@@ -442,6 +442,24 @@ Issues and pull requests are welcome. Before submitting, please make sure:
 
 ---
 
+## Star History
+
+<p align="center">
+  <a href="https://star-history.com/#Aerunox/Pawchive&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Aerunox/Pawchive&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Aerunox/Pawchive&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Aerunox/Pawchive&type=Date" width="760" />
+    </picture>
+  </a>
+</p>
+
+<p align="center">
+  <sub>This project is archived (1.9.0 is the final release), so the star count has plateaued. For ongoing development, see <a href="https://github.com/Aerunox/Archive">Aerunox/Archive</a>.</sub>
+</p>
+
+---
+
 ## License
 
 This project is open-sourced under the **MIT License**, Copyright (c) 2024-2026 FengByX. Third-party components and icon licenses are listed in [NOTICE.md](NOTICE.md).

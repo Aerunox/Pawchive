@@ -442,6 +442,24 @@ Issue と Pull Request を歓迎します。投稿前にお手元で以下をご
 
 ---
 
+## Star 推移
+
+<p align="center">
+  <a href="https://star-history.com/#Aerunox/Pawchive&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Aerunox/Pawchive&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Aerunox/Pawchive&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Aerunox/Pawchive&type=Date" width="760" />
+    </picture>
+  </a>
+</p>
+
+<p align="center">
+  <sub>本プロジェクトはアーカイブ済み（1.9.0 が最終版）のため Star 数はほぼ横ばいです。今後の開発は <a href="https://github.com/Aerunox/Archive">Aerunox/Archive</a> をご覧ください。</sub>
+</p>
+
+---
+
 ## ライセンス
 
 本プロジェクトは **MIT License** で公開されています。Copyright (c) 2024-2026 FengByX。サードパーティコンポーネントとアイコンのライセンスは [NOTICE.md](NOTICE.md) に記載しています。
